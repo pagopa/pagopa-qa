@@ -11,9 +11,6 @@ subscription_key = os.getenv('PAGOPA_SUBSCRIPTION_KEY')
 # Endpoint BetterStack per creare manutenzioni programmate
 betterstack_url = 'https://uptime.betterstack.com/api/v2/status-pages/198298/status-reports'
 
-# Debug per vedere se le chiavi sono lette correttamente
-print(f"Debug - PAGOPA_SUBSCRIPTION_KEY: {subscription_key}")
-
 # Funzione per ottenere le manutenzioni dall'API
 def get_maintenance_data():
     headers = {
