@@ -24,7 +24,6 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
 
     # Esegui lo script Python
     - name: Run the Python script
@@ -32,4 +31,4 @@ jobs:
         BETTERSTACK_TOKEN: ${{ secrets.BETTER_STACK_TOKEN }}
         PAGOPA_SUBSCRIPTION_KEY: ${{ secrets.PAGOPA_BACKOFFICE_API_KEY_UAT }}
       run: |
-        python station_maintenance.py
+        python src/main/scripts/station-maintenance.py
