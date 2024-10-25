@@ -7,7 +7,7 @@ api_url = 'https://api.uat.platform.pagopa.it/backoffice/helpdesk/v1/station-mai
 # Token BetterStack (sostituisci con il tuo)
 betterstack_token = os.getenv('BETTERSTACK_TOKEN')
 # Chiave di autenticazione per la tua API custom
-subscription_key = os.getenv('PAGOPA_BACKOFFICE_API_KEY_UAT')
+subscription_key = os.getenv('PAGOPA_SUBSCRIPTION_KEY')
 # Endpoint BetterStack per creare manutenzioni programmate
 betterstack_url = 'https://uptime.betterstack.com/api/v2/status-pages/198298/status-reports'
 
