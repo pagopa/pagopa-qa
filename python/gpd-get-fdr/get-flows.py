@@ -153,10 +153,10 @@ def get_report(domain_id, flow_id, broker_id, broker_station_id, password):
     response: Response = requests.post(url, headers=h, data=body)
     return response.text  
 
-# reads domain to load from csv file
+
 def get_flows_form_list(csv_name, date):
      # load the dictionary with the EC configurations
-    file_path = os.getcwd() + "/python/gpd-get-fdr/config/" + csv_name
+    file_path = "/python/gpd-get-fdr/config/" + csv_name
     print(f"loading csv file [{file_path}]")
     data_dict = {}
     with open(file_path, newline='') as csvfile:
