@@ -160,7 +160,7 @@ def get_flows_form_list(csv_name, date):
     #file_path = "/python/gpd-get-fdr/config/" + csv_name
     #file_path = os.path.join(os.getenv("GITHUB_WORKSPACE", ""), "/python/gpd-get-fdr/config/" + csv_name)
     #file_path = "/home/runner/work/pagopa-qa/pagopa-qa/python/gpd-get-fdr/config/" + csv_name
-    file_path = FR_BASE_DIR + "/pagopa-qa/python/gpd-get-fdr/config/" + csv_name
+    file_path = FR_BASE_DIR + "/python/gpd-get-fdr/config/" + csv_name
     print(f"loading csv file [{file_path}]")
     data_dict = {}
     with open(file_path, newline='') as csvfile:
