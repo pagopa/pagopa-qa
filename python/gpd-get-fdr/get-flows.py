@@ -9,6 +9,7 @@ import re
 from requests import Response
 from azure.data.tables import TableServiceClient, TableEntity
 from datetime import datetime, timedelta
+import json
 
 
 FR_NEW_CONN_SUBKEY_PRD: str = os.environ.get("FR_NEW_CONN_SUBKEY_PRD")
@@ -19,6 +20,9 @@ FR_CSV_NAME: str = os.environ.get("FR_CSV_NAME")
 FR_ENV: str = os.environ.get("FR_ENV")
 FR_DATE: str = os.environ.get("FR_DATE")
 FR_BASE_DIR: str = os.environ.get("GITHUB_WORKSPACE")
+
+uploaded_flow = 0
+already_existing_flow = 0
 
 headers_chiedi_flusso_prod = {
     'Ocp-Apim-Subscription-Key': FR_NEW_CONN_SUBKEY_PRD,
@@ -204,6 +208,9 @@ def get_flows(domain_id, broker_id, broker_station_id, password, date):
 
 def decode_and_upload_xml(encoded_data, flow_date, domain_id, flow_id):
     
+    global uploaded_flow
+    global already_existing_flow
+    
     container_name = "pagopapflowsaflowscontainer"
     connection_string = FR_SA_CONN_STRING_PRD
     
@@ -225,18 +232,45 @@ def decode_and_upload_xml(encoded_data, flow_date, domain_id, flow_id):
         except Exception as exalready:
             print(f"[{domain_id}] file [{container_name}/{filename}] aready exists")
             inserted = False
+            already_existing_flow += 1
                     
         if inserted:    
             print(f"[{domain_id}] file [{filename}] loaded")
+            uploaded_flow += 1
         
     except Exception as ex:
         print(f"Error while loading file: {ex}")
 
+def print_report():
+    report_data = {
+        "text": "Dettaglio FdR",
+        "blocks": [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": ":large_green_circle: *Flussi salvati:* " + str(uploaded_flow)
+                }
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": ":large_blue_circle: *Flussi già presenti:* " + str(uploaded_flow)
+                }
+            }
+        ]
+    }
 
+    with open('payload.json', 'w') as file:
+        json.dump(report_data, file)
+    
+    
 def get_date(delta: int):
     yesterday = datetime.now() - timedelta(days=delta)
     yesterday_str = yesterday.strftime("%Y-%m-%d")
     return yesterday_str
+
 
 def main():
     global FR_DATE
@@ -247,6 +281,8 @@ def main():
 
     print(f" loading flows for day [{FR_DATE}]")
     get_flows_form_list(FR_CSV_NAME, FR_DATE)
+    print_report()
+
 
 if __name__ == "__main__":
     main()
