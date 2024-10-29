@@ -156,7 +156,8 @@ def get_report(domain_id, flow_id, broker_id, broker_station_id, password):
 
 def get_flows_form_list(csv_name, date):
      # load the dictionary with the EC configurations
-    file_path = "/python/gpd-get-fdr/config/" + csv_name
+    #file_path = "/python/gpd-get-fdr/config/" + csv_name
+    file_path = os.path.join(os.getenv("GITHUB_WORKSPACE", ""), "/python/gpd-get-fdr/config/" + csv_name)
     print(f"loading csv file [{file_path}]")
     data_dict = {}
     with open(file_path, newline='') as csvfile:
