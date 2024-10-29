@@ -1,0 +1,3 @@
+{
+    "text": "Action eseguita con esito: ${{ job.status }}"
+}
