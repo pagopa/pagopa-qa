@@ -18,6 +18,7 @@ FR_SA_CONN_STRING_PRD: str = os.environ.get("FR_SA_CONN_STRING_PRD")
 FR_CSV_NAME: str = os.environ.get("FR_CSV_NAME")
 FR_ENV: str = os.environ.get("FR_ENV")
 FR_DATE: str = os.environ.get("FR_DATE")
+FR_BASE_DIR: str = os.environ.get("GITHUB_WORKSPACE")
 
 headers_chiedi_flusso_prod = {
     'Ocp-Apim-Subscription-Key': FR_NEW_CONN_SUBKEY_PRD,
@@ -158,7 +159,8 @@ def get_flows_form_list(csv_name, date):
      # load the dictionary with the EC configurations
     #file_path = "/python/gpd-get-fdr/config/" + csv_name
     #file_path = os.path.join(os.getenv("GITHUB_WORKSPACE", ""), "/python/gpd-get-fdr/config/" + csv_name)
-    file_path = "/home/runner/work/pagopa-qa/pagopa-qa/python/gpd-get-fdr/config/" + csv_name
+    #file_path = "/home/runner/work/pagopa-qa/pagopa-qa/python/gpd-get-fdr/config/" + csv_name
+    file_path = FR_BASE_DIR + "/pagopa-qa/python/gpd-get-fdr/config/" + csv_name
     print(f"loading csv file [{file_path}]")
     data_dict = {}
     with open(file_path, newline='') as csvfile:
