@@ -252,6 +252,13 @@ def print_report():
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
+                    "text": ":calendar: *Data flussi:* " + FR_DATE
+                }
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
                     "text": ":large_green_circle: *Flussi salvati:* " + str(uploaded_flow)
                 }
             },
