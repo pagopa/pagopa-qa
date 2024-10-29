@@ -64,7 +64,7 @@ jobs:
         if: ${{ (success() || failure()) && inputs.notify}}
         uses: slackapi/slack-github-action@e28cf165c92ffef168d23c5c9000cffc8a25e117 #v1.24.0
         with: 
-            payload-file-path: "./payload.json"
+            payload-file-path: "./python/gpd-get-fdr/payload.json"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK          
