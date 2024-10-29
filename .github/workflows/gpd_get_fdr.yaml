@@ -20,6 +20,11 @@ on:
                 - all
                 - yesterday
             default: yesterday
+        notify:
+            description: 'notify report results'
+            required: false
+            type: boolean
+            default: true
 
 jobs:
   run-script:
@@ -56,7 +61,7 @@ jobs:
 
       - name: Send notification to Slack
         id: slack
-        if: ${{ (success() || failure())}}
+        if: ${{ (success() || failure()) && inputs.notify}}
         uses: slackapi/slack-github-action@e28cf165c92ffef168d23c5c9000cffc8a25e117 #v1.24.0
         with:
             payload: |
