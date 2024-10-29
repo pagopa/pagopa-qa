@@ -242,6 +242,9 @@ def decode_and_upload_xml(encoded_data, flow_date, domain_id, flow_id):
         print(f"Error while loading file: {ex}")
 
 def print_report():
+    global uploaded_flow
+    global already_existing_flow
+    
     report_data = {
         "text": "Dettaglio FdR",
         "blocks": [
@@ -256,7 +259,7 @@ def print_report():
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": ":large_blue_circle: *Flussi già presenti:* " + str(uploaded_flow)
+                    "text": ":large_blue_circle: *Flussi già presenti:* " + str(already_existing_flow)
                 }
             }
         ]
@@ -277,7 +280,7 @@ def main():
     if FR_DATE == "all":
         FR_DATE = None
     elif FR_DATE == "yesterday":
-        FR_DATE = get_date(1)        
+        FR_DATE = get_date(1)      
 
     print(f" loading flows for day [{FR_DATE}]")
     get_flows_form_list(FR_CSV_NAME, FR_DATE)
