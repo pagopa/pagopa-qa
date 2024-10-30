@@ -60,6 +60,22 @@ jobs:
           cd ./python/gpd-get-fdr
           python get-flows.py
 
+      - name: Create failure payload
+        if: ${{ failure() && inputs.notify }}
+        run: |
+          echo '{
+            "text": "❌ *Errore* Il workflow è fallito.",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "❌ *Si è verificato un errore durante l'esecuzione del job*"
+                }
+              }
+            ]
+          }' > ./python/gpd-get-fdr/payload.json
+          
       - name: Send notification to Slack
         id: slack
         if: ${{ (success() || failure()) && inputs.notify}}
