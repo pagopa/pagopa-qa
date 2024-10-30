@@ -1,30 +1,31 @@
 name: getGPDFdR
-
 on:
   schedule:
     - cron: '0 2 * * *'
+    
   workflow_dispatch:
     inputs:
-        environment:
-            required: true
-            type: choice
-            options:
-                - prod
-                - uat
-            default: prod
+      environment:
+        required: true
+        type: choice
+        options:
+            - prod
+            - uat
+        default: prod
 
-        flow_date:
-            required: true
-            type: choice
-            options:
-                - all
-                - yesterday
-            default: yesterday
-        notify:
-            description: 'notify report results'
-            required: false
-            type: boolean
-            default: true
+      flow_date:
+        required: true
+        type: choice
+        options:
+            - all
+            - yesterday
+        default: yesterday
+
+      notify:
+        description: 'notify report results'
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   run-script:
@@ -50,8 +51,8 @@ jobs:
           FR_NEW_CONN_SUBKEY_UAT: ${{ secrets.FR_NEW_CONN_SUBKEY_UAT }}
           FR_SA_CONN_STRING_PRD: ${{ secrets.FR_SA_CONN_STRING_PRD }}
           FR_SA_CONN_STRING_UAT: ${{ secrets.FR_SA_CONN_STRING_UAT }}
-          FR_DATE: ${{inputs.flow_date}}
-          FR_ENV: ${{inputs.environment}}
+          FR_DATE: ${{inputs.flow_date || 'yesterday'}}
+          FR_ENV: ${{inputs.environment || 'prod'}}
           FR_CSV_NAME: "ec-list_updated_prod.csv"
           PYTHONUNBUFFERED: "1"
 
