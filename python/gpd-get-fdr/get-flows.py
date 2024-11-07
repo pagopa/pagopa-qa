@@ -252,7 +252,7 @@ def print_report():
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": ":calendar: *Data flussi:* " + FR_DATE
+                    "text": ":calendar: *Data flussi:* " + str(FR_DATE)
                 }
             },
             {
