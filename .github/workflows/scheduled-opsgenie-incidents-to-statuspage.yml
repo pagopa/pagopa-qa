@@ -1,0 +1,37 @@
+
+name: Scheduled Opsgenie Incidents to Betterstack Status Page Every 5 Minutes Script Execution
+
+# Imposta il workflow per essere eseguito ogni 5 minuti
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:  # Permette di eseguire manualmente il workflow
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout del repository
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Imposta Python
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    # Installa le dipendenze (se presenti)
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    # Esegui lo script Python
+    - name: Run the Python script
+      env:
+        BETTER_STACK_TOKEN: ${{ secrets.BETTER_STACK_TOKEN }}
+        OPSGENIE_KEY: ${{ secrets.OPSGENIE_KEY }}
+      run: |
+        python src/main/scripts/opsgenie-incidents.py
