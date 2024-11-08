@@ -11,6 +11,12 @@ subscription_key = os.getenv('PAGOPA_SUBSCRIPTION_KEY')
 # Endpoint BetterStack per creare manutenzioni programmate
 betterstack_url = 'https://uptime.betterstack.com/api/v2/status-pages/198298/status-reports'
 
+# Headers per le chiamate API
+betterstack_headers = {
+    "Authorization": f"Bearer {betterstack_key}",
+    "Content-Type": "application/json"
+}
+
 # Funzione per ottenere le manutenzioni dall'API
 def get_maintenance_data():
     headers = {
@@ -25,10 +31,8 @@ def get_maintenance_data():
 
 # Funzione per ottenere le manutenzioni esistenti su BetterStack
 def get_existing_betterstack_maintenances():
-    headers = {
-        'Authorization': betterstack_token
-    }
-    response = requests.get(betterstack_url, headers=headers)
+    
+    response = requests.get(betterstack_url, headers=betterstack_headers)
     if response.status_code == 200:
         return response.json()['data']
     else:
@@ -53,11 +57,8 @@ def create_betterstack_maintenance(maintenance):
         'title':f"Manutenzione broker {maintenance['broker_code']} - stazione {maintenance['station_code']} ",
         'message': f"E' stata definita sul Backoffice pagoPA una manutenzione programmata dal broker {maintenance['broker_code']} per la stazione {maintenance['station_code']}. \n\n\n Per maggiori info sulle manutenzioni programmate si faccia riferimento a (https://developer.pagopa.it/pago-pa/guides/manuale-bo-ec/manuale-operativo-back-office-pagopa-ente-creditore/funzionalita/stazioni/esportazione-massiva-ec)"
     }
-    headers = {
-        'Authorization': betterstack_token,
-        'Content-Type': 'application/json'
-    }
-    response = requests.post(betterstack_url, headers=headers, data=json.dumps(data))
+   
+    response = requests.post(betterstack_url, headers=betterstack_headers, data=json.dumps(data))
     if response.status_code == 201:
         print(f"Manutenzione creata con successo: {maintenance['maintenance_id']}")
     else:
