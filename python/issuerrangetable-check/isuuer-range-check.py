@@ -79,7 +79,7 @@ def check_overlapping_ranges():
 
     # print results
     if overlapping_records_same_abi:
-        print("found overlaps with the same ABI:")
+        print(f"[check_overlapping_ranges] found [{overlapping_records_same_abi.__len__()}] overlaps with the same ABI:")
         for abi, record_a, record_b in overlapping_records_same_abi:
             print(f"ABI: {abi}")
             print(f"Record A - PartitionKey: {record_a['PartitionKey']}, RowKey: {record_a['RowKey']}, "
@@ -89,7 +89,7 @@ def check_overlapping_ranges():
             print()
 
     if overlapping_records_different_abi:
-        print("found overlaps with distinct ABI:")
+        print(f"[check_overlapping_ranges] found [{overlapping_records_different_abi.__len__()}] overlaps with distinct ABI:")
         for record_a, record_b in overlapping_records_different_abi:
             print(f"Record A - ABI: {record_a['ABI']}, PartitionKey: {record_a['PartitionKey']}, RowKey: {record_a['RowKey']}, "
                   f"LOW_RANGE: {record_a['LOW_RANGE']}, HIGH_RANGE: {record_a['HIGH_RANGE']}")
@@ -98,7 +98,7 @@ def check_overlapping_ranges():
             print()
 
     if not overlapping_records_same_abi and not overlapping_records_different_abi:
-        print("Nessuna sovrapposizione trovata.")
+        print("[check_overlapping_ranges] Nessuna sovrapposizione trovata.")
 
 # Esegui la funzione
 check_overlapping_ranges()
