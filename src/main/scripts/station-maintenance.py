@@ -13,7 +13,7 @@ betterstack_url = 'https://uptime.betterstack.com/api/v2/status-pages/198298/sta
 
 # Headers per le chiamate API
 betterstack_headers = {
-    "Authorization": f"Bearer {betterstack_key}",
+    "Authorization": f"Bearer {betterstack_token}",
     "Content-Type": "application/json"
 }
 
