@@ -1,5 +1,6 @@
 import requests
 import json
+import os
 
 # URL della tua API per le manutenzioni con parametri
 api_url = 'https://api.uat.platform.pagopa.it/backoffice/helpdesk/v1/station-maintenances?state=SCHEDULED_AND_IN_PROGRESS'
