@@ -18,6 +18,12 @@ subscription_key_backoffice_ext_pa = os.getenv('PAGOPA_SUBSCRIPTION_KEY_GET_PA')
 # Endpoint BetterStack per creare manutenzioni programmate
 betterstack_url = 'https://uptime.betterstack.com/api/v2/status-pages/198298/status-reports'
 
+# Headers per le chiamate API
+betterstack_headers = {
+    "Authorization": f"Bearer {betterstack_token}",
+    "Content-Type": "application/json"
+}
+
 # Funzione per ottenere le manutenzioni dall'API
 def get_maintenance_data():
     headers = {
@@ -32,10 +38,7 @@ def get_maintenance_data():
 
 # Funzione per ottenere le manutenzioni esistenti su BetterStack
 def get_existing_betterstack_maintenances():
-    headers = {
-        'Authorization': betterstack_token
-    }
-    response = requests.get(betterstack_url, headers=headers)
+    response = requests.get(betterstack_url, headers=betterstack_headers)
     if response.status_code == 200:
         return response.json()['data']
     else:
