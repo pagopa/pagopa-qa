@@ -105,12 +105,8 @@ def create_betterstack_maintenance(maintenance):
         'title': f"Manutenzione broker {maintenance['broker_code']} - stazione {maintenance['station_code']} ",
         'message': f"E' stata definita sul Backoffice pagoPA una manutenzione programmata dal broker {maintenance['broker_code']} per la stazione {maintenance['station_code']}. \n\nPA impattate:\n{pa_list}\n\nPer maggiori info sulle manutenzioni programmate si faccia riferimento a (https://developer.pagopa.it/pago-pa/guides/manuale-bo-ec/manuale-operativo-back-office-pagopa-ente-creditore/funzionalita/stazioni/manutenzione-programmata)"
     }
-    headers = {
-        'Authorization': betterstack_token,
-        'Content-Type': 'application/json'
-    }
     
-    response = requests.post(betterstack_url, headers=headers, data=json.dumps(data))
+    response = requests.post(betterstack_url, headers=betterstack_headers, data=json.dumps(data))
     if response.status_code == 201:
         print(f"Manutenzione creata con successo: {maintenance['maintenance_id']}")
     else:
