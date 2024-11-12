@@ -164,17 +164,39 @@ def get_flows_form_list(csv_name, date):
     #file_path = "/python/gpd-get-fdr/config/" + csv_name
     #file_path = os.path.join(os.getenv("GITHUB_WORKSPACE", ""), "/python/gpd-get-fdr/config/" + csv_name)
     #file_path = "/home/runner/work/pagopa-qa/pagopa-qa/python/gpd-get-fdr/config/" + csv_name
-    file_path = FR_BASE_DIR + "/python/gpd-get-fdr/config/" + csv_name
-    print(f"loading csv file [{file_path}]")
+    table_name = "pagopapflowsaorgstable"
+    connection_string = FR_SA_CONN_STRING_PRD
+    
+    if FR_ENV != "prod":
+        table_name = "pagopauflowsaorgstable"
+        connection_string = FR_SA_CONN_STRING_UAT
+        
+    print(f"creating az table storage connection")
+    table_service_client = TableServiceClient.from_connection_string(conn_str=connection_string)
+    table_client = table_service_client.get_table_client(table_name)
+    print(f"az table storage connection created")
+
+    entities = table_client.query_entities("")
+    print(f"query entity executed")
+    
     data_dict = {}
-    with open(file_path, newline='') as csvfile:
-        reader = csv.DictReader(csvfile, delimiter=';')
-        # next(reader, None)  # skip the headers
-        for row in reader:
-            data_dict[row['id_dominio']] = {
-                'broker_id': row['broker_id'],
-                'broker_station_id': row['broker_station_id']
-            }
+    for entity in entities:
+        data_dict[entity['RowKey']] = {
+            'broker_id': "15376371009",
+            'broker_station_id': "15376371009_51"
+        }
+    
+# --------- old load method -------------------------------------------    
+#    file_path = FR_BASE_DIR + "/python/gpd-get-fdr/config/" + csv_name
+#    print(f"loading csv file [{file_path}]")
+#    with open(file_path, newline='') as csvfile:
+#        reader = csv.DictReader(csvfile, delimiter=';')
+#        # next(reader, None)  # skip the headers
+#        for row in reader:
+#            data_dict[row['id_dominio']] = {
+#                'broker_id': row['broker_id'],
+#                'broker_station_id': row['broker_station_id']
+#            }
 
     # iterate over the dictionary
     for domain_id, values in data_dict.items():
