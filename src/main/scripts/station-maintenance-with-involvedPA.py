@@ -3,7 +3,7 @@ import json
 import os
 
 # URL della tua API per le manutenzioni con parametri
-api_url = 'https://api.uat.platform.pagopa.it/backoffice/helpdesk/v1/station-maintenances?state=SCHEDULED_AND_IN_PROGRESS'
+api_url = 'https://api.platform.pagopa.it/backoffice/helpdesk/v1/station-maintenances?state=SCHEDULED_AND_IN_PROGRESS'
 # Token BetterStack (sostituisci con il tuo)
 betterstack_token = os.getenv('BETTERSTACK_TOKEN')
 # Chiave di autenticazione per la tua API custom
@@ -60,7 +60,7 @@ def get_impacted_pas(broker_code, station_code):
     impacted_pas = []
     page = 0  # La numerazione delle pagine inizia da 0
     limit = 10  # Cambia il limite per visualizzare più record per richiesta
-    base_url = f"https://api.uat.platform.pagopa.it/backoffice/external/ec/v1/brokers/{broker_code}/creditor_institutions"
+    base_url = f"https://api.platform.pagopa.it/backoffice/external/ec/v1/brokers/{broker_code}/creditor_institutions"
     
     headers = {
         'Ocp-Apim-Subscription-Key': subscription_key_backoffice_ext_pa
