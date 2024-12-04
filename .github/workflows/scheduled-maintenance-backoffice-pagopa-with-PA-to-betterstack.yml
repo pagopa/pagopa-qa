@@ -31,8 +31,8 @@ jobs:
     - name: Run the Python script
       env:
         BETTERSTACK_TOKEN: ${{ secrets.BETTER_STACK_TOKEN }}
-        PAGOPA_SUBSCRIPTION_KEY: ${{ secrets.PAGOPA_BACKOFFICE_API_KEY_UAT }}
-        PAGOPA_SUBSCRIPTION_KEY_GET_PA: ${{ secrets.PAGOPA_BACKOFFICE_API_KEY_GET_PA_UAT }}
+        PAGOPA_SUBSCRIPTION_KEY: ${{ secrets.PAGOPA_BACKOFFICE_API_KEY_PROD }}
+        PAGOPA_SUBSCRIPTION_KEY_GET_PA: ${{ secrets.PAGOPA_BACKOFFICE_API_KEY_GET_PA_PROD }}
         
       run: |
         python src/main/scripts/station-maintenance-with-involvedPA.py
