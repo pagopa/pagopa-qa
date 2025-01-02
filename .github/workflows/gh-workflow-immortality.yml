@@ -18,3 +18,4 @@ jobs:
         uses: PhrozenByte/gh-workflow-immortality@v1
         with:
           secret: ${{ secrets.GH_WORKFLOW_IMMORTALITY }}
+          repos: 'pagopa/pagopa-qa'
