@@ -56,22 +56,23 @@ def get_pa_for_broker(broker_code):
     }
     
     all_creditor_institutions = []
-
     while True:
         params = {'page': page, 'limit': limit}
         response = requests.get(base_url, headers=headers, params=params)
         response.raise_for_status()
-
         data = response.json()
-        creditor_institutions = data.get('creditorInstitutions', [])
-        all_creditor_institutions.extend(creditor_institutions)
+        
+        all_creditor_institutions.extend(data['creditorInstitutions'])
 
-        total_pages = data.get('pageInfo', {}).get('totalPages', 1)
-        if page >= total_pages - 1:
+        # Verifica se siamo arrivati all'ultima pagina
+        if len(data['creditorInstitutions']) < limit:
             break
         page += 1
 
-    return all_creditor_institutions
+    # Restituire la struttura originale
+    return {
+        'creditorInstitutions': all_creditor_institutions
+    }
 
 
 def create_betterstack_maintenance(data):
