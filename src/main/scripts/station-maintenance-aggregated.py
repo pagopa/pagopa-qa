@@ -36,7 +36,7 @@ def get_existing_betterstack_maintenances():
 
 # Funzione per recuperare le manutenzioni programmate
 def get_scheduled_maintenances():
-    url = "https://api.uat.platform.pagopa.it/backoffice/helpdesk/v1/station-maintenances?state=SCHEDULED_AND_IN_PROGRESS"
+    url = api_url
     headers = {
         'Ocp-Apim-Subscription-Key': subscription_key
     }
@@ -49,7 +49,7 @@ def get_scheduled_maintenances():
 def get_pa_for_broker(broker_code):
     page = 0
     limit = 10
-    base_url = f"https://api.uat.platform.pagopa.it/backoffice/external/ec/v1/brokers/{broker_code}/creditor_institutions"
+    base_url = f"https://api.platform.pagopa.it/backoffice/external/ec/v1/brokers/{broker_code}/creditor_institutions"
     
     headers = {
         'Ocp-Apim-Subscription-Key': subscription_key_backoffice_ext_pa
