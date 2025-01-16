@@ -54,10 +54,25 @@ def get_pa_for_broker(broker_code):
     headers = {
         'Ocp-Apim-Subscription-Key': subscription_key_backoffice_ext_pa
     }
-    params = {'page': page, 'limit': limit}
-    response = requests.get(base_url, headers=headers, params=params)
-    response.raise_for_status()
-    return response.json()
+    
+    all_creditor_institutions = []
+
+    while True:
+        params = {'page': page, 'limit': limit}
+        response = requests.get(base_url, headers=headers, params=params)
+        response.raise_for_status()
+
+        data = response.json()
+        creditor_institutions = data.get('creditorInstitutions', [])
+        all_creditor_institutions.extend(creditor_institutions)
+
+        total_pages = data.get('pageInfo', {}).get('totalPages', 1)
+        if page >= total_pages - 1:
+            break
+        page += 1
+
+    return all_creditor_institutions
+
 
 def create_betterstack_maintenance(data):
     
