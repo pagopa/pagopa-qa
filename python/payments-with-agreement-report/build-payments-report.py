@@ -109,34 +109,34 @@ def execute_query(start_date: str, end_date: str):
         return pd.DataFrame()
 
 def main(start_date: str, end_date: str, interval_hours: int):
-    # # Parse input dates
-    # start = datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S")
-    # end = datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S")
+    # Parse input dates
+    start = datetime.strptime(start_date, "%Y-%m-%d %H:%M:%S")
+    end = datetime.strptime(end_date, "%Y-%m-%d %H:%M:%S")
 
-    # # Initialize the output file with headers
-    # with open(OUTPUT_FILE, "w") as f:
-    #     f.write("timestampOperation,ec,iuv,amount,fee,codConv,ccp\n")
+    # Initialize the output file with headers
+    with open(OUTPUT_FILE, "w") as f:
+        f.write("timestampOperation,ec,iuv,amount,fee,codConv,ccp\n")
 
-    # # Loop over the date range in intervals of interval_hours hours
-    # current = start
-    # while current < end:
-    #     interval_start = current.strftime("%Y-%m-%d %H:%M:%S")
-    #     interval_end = (current + timedelta(hours=interval_hours)).strftime("%Y-%m-%d %H:%M:%S")
+    # Loop over the date range in intervals of interval_hours hours
+    current = start
+    while current < end:
+        interval_start = current.strftime("%Y-%m-%d %H:%M:%S")
+        interval_end = (current + timedelta(hours=interval_hours)).strftime("%Y-%m-%d %H:%M:%S")
 
-    #     if datetime.strptime(interval_end, "%Y-%m-%d %H:%M:%S") > end:
-    #         interval_end = end.strftime("%Y-%m-%d %H:%M:%S")
+        if datetime.strptime(interval_end, "%Y-%m-%d %H:%M:%S") > end:
+            interval_end = end.strftime("%Y-%m-%d %H:%M:%S")
 
-    #     print(f"Querying data for: {interval_start} - {interval_end}")
+        print(f"Querying data for: {interval_start} - {interval_end}")
 
-    #     # Execute the query for the current interval
-    #     df = execute_query(interval_start, interval_end)
+        # Execute the query for the current interval
+        df = execute_query(interval_start, interval_end)
 
-    #     # Append results to the output report file
-    #     if not df.empty:
-    #         df.to_csv(OUTPUT_FILE, mode="a", header=False, index=False)
+        # Append results to the output report file
+        if not df.empty:
+            df.to_csv(OUTPUT_FILE, mode="a", header=False, index=False)
 
-    #     # Move to the next interval
-    #     current += timedelta(hours=interval_hours)
+        # Move to the next interval
+        current += timedelta(hours=interval_hours)
     
     filter_ko_payments(OUTPUT_FILE, FILTERED_OUTPUT_FILE, client, "re")
         
