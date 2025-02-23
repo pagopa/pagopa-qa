@@ -303,14 +303,24 @@ def get_date(delta: int):
     yesterday_str = yesterday.strftime("%Y-%m-%d")
     return yesterday_str
 
-
+def is_valid_date(date_string):
+    try:
+        datetime.strptime(date_string, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+    
 def main():
     global FR_DATE
     if FR_DATE == "all":
         FR_DATE = None
     elif FR_DATE == "yesterday":
-        FR_DATE = get_date(1)      
-
+        FR_DATE = get_date(1)
+    else:
+        if not get_date(FR_DATE):
+            # default: yesterday
+            FR_DATE = get_date(1)
+           
     print(f" loading flows for day [{FR_DATE}]")
     get_flows_form_list(FR_CSV_NAME, FR_DATE)
     print_report()
