@@ -13,13 +13,18 @@ on:
             - uat
         default: prod
 
+      # flow_date:
+      #   required: true
+      #   type: choice
+      #   options:
+      #       - all
+      #       - yesterday
+      #   default: yesterday
+
       flow_date:
+        description: "Insert data (YYYY-MM-DD) alternative: all or yesterday (default)"
         required: true
-        type: choice
-        options:
-            - all
-            - yesterday
-        default: yesterday
+        default: "yesterday"
 
       notify:
         description: 'notify report results'
