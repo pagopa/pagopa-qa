@@ -189,6 +189,7 @@ def get_flows_form_list(csv_name, date):
 # --------- old load method -------------------------------------------    
 #    file_path = FR_BASE_DIR + "/python/gpd-get-fdr/config/" + csv_name
 #    print(f"loading csv file [{file_path}]")
+#    data_dict = {}
 #    with open(file_path, newline='') as csvfile:
 #        reader = csv.DictReader(csvfile, delimiter=';')
 #        # next(reader, None)  # skip the headers
@@ -303,14 +304,25 @@ def get_date(delta: int):
     yesterday_str = yesterday.strftime("%Y-%m-%d")
     return yesterday_str
 
-
+def is_valid_date(date_string):
+    try:
+        datetime.strptime(date_string, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
+    
 def main():
     global FR_DATE
+#    FR_DATE = "2025-02-21"
     if FR_DATE == "all":
         FR_DATE = None
     elif FR_DATE == "yesterday":
-        FR_DATE = get_date(1)      
-
+        FR_DATE = get_date(1)
+    else:
+        if not is_valid_date(FR_DATE):
+            # default: yesterday
+            FR_DATE = get_date(1)
+           
     print(f" loading flows for day [{FR_DATE}]")
     get_flows_form_list(FR_CSV_NAME, FR_DATE)
     print_report()
