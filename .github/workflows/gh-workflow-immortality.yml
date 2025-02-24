@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Keep cronjob based triggers of GitHub workflows alive
-        uses: PhrozenByte/gh-workflow-immortality@v1
+        uses: PhrozenByte/gh-workflow-immortality@ed0af7d9884eb4cc5672940ae490a0111141fbac # v1
         with:
           secret: ${{ secrets.GH_WORKFLOW_IMMORTALITY }}
           repos: 'pagopa/pagopa-qa'

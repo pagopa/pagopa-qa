@@ -1,13 +1,13 @@
 #
 # Build
 #
-FROM maven:3.8.4-jdk-11-slim as buildtime
+FROM maven:3.8.4-jdk-11-slim@sha256:04f8e5ba4a6a74fb7f97940bc75ac7340520728d2fb051ecc5c9ecbb9ba28b48 as buildtime
 WORKDIR /build
 COPY . .
 RUN mvn clean package
 
 
-FROM adoptopenjdk/openjdk11:alpine-jre as builder
+FROM adoptopenjdk/openjdk11:alpine-jre@sha256:f7ec310468d8ed52c2aee620ce9545652acea3dbc0ee77a5b53ca7c380c10911 as builder
 COPY --from=buildtime /build/target/*.jar application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
