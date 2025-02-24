@@ -313,13 +313,13 @@ def is_valid_date(date_string):
     
 def main():
     global FR_DATE
-    FR_DATE = "2025-02-21"
+#    FR_DATE = "2025-02-21"
     if FR_DATE == "all":
         FR_DATE = None
     elif FR_DATE == "yesterday":
         FR_DATE = get_date(1)
     else:
-        if not get_date(FR_DATE):
+        if not is_valid_date(FR_DATE):
             # default: yesterday
             FR_DATE = get_date(1)
            
