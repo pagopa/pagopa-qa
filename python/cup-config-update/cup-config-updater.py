@@ -95,7 +95,8 @@ def fetch_sql_data():
         AND iban2.rn = 1 
     WHERE 
         ip.ID_INTERMEDIARIO_PA = '15376371009'
-        AND s.ID_STAZIONE = '15376371009_01';  
+        AND s.ID_STAZIONE = '15376371009_01'
+        AND pspa.segregazione = '47';  
     """
     print(f"fetch_sql_data - executing query {query}")
     
@@ -115,18 +116,33 @@ def fetch_api_data(ec_fiscal_code):
     institution_resp = requests.get(api_url, headers=HEADERS)
     
     if institution_resp.status_code == 200:
+        # read response body
         institutions_data = institution_resp.json()  
         institutions_list = institutions_data.get("institutions", [])
+        
+        # get institution id
         institution_id = institutions_list[0].get("id", "") if institutions_list else ""
+        
+        # get id catasto
         pa_id_catasto = institutions_list[0].get("originId", "") if institutions_list else ""
         pa_id_catasto = pa_id_catasto.split("_")[1].upper() if "_" in pa_id_catasto else pa_id_catasto.upper()
+        if pa_id_catasto == "" or pa_id_catasto == "CL":
+            pa_id_catasto = ec_config_table[ec_fiscal_code][6] if ec_fiscal_code in ec_config_table else ""
+        
+        # get ec pec
         pa_pec_email = institutions_list[0].get("digitalAddress", "") if institutions_list else ""
+        if pa_pec_email == "":
+            pa_pec_email = ec_config_table[ec_fiscal_code][12] if ec_fiscal_code in ec_config_table else ""
         
-        pa_id_istat_list = institutions_list[0].get("geographicTaxonomies", [])
-        pa_id_istat = pa_id_istat_list[0].get("code") if pa_id_istat_list[0] else ""
-        if pa_id_istat.lower == "ITA".lower:
+        # get ec id istat
+        pa_id_istat_list = institutions_list[0].get("geographicTaxonomies", []) if len(institutions_list) > 0 else []
+        pa_id_istat = pa_id_istat_list[0].get("code") if len(pa_id_istat_list) > 0 else ""
+        if pa_id_istat == 'ITA' or pa_id_istat == "":
             pa_id_istat = get_pa_id_istat(pa_id_catasto)
+            if pa_id_istat == "":
+                pa_id_istat = ec_config_table[ec_fiscal_code][10] if ec_fiscal_code in ec_config_table else ""
         
+        # get ec referent data 
         pa_referent_email, pa_referent_name = "", ""
         if institution_id != "":
             api_url = USERS_API_URL.format(institution_id=institution_id)
@@ -143,7 +159,7 @@ def fetch_api_data(ec_fiscal_code):
         
         return pa_id_catasto, pa_id_istat, pa_pec_email, pa_referent_email, pa_referent_name
 
-    else:
+    else: # error occurred invoking SelfCare service
         print(f"fetch_api_data - error fetching values from selfcare api for {ec_fiscal_code}")
         print("fetch_api_data - trying to retrieve the entire row from ec config table")
         if ec_fiscal_code in ec_config_table:
