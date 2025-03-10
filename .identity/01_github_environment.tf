@@ -76,4 +76,3 @@ resource "github_actions_secret" "repo_secrets" {
   secret_name     = each.key
   plaintext_value = each.value
 }
-
