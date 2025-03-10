@@ -8,7 +8,7 @@ DB_CONFIG = {
     "dbname": "apd",
     "user": os.getenv("PG_USER_NAME"),
     "password": os.getenv("PG_APD_PASSWORD"),
-    "host": "gpd-db.p.internal.postgresql.pagopa.it",
+    "host": "pagopa-p-neu-gps-pgflex.postgres.database.azure.com",
     "port": "6432"
 }
 
@@ -63,11 +63,11 @@ def generate_report(data):
         "text": "Report numeriche GPD",
         "blocks": [
             {"type": "section", "text": {"type": "mrkdwn", "text": f":calendar: *Data Rilevamento:* {today}"}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f":large_green_circle: *Totale PD:* {data['TOTAL']:,}"}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f":large_blue_circle: *PD GPD:* {data['GPD']:,}"}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f":large_yellow_circle: *PD WISP:* {data['WISP']:,}"}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f":large_violet_circle: *PD GPD4ACA:* {data['gpd4aca']:,}"}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f":large_gray_circle: *PD paCreatePosition:* {data['paCreatePosition']:,}"}}
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟢 *Totale PD:* {data['TOTAL']:,}"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🔵 *PD GPD:* {data['GPD']:,}"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟡 *PD WISP:* {data['WISP']:,}"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟣 *PD GPD4ACA:* {data['gpd4aca']:,}"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟤 *PD paCreatePosition:* {data['paCreatePosition']:,}"}}
         ]
     }
     print("json report created")
