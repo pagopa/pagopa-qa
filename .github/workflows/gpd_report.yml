@@ -10,7 +10,15 @@ on:
           required: false
           type: boolean
           default: true
-
+        environment:
+          required: true
+          type: choice
+          description: Select the Environment
+          options:
+            - uat
+            - prod
+          default: prod
+          
 permissions:
   id-token: write
   contents: read
