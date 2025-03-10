@@ -1,29 +1,105 @@
-name: GPD Report
+name: GPD SMO Report
 on:
   schedule:
     - cron: '0 7 * * *'
     
   workflow_dispatch:
+    inputs:  
+        notify:
+          description: 'notify report results'
+          required: false
+          type: boolean
+          default: true
+
+permissions:
+  id-token: write
+  contents: read
+  deployments: write
 
 jobs:
-  run-script:
+
+  approve_create_runner:
+    name: Execute auto-approve for 'Create Runner'
     runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.event.inputs == null || github.event.inputs == 'prod' }}
+    steps:    
+      - name: Auto approve
+        uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
+        with:
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          environment: ${{ inputs.environment || 'prod' }}
+        
+  create_runner:
+    name: Create Runner
+    runs-on: ubuntu-22.04
+    environment:
+      name: ${{(github.event.inputs == null && 'prod') || inputs.environment }}
+    outputs:
+      runner_name: ${{ steps.create_github_runner.outputs.runner_name }}
+    steps:
+      - name: Create GitHub Runner
+        id: create_github_runner
+        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-create-action@main
+        with:
+          client_id: ${{ secrets.CLIENT_ID }}
+          tenant_id: ${{ secrets.TENANT_ID }}
+          subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
+          container_app_environment_name: ${{ vars.CONTAINER_APP_ENVIRONMENT_NAME }}
+          resource_group_name: ${{ vars.CONTAINER_APP_ENVIRONMENT_RESOURCE_GROUP_NAME }} # RG of the runner
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          self_hosted_runner_image_tag: "latest"
+      - name: Install dependencies
+        run: |
+          export RUNNER_ALLOW_RUNASROOT="1"
+          sudo apt-get update && sudo apt-get install -y libpq-dev
+
+  approve_report_script:
+    needs: [ create_runner ]
+    name: Execute auto-approve for 'Report Script'
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.event.inputs == null || github.event.inputs == 'prod' }}
+    steps:
+      - name: Auto approve
+        uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
+        with:
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          environment: ${{ inputs.environment || 'prod' }} 
+
+  
+  report_script:
+    needs: [ create_runner ]
+    name: Report GPD APD prod
+    runs-on: [ self-hosted, "${{ needs.create_runner.outputs.runner_name }}" ]
+    environment: prod
 
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
-
+        
       - name: Set up Python
-        uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 # v4
+        uses: actions/setup-python@v4
         with:
           python-version: '3.12'
-
+        
+      - name: Check out the repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+            
       - name: Install dependencies
         run: |
           cd ./python/gpd-report
           pip install -r requirements.txt
 
-      - name: Run Python Script
+      - name: Login
+        id: login
+        # from https://github.com/Azure/login/commits/master
+        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+        with:
+          client-id: ${{ secrets.CLIENT_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+
+      - name: Run Report
+        shell: bash
         env:
           PG_USER_NAME: "apduser"
           FR_NEW_CONN_SUBKEY_UAT: ${{ secrets.PG_APD_PASSWORD }}
@@ -56,5 +132,37 @@ jobs:
             payload-file-path: "./python/gpd-report/report.json"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_GPD_APD_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK          
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+  approve_cleanup_runner:
+    needs: [ report_script ]
+    name: Execute auto-approve for 'Cleanup Runner'
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.event.inputs == null || github.event.inputs == 'prod' }}
+    steps:        
+      - name: Auto approve
+        uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
+        with:
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          environment: ${{ inputs.environment || 'prod' }}
+
+  cleanup_runner:
+    name: Cleanup Runner
+    needs: [ create_runner, report_script ]
+    if: ${{ always() }}
+    runs-on: ubuntu-22.04
+    environment: ${{(github.event.inputs == null && 'uat') || inputs.environment }}
+    steps:
+      - name: Cleanup GitHub Runner
+        id: cleanup_github_runner
+        # from https://github.com/pagopa/eng-github-actions-iac-template/tree/main/azure/github-self-hosted-runner-azure-cleanup-action
+        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-cleanup-action@0ee2f58fd46d10ac7f00bce4304b98db3dbdbe9a
+        with:
+          client_id: ${{ secrets.CLIENT_ID }}
+          tenant_id: ${{ secrets.TENANT_ID }}
+          subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
+          resource_group_name: ${{ vars.CONTAINER_APP_ENVIRONMENT_RESOURCE_GROUP_NAME }}
+          runner_name: ${{ needs.create_runner.outputs.runner_name }}
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
       
