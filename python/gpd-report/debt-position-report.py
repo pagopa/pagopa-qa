@@ -5,11 +5,11 @@ import os
 
 # Configurazione della connessione al database
 DB_CONFIG = {
-    "dbname": "apd",
+    "dbname": os.getenv("PG_DB_NAME"),
     "user": os.getenv("PG_USER_NAME"),
     "password": os.getenv("PG_APD_PASSWORD"),
-    "host": "pagopa-p-neu-gps-pgflex.postgres.database.azure.com",
-    "port": "6432"
+    "host": os.getenv("PG_HOST"),
+    "port": os.getenv("PG_PORT")
 }
 
 # Query per ottenere i dati
