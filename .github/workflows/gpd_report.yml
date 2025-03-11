@@ -85,7 +85,7 @@ jobs:
     steps:
         
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 # v4
         with:
           python-version: '3.12'
         
@@ -110,7 +110,8 @@ jobs:
         shell: bash
         env:
           PG_USER_NAME: "apduser"
-          FR_NEW_CONN_SUBKEY_UAT: ${{ secrets.PG_APD_PASSWORD }}
+          PG_APD_PASSWORD: ${{ secrets.PG_APD_PASSWORD }}
+          PYTHONUNBUFFERED: "1"
 
         run: |
           cd ./python/gpd-report
