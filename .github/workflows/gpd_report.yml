@@ -5,12 +5,20 @@ on:
     
   workflow_dispatch:
     inputs:  
-        notify:
-          description: 'notify report results'
-          required: false
-          type: boolean
-          default: true
-
+      environment:
+        required: true
+        type: choice
+        description: Select the Environment
+        options:
+          - uat
+          - prod
+        default: prod
+      notify:
+        description: 'notify report results'
+        required: false
+        type: boolean
+        default: true
+          
 permissions:
   id-token: write
   contents: read
@@ -37,7 +45,7 @@ jobs:
       name: ${{(github.event.inputs == null && 'prod') || inputs.environment }}
     outputs:
       runner_name: ${{ steps.create_github_runner.outputs.runner_name }}
-    steps:
+    steps:     
       - name: Create GitHub Runner
         id: create_github_runner
         uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-create-action@main
@@ -102,7 +110,11 @@ jobs:
         shell: bash
         env:
           PG_USER_NAME: "apduser"
-          FR_NEW_CONN_SUBKEY_UAT: ${{ secrets.PG_APD_PASSWORD }}
+          PG_DB_NAME: "apd"
+          PG_APD_PASSWORD: ${{ inputs.environment == 'prod' && secrets.PG_APD_PASSWORD || secrets.PG_APD_UAT_PASSWORD}} 
+          PG_HOST: ${{ inputs.environment == 'prod' && 'pagopa-p-neu-gps-pgflex.postgres.database.azure.com' || 'pagopa-u-neu-gps-pgflex.postgres.database.azure.com' }}
+          PG_PORT: "6432"
+          PYTHONUNBUFFERED: "1"
 
         run: |
           cd ./python/gpd-report
