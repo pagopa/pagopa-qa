@@ -45,15 +45,7 @@ jobs:
       name: ${{(github.event.inputs == null && 'prod') || inputs.environment }}
     outputs:
       runner_name: ${{ steps.create_github_runner.outputs.runner_name }}
-    steps:
-      - name: Login
-        id: login
-        # from https://github.com/Azure/login/commits/master
-        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
-        with:
-          client-id: ${{ secrets.CLIENT_ID }}
-          tenant-id: ${{ secrets.TENANT_ID }}
-          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}      
+    steps:     
       - name: Create GitHub Runner
         id: create_github_runner
         uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-create-action@main
