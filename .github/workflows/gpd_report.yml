@@ -117,20 +117,17 @@ jobs:
           PYTHONUNBUFFERED: "1"
 
         run: |
-        
-          cd ./python/gpd-report
           echo "--- WORKING DIR ---"
           pwd
           echo "--- LISTING FILES ---"
           ls -la ./python/gpd-report
           
           echo "--- RUN PYTHON ---"
+          cd ./python/gpd-report
           python debt-position-report.py
 
           echo "--- LIST REPORT ---"
           ls -la ./python/gpd-report/report.json || echo "Report non creato"
-
-          python debt-position-report.py
 
       - name: Create failure payload
         if: ${{ failure() && inputs.notify }}
