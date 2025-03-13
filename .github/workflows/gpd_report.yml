@@ -1,7 +1,7 @@
 name: GPD SMO Report
 on:
   schedule:
-    - cron: '0 7 * * *'
+    - cron: '21 8 * * *'
     
   workflow_dispatch:
     inputs:  
@@ -111,8 +111,8 @@ jobs:
         env:
           PG_USER_NAME: "apduser"
           PG_DB_NAME: "apd"
-          PG_APD_PASSWORD: ${{ inputs.environment == 'prod' && secrets.PG_APD_PASSWORD || secrets.PG_APD_UAT_PASSWORD}} 
-          PG_HOST: ${{ inputs.environment == 'prod' && 'pagopa-p-neu-gps-pgflex.postgres.database.azure.com' || 'pagopa-u-neu-gps-pgflex.postgres.database.azure.com' }}
+          PG_APD_PASSWORD: ${{ github.event_name == 'schedule' && secrets.PG_APD_PASSWORD || (inputs.environment == 'prod' && secrets.PG_APD_PASSWORD || secrets.PG_APD_UAT_PASSWORD) }}
+          PG_HOST: ${{ github.event_name == 'schedule' && 'pagopa-p-neu-gps-pgflex.postgres.database.azure.com' || (inputs.environment == 'prod' && 'pagopa-p-neu-gps-pgflex.postgres.database.azure.com' || 'pagopa-u-weu-gpd-pgflex.postgres.database.azure.com') }}
           PG_PORT: "6432"
           PYTHONUNBUFFERED: "1"
 
