@@ -96,7 +96,8 @@ def fetch_sql_data():
     WHERE 
         ip.ID_INTERMEDIARIO_PA = '15376371009'
         AND s.ID_STAZIONE = '15376371009_01'
-        AND pspa.segregazione = '47';  
+        AND pspa.segregazione = '47'
+        and p.enabled = 'Y';  
     """
     print(f"fetch_sql_data - executing query {query}")
     
