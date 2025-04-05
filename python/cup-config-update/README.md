@@ -18,6 +18,8 @@ Below is the flowchart of the process executed by the script:
 
 ![Flowchart](./flowchart.png)
 
+[Edit Diagram](https://excalidraw.com/#json=9O4qmMPiPx3a131x2h7oF,FSyDlcyHWnAhHg8ySaknyQ)
+
 ## Configuration Parameters
 The script uses environment variables to configure connection parameters and file paths. Make sure to correctly set the following parameters:
 
