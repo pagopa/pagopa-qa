@@ -1,0 +1,5 @@
+pandas
+matplotlib
+sqlalchemy
+azure-data-tables
+azure-storage-blob
