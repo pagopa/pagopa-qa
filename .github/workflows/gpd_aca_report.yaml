@@ -69,14 +69,14 @@ jobs:
                 }
               }
             ]
-          }' > ./python/gpd-get-fdr/payload.json
+          }' > ./python/gpd-report/payload.json
           
       - name: Send notification to Slack
         id: slack
         if: ${{ (success() || failure()) && (inputs.notify != 'false' || github.event_name == 'schedule') }}
         uses: slackapi/slack-github-action@e28cf165c92ffef168d23c5c9000cffc8a25e117 #v1.24.0
         with: 
-            payload-file-path: "./python/gpd-get-fdr/payload.json"
+            payload-file-path: "./python/gpd-report/payload.json"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_GPD_ACA_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK          
