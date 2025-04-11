@@ -1,0 +1,83 @@
+name: GPD ACA Report
+on:
+  schedule:
+    - cron: '0 2 * * *'
+    
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: "Start date (YYYY-MM-DD) alternative: yesterday (default)"
+        required: true
+        default: "yesterday"
+
+      end_date:
+          description: "End date (YYYY-MM-DD) alternative: yesterday (default)"
+          required: true
+          default: "yesterday"
+
+      notify:
+        description: 'notify report results'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+
+      - name: Set up Python
+        uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 # v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          cd ./python/gpd-report
+          pip install -r requirements_aca.txt
+
+      - name: Run Python Script
+        env:
+          PG_APD_CONNECTION_STRING: ${{ secrets.PG_APD_CONNECTION_STRING}}
+          PG_CFG_CONNECTION_STRING: ${{ secrets.PG_CFG_CONNECTION_STRING}}
+          SA_ACCOUNT_KEY: ${{ secrets.SA_ACCOUNT_KEY }}
+          SA_CONNECTION_STRING: ${{ secrets.SA_CONNECTION_STRING }}
+          SA_ACCOUNT_NAME: "pagopadweuqifnsa"
+          SA_BLOB_CONTAINER_NAME: "qibrokerreport"
+          START_DATE: ${{inputs.start_date || 'yesterday'}}
+          END_DATE: ${{inputs.end_date || 'yesterday'}}
+          PYTHONUNBUFFERED: "1"
+
+        run: |
+          cd ./python/gpd-report
+          python broker-aca-report.py
+
+      - name: Create failure payload
+        if: ${{ failure() && inputs.notify }}
+        run: |
+          echo '{
+            "text": "❌ *Errore* Non è stato possibile aggiornare il report sul caricamento delle posizioni debitorie ACA.",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "❌ *Si è verificato un errore durante l'esecuzione del job*"
+                }
+              }
+            ]
+          }' > ./python/gpd-get-fdr/payload.json
+          
+      - name: Send notification to Slack
+        id: slack
+        if: ${{ (success() || failure()) && (inputs.notify != 'false' || github.event_name == 'schedule') }}
+        uses: slackapi/slack-github-action@e28cf165c92ffef168d23c5c9000cffc8a25e117 #v1.24.0
+        with: 
+            payload-file-path: "./python/gpd-get-fdr/payload.json"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_GPD_ACA_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK          
+      
