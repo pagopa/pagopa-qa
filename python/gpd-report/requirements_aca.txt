@@ -1,5 +1,6 @@
 pandas
 matplotlib
+psycopg2-binary
 sqlalchemy
 azure-data-tables
 azure-storage-blob
