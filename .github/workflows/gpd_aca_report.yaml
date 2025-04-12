@@ -78,7 +78,7 @@ jobs:
 
   report_script:
     needs: [ create_runner ]
-    name: prod
+    name: Report Script
     runs-on: [ self-hosted, "${{ needs.create_runner.outputs.runner_name }}" ]
     environment: prod
     steps:
@@ -118,6 +118,9 @@ jobs:
           export END_DATE=${{inputs.end_date || 'yesterday'}}
           export PYTHONUNBUFFERED="1"
           
+          echo >>>>>>>>>>>>>>>>>>>>>>>>>>> SA_CONNECTION_STRING: $SA_CONNECTION_STRING
+          echo >>>>>>>>>>>>>>>>>>>>>>>>>>> SA-CONNECTION-STRING: $SA-CONNECTION-STRING
+
           cd ./python/gpd-report
           python broker-aca-report.py
 
