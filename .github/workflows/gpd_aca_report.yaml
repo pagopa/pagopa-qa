@@ -31,19 +31,19 @@ jobs:
     name: Execute auto-approve for 'Create Runner'
     runs-on: ubuntu-latest
     environment: 
-      name: prod
+      name: ${{'prod'}}
     steps:
       - name: Auto approve
         uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
         with:
           pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
-          environment: prod
+          environment: ${{'prod'}}
 
   create_runner:
     name: Create Runner
     runs-on: ubuntu-22.04
     environment:
-      name: prod
+      name: ${{'prod'}}
     outputs:
       runner_name: ${{ steps.create_github_runner.outputs.runner_name }}
     steps:
@@ -68,19 +68,19 @@ jobs:
     name: Execute auto-approve for 'Report Script'
     runs-on: ubuntu-latest
     environment: 
-      name: prod
+      name: ${{'prod'}}
     steps:
       - name: Auto approve
         uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
         with:
           pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
-          environment: prod
+          environment: ${{'prod'}}
 
   report_script:
     needs: [ create_runner ]
     name: Report Script
     runs-on: [ self-hosted, "${{ needs.create_runner.outputs.runner_name }}" ]
-    environment: prod
+    environment: ${{'prod'}}
     steps:
 
       - name: Set up Python
@@ -118,8 +118,8 @@ jobs:
           export END_DATE=${{inputs.end_date || 'yesterday'}}
           export PYTHONUNBUFFERED="1"
           
-          echo >>>>>>>>>>>>>>>>>>>>>>>>>>> SA_CONNECTION_STRING: $SA_CONNECTION_STRING
-          echo >>>>>>>>>>>>>>>>>>>>>>>>>>> SA-CONNECTION-STRING: $SA-CONNECTION-STRING
+          echo $SA_CONNECTION_STRING
+          echo $SA-CONNECTION-STRING
 
           cd ./python/gpd-report
           python broker-aca-report.py
@@ -155,21 +155,20 @@ jobs:
     name: Execute auto-approve for 'Cleanup Runner'
     runs-on: ubuntu-latest
     environment: 
-      name: prod
+      name: ${{'prod'}}
     steps:
-    
       - name: Auto approve
         uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
         with:
           pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
-          environment: prod
+          environment: ${{'prod'}}
 
   cleanup_runner:
     name: Cleanup Runner
     needs: [ create_runner, report_script ]
     if: ${{ always() }}
     runs-on: ubuntu-22.04
-    environment: prod
+    environment: ${{'prod'}}
     steps:
       - name: Cleanup GitHub Runner
         id: cleanup_github_runner
