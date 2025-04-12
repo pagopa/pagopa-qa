@@ -12,7 +12,7 @@
 
   <groupId>it.gov.pagopa</groupId>
   <artifactId>microservice</artifactId> <!--TODO: set your artifactId-->
-  <version>0.1.7</version>
+  <version>0.1.8</version>
   <name>Your Name</name> <!--TODO: set your name-->
   <description>Your description</description> <!--TODO: set your description-->
 
