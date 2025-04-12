@@ -120,8 +120,8 @@ jobs:
           export END_DATE=${{inputs.end_date || 'yesterday'}}
           export PYTHONUNBUFFERED="1"
           
-          cd ./src
-          python fee-report-builder.py
+          cd ./python/gpd-roreport
+          python broker-aca-report.py
 
       - name: Create failure payload
         if: ${{ failure() && inputs.notify }}
