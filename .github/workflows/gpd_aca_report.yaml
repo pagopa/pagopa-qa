@@ -21,39 +21,107 @@ on:
         type: boolean
         default: true
 
-jobs:
-  run-script:
-    runs-on: ubuntu-latest
+permissions:
+  id-token: write
+  contents: read
+  deployments: write
 
+jobs:
+  approve_create_runner:
+    name: Execute auto-approve for 'Create Runner'
+    runs-on: ubuntu-latest
+    environment: 
+      name: prod
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+    
+      - name: Auto approve
+        uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
+        with:
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          environment: prod
+
+  create_runner:
+    name: Create Runner
+    runs-on: ubuntu-22.04
+    environment:
+      name: prod
+    outputs:
+      runner_name: ${{ steps.create_github_runner.outputs.runner_name }}
+    steps:
+      - name: Create GitHub Runner
+        id: create_github_runner
+        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-create-action@main
+        with:
+          client_id: ${{ secrets.CLIENT_ID }}
+          tenant_id: ${{ secrets.TENANT_ID }}
+          subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
+          container_app_environment_name: ${{ vars.CONTAINER_APP_ENVIRONMENT_NAME }}
+          resource_group_name: ${{ vars.CONTAINER_APP_ENVIRONMENT_RESOURCE_GROUP_NAME }} # RG of the runner
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          self_hosted_runner_image_tag: "latest"
+      - name: Install dependencies
+        run: |
+          export RUNNER_ALLOW_RUNASROOT="1"
+          sudo apt-get update && sudo apt-get install -y libpq-dev
+
+  approve_report_script:
+    needs: [ create_runner ]
+    name: Execute auto-approve for 'Report Script'
+    runs-on: ubuntu-latest
+    environment: 
+      name: prod
+    steps:
+    
+      - name: Auto approve
+        uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
+        with:
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          environment: prod
+
+  report_script:
+    needs: [ create_runner ]
+    name: prod
+    runs-on: [ self-hosted, "${{ needs.create_runner.outputs.runner_name }}" ]
+    environment: prod
+    steps:
 
       - name: Set up Python
-        uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 # v4
+        uses: actions/setup-python@v4
         with:
           python-version: '3.12'
 
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@1f9a0c22da41e6ebfa534300ef656657ea2c6707
+
       - name: Install dependencies
         run: |
-          cd ./python/gpd-report
-          pip install -r requirements_aca.txt
+          pip install -r ./python/gpd-report/requirements_aca.txt
 
-      - name: Run Python Script
-        env:
-          PG_APD_CONNECTION_STRING: ${{ secrets.PG_APD_CONNECTION_STRING}}
-          PG_CFG_CONNECTION_STRING: ${{ secrets.PG_CFG_CONNECTION_STRING}}
-          SA_ACCOUNT_KEY: ${{ secrets.SA_ACCOUNT_KEY }}
-          SA_CONNECTION_STRING: ${{ secrets.SA_CONNECTION_STRING }}
-          SA_ACCOUNT_NAME: "pagopadweuqifnsa"
-          SA_BLOB_CONTAINER_NAME: "qibrokerreport"
-          START_DATE: ${{inputs.start_date || 'yesterday'}}
-          END_DATE: ${{inputs.end_date || 'yesterday'}}
-          PYTHONUNBUFFERED: "1"
+      - name: Login
+        id: login
+        # from https://github.com/Azure/login/commits/master
+        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+        with:
+          client-id: ${{ secrets.CLIENT_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
 
+      - name: Run reports
+        shell: bash
         run: |
-          cd ./python/gpd-report
-          python broker-aca-report.py
+          export PG_APD_CONNECTION_STRING=${{ secrets.PG_APD_CONNECTION_STRING}}
+          export PG_CFG_CONNECTION_STRING=${{ secrets.PG_CFG_CONNECTION_STRING}}
+          export SA_ACCOUNT_KEY=${{ secrets.SA_ACCOUNT_KEY }}
+          export SA_CONNECTION_STRING=${{ secrets.SA_CONNECTION_STRING }}
+          export SA_ACCOUNT_NAME="pagopadweuqifnsa"
+          export SA_BLOB_CONTAINER_NAME="qibrokerreport"
+          export START_DATE=${{inputs.start_date || 'yesterday'}}
+          export END_DATE=${{inputs.end_date || 'yesterday'}}
+          export PYTHONUNBUFFERED="1"
+          
+          cd ./src
+          python fee-report-builder.py
 
       - name: Create failure payload
         if: ${{ failure() && inputs.notify }}
@@ -80,4 +148,36 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_GPD_ACA_WEBHOOK_URL }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK          
-      
+  
+  approve_cleanup_runner:
+    needs: [ report_script ]
+    name: Execute auto-approve for 'Cleanup Runner'
+    runs-on: ubuntu-latest
+    environment: 
+      name: prod
+    steps:
+    
+      - name: Auto approve
+        uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
+        with:
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          environment: prod
+
+  cleanup_runner:
+    name: Cleanup Runner
+    needs: [ create_runner, report_script ]
+    if: ${{ always() }}
+    runs-on: ubuntu-22.04
+    environment: prod
+    steps:
+      - name: Cleanup GitHub Runner
+        id: cleanup_github_runner
+        # from https://github.com/pagopa/eng-github-actions-iac-template/tree/main/azure/github-self-hosted-runner-azure-cleanup-action
+        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-cleanup-action@0ee2f58fd46d10ac7f00bce4304b98db3dbdbe9a
+        with:
+          client_id: ${{ secrets.CLIENT_ID }}
+          tenant_id: ${{ secrets.TENANT_ID }}
+          subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
+          resource_group_name: ${{ vars.CONTAINER_APP_ENVIRONMENT_RESOURCE_GROUP_NAME }}
+          runner_name: ${{ needs.create_runner.outputs.runner_name }}
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
