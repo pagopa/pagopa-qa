@@ -112,14 +112,13 @@ jobs:
           export PG_CFG_CONNECTION_STRING=${{ secrets.PG_CFG_CONNECTION_STRING}}
           export SA_ACCOUNT_KEY=${{ secrets.SA_ACCOUNT_KEY }}
           export SA_CONNECTION_STRING=${{ secrets.SA_CONNECTION_STRING }}
+          echo "::add-mask::$SA_CONNECTION_STRING"
+          echo "👁️  SA_CONNECTION_STRING starts with: ${SA_CONNECTION_STRING:0:25}"
           export SA_ACCOUNT_NAME="pagopadweuqifnsa"
           export SA_BLOB_CONTAINER_NAME="qibrokerreport"
           export START_DATE=${{inputs.start_date || 'yesterday'}}
           export END_DATE=${{inputs.end_date || 'yesterday'}}
           export PYTHONUNBUFFERED="1"
-          
-          echo $SA_CONNECTION_STRING
-          echo $SA-CONNECTION-STRING
 
           cd ./python/gpd-report
           python broker-aca-report.py
