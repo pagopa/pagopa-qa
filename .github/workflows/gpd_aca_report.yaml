@@ -33,7 +33,6 @@ jobs:
     environment: 
       name: prod
     steps:
-    
       - name: Auto approve
         uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
         with:
@@ -71,7 +70,6 @@ jobs:
     environment: 
       name: prod
     steps:
-    
       - name: Auto approve
         uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
         with:
@@ -120,7 +118,7 @@ jobs:
           export END_DATE=${{inputs.end_date || 'yesterday'}}
           export PYTHONUNBUFFERED="1"
           
-          cd ./python/gpd-roreport
+          cd ./python/gpd-report
           python broker-aca-report.py
 
       - name: Create failure payload
