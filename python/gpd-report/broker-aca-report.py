@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import matplotlib.pyplot as plt
 import time
 from sqlalchemy import create_engine
@@ -21,6 +21,8 @@ def generate_sas_url(blob_name, container_name, account_name, account_key, expir
     )
     return f"https://{account_name}.blob.core.windows.net/{container_name}/{blob_name}?{sas_token}"
 
+def parse_date(date_str):
+    return datetime.strptime(date_str, "%Y-%m-%d")
 
 # === CONFIGURATIONS ===
 # Postegres
@@ -30,52 +32,77 @@ nodo_engine = create_engine(os.getenv("PG_CFG_CONNECTION_STRING"))
 # Storage Account
 account_name = os.getenv("SA_ACCOUNT_NAME")
 account_key = os.getenv("SA_ACCOUNT_KEY")
-connection_string = os.getenv("SA_CONNECTION_STRING")
 table_name = os.getenv("SA_BLOB_CONTAINER_NAME")
 
-# Date range
-# try to get from env variables
+# === Date range management ===
 start_str = os.getenv("START_DATE")
 end_str = os.getenv("END_DATE")
-if start_str is None or end_str is None or start_str == '' or end_str == '' or start_str == 'yesterday' or end_str == 'yesterday':
-    start_str = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
-    end_str = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
 
-try:
-    start_date = datetime.strptime(start_str, "%Y-%m-%d") if start_str else None
-    end_date = datetime.strptime(end_str, "%Y-%m-%d") if end_str else None
-except ValueError as e:
-    print(f"⚠️ Date format noto valid: {e}")
-    start_date = None
-    end_date = None
-
-# if they not exist or not valid consider today
-if not start_date or not end_date:
-    today = datetime.today()
-    start_date = today.replace(hour=0, minute=0, second=0, microsecond=0)
+if not start_str or not end_str or start_str.strip().lower() == 'yesterday' or end_str.strip().lower() == 'yesterday':
+    base_day = datetime.today() - timedelta(days=1)
+    start_date = base_day.replace(hour=0, minute=0, second=0, microsecond=0)
     end_date = start_date + timedelta(days=1)
-    print(f"✅ No valid date range, use today by default: {start_date.date()}")
+    print(f"✅ No valid date range provided, defaulting to yesterday: {start_date.date()}")
+else:
+    try:
+        start_date = parse_date(start_str.strip()).replace(hour=0, minute=0, second=0, microsecond=0)
+        end_date = parse_date(end_str.strip()).replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+    except ValueError as e:
+        print(f"⚠️ Invalid date format: {e}. Defaulting to yesterday.")
+        base_day = datetime.today() - timedelta(days=1)
+        start_date = base_day.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_date = start_date + timedelta(days=1)
 
-print(f"📅 Excecution from: {start_date.date()} to: {end_date.date()}")
+print(f"📅 Execution from: {start_date} to: {end_date}")
 
 # Main dataflow initialization
 df = pd.DataFrame(columns=[
     'report_date','broker_id', 'broker_name', 'station_id', 'organization_fiscal_code', 'segregation_code', 'total'
 ])
 
+# === History Table initialization ===
+status_table_name = os.getenv("SA_BLOB_CONTAINER_HISTORY_NAME")
+connection_string = f"DefaultEndpointsProtocol=https;AccountName={account_name};AccountKey={account_key};EndpointSuffix=core.windows.net"
+table_service = TableServiceClient.from_connection_string(conn_str=connection_string)
+status_client = table_service.get_table_client(status_table_name)
+processed_dates = set()
+try:
+    entities = status_client.list_entities()
+    for e in entities:
+        if e['PartitionKey'] == 'status':
+            processed_dates.add(e['RowKey'])  # e.g. "2025-04-11"
+    print(f"📆 Already processed {len(processed_dates)} dates.")
+except Exception as e:
+    print(f"⚠️ Error loading processed dates: {e}")
+
+
+# Create the status table if it doesn't exist
+try:
+    table_service.create_table_if_not_exists(table_name=status_table_name)
+    print(f"✅ Status table '{status_table_name}' is ready.")
+except Exception as e:
+    print(f"⚠️ Error creating status table: {e}")
+    
 
 # === Get data from APD ===
 print(f"✅ Getting data from APD DB")
 with apd_engine.connect() as apd_connection:
-    for n in range((end_date - start_date).days):
-        base_day = start_date + timedelta(days=n)
+    current_day = start_date
+    while current_day < end_date:
+        base_day = current_day
 
-        # Dayly intervals
+        # Skip day if already processed
+        date_str = base_day.strftime('%Y-%m-%d')
+        if date_str in processed_dates:
+            print(f"⏭️ Skipping already processed date: {date_str}")
+            current_day += timedelta(days=1)
+            continue
+    
         intervals = [
             (base_day.replace(hour=0, minute=0, second=0), base_day.replace(hour=6, minute=0, second=0)),
             (base_day.replace(hour=6, minute=0, second=0), base_day.replace(hour=12, minute=0, second=0)),
             (base_day.replace(hour=12, minute=0, second=0), base_day.replace(hour=18, minute=0, second=0)),
-            (base_day.replace(hour=18, minute=0, second=0), base_day + timedelta(days=1))  
+            (base_day.replace(hour=18, minute=0, second=0), base_day + timedelta(days=1))
         ]
 
         for from_dt, to_dt in intervals:
@@ -97,10 +124,10 @@ with apd_engine.connect() as apd_connection:
             success = False
             for attempt in range(1, retries + 1):
                 try:
-                    print(f"✅ Executing query on APD for range: {from_dt.strftime('%Y-%m-%d %H:%M:%S')} - {to_dt.strftime('%Y-%m-%d %H:%M:%S')}")
+                    print(f"✅ Executing query on APD for range: {from_dt} - {to_dt}")
                     partial_df = pd.read_sql(query, apd_connection)
                     success = True
-                    break 
+                    break
                 except Exception as e:
                     print(f"⚠️ Attempt {attempt} failed due to error: {e}")
                     if attempt < retries:
@@ -114,9 +141,23 @@ with apd_engine.connect() as apd_connection:
                         raise e
 
             if success:
-                partial_df['broker_id'] = None # it'll be enriched later
-                partial_df['station_id'] = None # it'll be enriched later
+                partial_df['broker_id'] = None
+                partial_df['station_id'] = None
                 df = pd.concat([df, partial_df], ignore_index=True)
+                
+                # Save the day as processed
+                try:
+                    status_client.upsert_entity({
+                        "PartitionKey": "status",
+                        "RowKey": date_str,
+                        "status": "completed",
+                        "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+                    })
+                    print(f"📌 Marked {date_str} as processed.")
+                except Exception as e:
+                    print(f"⚠️ Failed to write status for {date_str}: {e}")
+
+        current_day += timedelta(days=1)
 
 
 # === Getting data from CFG ===
@@ -160,7 +201,6 @@ print(f"🧹 Removed {removed} record equal to 'RF'")
 
 # Getting data from the table (if exist)
 existing_df = pd.DataFrame()
-table_service = TableServiceClient.from_connection_string(conn_str=connection_string)
 table_client = table_service.get_table_client(table_name)
 
 try:
@@ -238,19 +278,16 @@ for _, row in merged_df.iterrows():
 
 print("✅ Record stored on Table Storage")
 
-
-
 # === Report Management ===
 csv_path = "broker_report.csv"
 chart_path = "top_broker_piechart.png"
 
 # set data for chart
 chart_df = merged_df.groupby(
-    ["broker_id", "broker_name", "total"],
+    ["broker_id", "broker_name"],
     as_index=False
 ).agg({
-    "total": "sum",
-    "broker_name": "first"
+    "total": "sum"
 })
 chart_df = chart_df.sort_values(by='total', ascending=False).head(10)
 
@@ -329,7 +366,7 @@ print(f"🔗 Chart URL: {chart_url}")
 # generate slack message payload
 top10_text = "\n".join([
     f"{i+1}. `{row['broker_id']}` - *{row['broker_name']}*: {row['total']:,} ACA"
-    for i, row in chart_df.iterrows()
+    for i, row in chart_df.reset_index(drop=True).iterrows()
 ])
 
 
