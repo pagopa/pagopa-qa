@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import matplotlib.pyplot as plt
 import time
 from sqlalchemy import create_engine
@@ -60,6 +60,29 @@ df = pd.DataFrame(columns=[
     'report_date','broker_id', 'broker_name', 'station_id', 'organization_fiscal_code', 'segregation_code', 'total'
 ])
 
+# === History Table initialization ===
+status_table_name = os.getenv("SA_BLOB_CONTAINER_HISTORY_NAME")
+connection_string = f"DefaultEndpointsProtocol=https;AccountName={account_name};AccountKey={account_key};EndpointSuffix=core.windows.net"
+table_service = TableServiceClient.from_connection_string(conn_str=connection_string)
+status_client = table_service.get_table_client(status_table_name)
+processed_dates = set()
+try:
+    entities = status_client.list_entities()
+    for e in entities:
+        if e['PartitionKey'] == 'status':
+            processed_dates.add(e['RowKey'])  # e.g. "2025-04-11"
+    print(f"📆 Already processed {len(processed_dates)} dates.")
+except Exception as e:
+    print(f"⚠️ Error loading processed dates: {e}")
+
+
+# Create the status table if it doesn't exist
+try:
+    table_service.create_table_if_not_exists(table_name=status_table_name)
+    print(f"✅ Status table '{status_table_name}' is ready.")
+except Exception as e:
+    print(f"⚠️ Error creating status table: {e}")
+    
 # === Get data from APD ===
 print(f"✅ Getting data from APD DB")
 with apd_engine.connect() as apd_connection:
@@ -67,6 +90,13 @@ with apd_engine.connect() as apd_connection:
     while current_day < end_date:
         base_day = current_day
 
+        # Skip day if already processed
+        date_str = base_day.strftime('%Y-%m-%d')
+        if date_str in processed_dates:
+            print(f"⏭️ Skipping already processed date: {date_str}")
+            current_day += timedelta(days=1)
+            continue
+    
         intervals = [
             (base_day.replace(hour=0, minute=0, second=0), base_day.replace(hour=6, minute=0, second=0)),
             (base_day.replace(hour=6, minute=0, second=0), base_day.replace(hour=12, minute=0, second=0)),
@@ -113,6 +143,20 @@ with apd_engine.connect() as apd_connection:
                 partial_df['broker_id'] = None
                 partial_df['station_id'] = None
                 df = pd.concat([df, partial_df], ignore_index=True)
+                
+                # Save the day as processed
+                try:
+                    status_client.upsert_entity({
+                        "PartitionKey": "status",
+                        "RowKey": date_str,
+                        "status": "completed",
+                        "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+                    })
+                    print(f"📌 Marked {date_str} as processed.")
+                except Exception as e:
+                    print(f"⚠️ Failed to write status for {date_str}: {e}")
+
+        current_day += timedelta(days=1)
 
         current_day += timedelta(days=1)
 
@@ -158,8 +202,6 @@ print(f"🧹 Removed {removed} record equal to 'RF'")
 
 # Getting data from the table (if exist)
 existing_df = pd.DataFrame()
-connection_string = f"DefaultEndpointsProtocol=https;AccountName={account_name};AccountKey={account_key};EndpointSuffix=core.windows.net"
-table_service = TableServiceClient.from_connection_string(conn_str=connection_string)
 table_client = table_service.get_table_client(table_name)
 
 try:
