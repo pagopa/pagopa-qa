@@ -121,6 +121,7 @@ jobs:
           export SA_ACCOUNT_KEY=${{ secrets.SA_ACCOUNT_KEY }}
           export SA_ACCOUNT_NAME="pagopadweuqifnsa"
           export SA_BLOB_CONTAINER_NAME="qibrokerreport"
+          export SA_BLOB_CONTAINER_HISTORY_NAME="qireportstatus"
           export START_DATE=${{inputs.start_date || 'yesterday'}}
           export END_DATE=${{inputs.end_date || 'yesterday'}}
           export PYTHONUNBUFFERED="1"
