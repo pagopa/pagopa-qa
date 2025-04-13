@@ -5,6 +5,15 @@ on:
     
   workflow_dispatch:
     inputs:
+      environment:
+        required: true
+        type: choice
+        description: Select the Environment
+        options:
+          - uat
+          - prod
+        default: prod
+
       start_date:
         description: "Start date (YYYY-MM-DD) alternative: yesterday (default)"
         required: true
@@ -31,19 +40,19 @@ jobs:
     name: Execute auto-approve for 'Create Runner'
     runs-on: ubuntu-latest
     environment: 
-      name: prod
+      name: ${{ github.event.inputs.environment || 'prod' }}
     steps:
       - name: Auto approve
         uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
         with:
           pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
-          environment: prod
+          environment: ${{ inputs.environment || 'prod' }}
 
   create_runner:
     name: Create Runner
     runs-on: ubuntu-22.04
     environment:
-      name: prod
+      name: ${{(github.event.inputs == null && 'prod') || inputs.environment }}
     outputs:
       runner_name: ${{ steps.create_github_runner.outputs.runner_name }}
     steps:
@@ -68,29 +77,28 @@ jobs:
     name: Execute auto-approve for 'Report Script'
     runs-on: ubuntu-latest
     environment: 
-      name: prod
+      name: ${{ github.event.inputs.environment || 'prod' }}
     steps:
       - name: Auto approve
         uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
         with:
           pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
-          environment: prod
+          environment: ${{ inputs.environment || 'prod' }} 
 
   report_script:
     needs: [ create_runner ]
-    name: prod
+    name: Report Script
     runs-on: [ self-hosted, "${{ needs.create_runner.outputs.runner_name }}" ]
-    environment: prod
+    environment: ${{ inputs.environment || 'prod' }} 
     steps:
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 # v4
         with:
           python-version: '3.12'
 
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@1f9a0c22da41e6ebfa534300ef656657ea2c6707
+      - name: Check out the repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 
       - name: Install dependencies
         run: |
@@ -111,13 +119,12 @@ jobs:
           export PG_APD_CONNECTION_STRING=${{ secrets.PG_APD_CONNECTION_STRING}}
           export PG_CFG_CONNECTION_STRING=${{ secrets.PG_CFG_CONNECTION_STRING}}
           export SA_ACCOUNT_KEY=${{ secrets.SA_ACCOUNT_KEY }}
-          export SA_CONNECTION_STRING=${{ secrets.SA_CONNECTION_STRING }}
           export SA_ACCOUNT_NAME="pagopadweuqifnsa"
           export SA_BLOB_CONTAINER_NAME="qibrokerreport"
           export START_DATE=${{inputs.start_date || 'yesterday'}}
           export END_DATE=${{inputs.end_date || 'yesterday'}}
           export PYTHONUNBUFFERED="1"
-          
+
           cd ./python/gpd-report
           python broker-aca-report.py
 
@@ -152,21 +159,20 @@ jobs:
     name: Execute auto-approve for 'Cleanup Runner'
     runs-on: ubuntu-latest
     environment: 
-      name: prod
+      name: ${{ github.event.inputs.environment || 'prod' }}
     steps:
-    
       - name: Auto approve
         uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
         with:
           pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
-          environment: prod
+          environment: ${{ inputs.environment || 'prod' }}
 
   cleanup_runner:
     name: Cleanup Runner
     needs: [ create_runner, report_script ]
     if: ${{ always() }}
     runs-on: ubuntu-22.04
-    environment: prod
+    environment: ${{ inputs.environment || 'prod' }}
     steps:
       - name: Cleanup GitHub Runner
         id: cleanup_github_runner
