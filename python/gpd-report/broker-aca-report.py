@@ -290,7 +290,7 @@ chart_df = merged_df.groupby(
 ).agg({
     "total": "sum"
 })
-chart_df = chart_df.sort_values(by='total', ascending=False).head(10)
+chart_df = chart_df.sort_values(by='total', ascending=False).head(5)
 
 # print chart
 plt.figure(figsize=(8, 8))
@@ -300,7 +300,7 @@ plt.pie(
     autopct='%1.1f%%',
     startangle=140
 )
-plt.title("Top 10 Broker ID per numero posizioni debitorie ACA")
+plt.title("Top 5 Intermediari per numero posizioni caricate su ACA")
 plt.axis('equal')
 plt.tight_layout()
 plt.show()
@@ -361,32 +361,44 @@ chart_url = generate_sas_url(
     account_key=account_key,
     expiry_minutes=60
 )
+
 print(f"🔗 CSV URL: {csv_url}")
 print(f"🔗 Chart URL: {chart_url}")
 
 # generate slack message payload
-top10_text = "\n".join([
-    f"{i+1}. `{row['broker_id']}` - *{row['broker_name']}*: {row['total']:,} ACA"
+top5_text = "\n".join([
+    f"{i+1}. `{row['broker_id']}` - *{row['broker_name']}* posizioni: `{row['total']:,}`"
     for i, row in chart_df.reset_index(drop=True).iterrows()
 ])
 
-
 slack_payload = {
-    "text": "📊 *GPD Broker Report aggiornato!*",
-    "attachments": [
+    "text": "📈 *GPD - Andamento caricamento ACA per Intermediario*",
+    "blocks": [
         {
-            "fallback": "Grafico dei top broker",
-            "title": "Download CSV",
-            "title_link": csv_url,
-            "text": "Scarica il report aggiornato in formato CSV.",
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "📥 *Scarica i dati aggiornati in formato CSV:*\n<{}|➡️ Clicca qui per il download>".format(csv_url)
+            }
+        },
+        { "type": "divider" },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*🏆 Top 5 Intermediari per numero ACA:*\n{}".format(top5_text)
+            }
+        },
+        { "type": "divider" },
+        {
+            "type": "image",
+            "title": {
+                "type": "plain_text",
+                "text": "Distribuzione visuale dei top broker",
+                "emoji": True
+            },
             "image_url": chart_url,
-            "fields": [
-                {
-                    "title": "Top 10 Broker",
-                    "value": top10_text,
-                    "short": False
-                }
-            ]
+            "alt_text": "Grafico dei top broker"
         }
     ]
 }
