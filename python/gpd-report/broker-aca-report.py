@@ -83,7 +83,6 @@ try:
 except Exception as e:
     print(f"⚠️ Error creating status table: {e}")
     
-
 # === Get data from APD ===
 print(f"✅ Getting data from APD DB")
 with apd_engine.connect() as apd_connection:
@@ -156,6 +155,8 @@ with apd_engine.connect() as apd_connection:
                     print(f"📌 Marked {date_str} as processed.")
                 except Exception as e:
                     print(f"⚠️ Failed to write status for {date_str}: {e}")
+
+        current_day += timedelta(days=1)
 
         current_day += timedelta(days=1)
 
