@@ -243,11 +243,10 @@ chart_path = "top_broker_piechart.png"
 
 # set data for chart
 chart_df = merged_df.groupby(
-    ["broker_id", "broker_name", "total"],
+    ["broker_id", "broker_name"],
     as_index=False
 ).agg({
-    "total": "sum",
-    "broker_name": "first"
+    "total": "sum"
 })
 chart_df = chart_df.sort_values(by='total', ascending=False).head(10)
 
@@ -326,7 +325,7 @@ print(f"🔗 Chart URL: {chart_url}")
 # generate slack message payload
 top10_text = "\n".join([
     f"{i+1}. `{row['broker_id']}` - *{row['broker_name']}*: {row['total']:,} ACA"
-    for i, row in chart_df.iterrows()
+    for i, row in chart_df.reset_index(drop=True).iterrows()
 ])
 
 
