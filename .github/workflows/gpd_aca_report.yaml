@@ -40,7 +40,7 @@ jobs:
     name: Execute auto-approve for 'Create Runner'
     runs-on: ubuntu-latest
     environment: 
-      name: ${{ github.event.inputs.environment || 'prod' }}
+      name: ${{ github.event.inputs == null || github.event.inputs == 'prod' }}
     steps:
       - name: Auto approve
         uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
@@ -77,7 +77,7 @@ jobs:
     name: Execute auto-approve for 'Report Script'
     runs-on: ubuntu-latest
     environment: 
-      name: ${{ github.event.inputs.environment || 'prod' }}
+      name: ${{ github.event.inputs == null || github.event.inputs == 'prod' }}
     steps:
       - name: Auto approve
         uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
@@ -160,7 +160,7 @@ jobs:
     name: Execute auto-approve for 'Cleanup Runner'
     runs-on: ubuntu-latest
     environment: 
-      name: ${{ github.event.inputs.environment || 'prod' }}
+      name: ${{ github.event.inputs == null || github.event.inputs == 'prod' }}
     steps:
       - name: Auto approve
         uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
@@ -173,7 +173,7 @@ jobs:
     needs: [ create_runner, report_script ]
     if: ${{ always() }}
     runs-on: ubuntu-22.04
-    environment: ${{ inputs.environment || 'prod' }}
+    environment: ${{(github.event.inputs == null && 'uat') || inputs.environment }}
     steps:
       - name: Cleanup GitHub Runner
         id: cleanup_github_runner
