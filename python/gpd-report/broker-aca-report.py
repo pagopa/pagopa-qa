@@ -380,6 +380,14 @@ slack_payload = {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
+                "text": "📈 GPD - Andamento caricamento ACA per Intermediario"
+            }
+        },
+        { "type": "divider" },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
                 "text": "📥 *Scarica i dati aggiornati in formato CSV:*\n<{}|Clicca qui per il download>".format(csv_url)
             }
         },
