@@ -279,8 +279,9 @@ for _, row in merged_df.iterrows():
 print("✅ Record stored on Table Storage")
 
 # === Report Management ===
-csv_path = "broker_report.csv"
-chart_path = "top_broker_piechart.png"
+today_str = datetime.today().strftime("%Y%m%d")
+csv_path = f"{today_str}_broker_report.csv"
+chart_path = f"{today_str}_top_broker_piechart.png"
 
 # set data for chart
 chart_df = merged_df.groupby(
@@ -390,16 +391,14 @@ slack_payload = {
         },
         { "type": "divider" },
         {
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": "*Distribuzione percentuale dei top 5 broker*"
+            "type": "image",
+            "title": {
+                "type": "plain_text",
+                "text": "Distribuzione visuale dei top broker",
+                "emoji": True
             },
-            "accessory": {
-                "type": "image",
-                "image_url": chart_url,
-                "alt_text": "Grafico dei top 5 broker"
-            }
+            "image_url": chart_url,
+            "alt_text": "Grafico dei top broker"
         }
     ]
 }
