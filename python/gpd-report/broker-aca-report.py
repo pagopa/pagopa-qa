@@ -10,7 +10,7 @@ from azure.storage.blob import BlobServiceClient, ContentSettings
 from azure.storage.blob import generate_blob_sas, BlobSasPermissions
 
 # === Generate SAS url to access blob container files ===
-def generate_sas_url(blob_name, container_name, account_name, account_key, expiry_minutes=60):
+def generate_sas_url(blob_name, container_name, account_name, account_key, expiry_minutes):
     sas_token = generate_blob_sas(
         account_name=account_name,
         container_name=container_name,
@@ -57,7 +57,7 @@ print(f"📅 Execution from: {start_date} to: {end_date}")
 
 # Main dataflow initialization
 df = pd.DataFrame(columns=[
-    'report_date','broker_id', 'broker_name', 'station_id', 'organization_fiscal_code', 'segregation_code', 'total'
+    'broker_id', 'broker_name', 'station_id', 'organization_fiscal_code', 'segregation_code', 'total'
 ])
 
 # === History Table initialization ===
@@ -65,6 +65,14 @@ status_table_name = os.getenv("SA_BLOB_CONTAINER_HISTORY_NAME")
 connection_string = f"DefaultEndpointsProtocol=https;AccountName={account_name};AccountKey={account_key};EndpointSuffix=core.windows.net"
 table_service = TableServiceClient.from_connection_string(conn_str=connection_string)
 status_client = table_service.get_table_client(status_table_name)
+
+# Create the status table if it doesn't exist
+try:
+    table_service.create_table_if_not_exists(table_name=status_table_name)
+    print(f"✅ Status table '{status_table_name}' is ready.")
+except Exception as e:
+    print(f"⚠️ Error creating status table: {e}")
+
 processed_dates = set()
 try:
     entities = status_client.list_entities()
@@ -76,12 +84,6 @@ except Exception as e:
     print(f"⚠️ Error loading processed dates: {e}")
 
 
-# Create the status table if it doesn't exist
-try:
-    table_service.create_table_if_not_exists(table_name=status_table_name)
-    print(f"✅ Status table '{status_table_name}' is ready.")
-except Exception as e:
-    print(f"⚠️ Error creating status table: {e}")
     
 # === Get data from APD ===
 print(f"✅ Getting data from APD DB")
@@ -158,9 +160,6 @@ with apd_engine.connect() as apd_connection:
 
         current_day += timedelta(days=1)
 
-        current_day += timedelta(days=1)
-
-
 # === Getting data from CFG ===
 print(f"✅ Getting broker data from CFG DB")
 with nodo_engine.connect() as nodo_connection:
@@ -188,17 +187,15 @@ df = df.merge(
     how='left'
 )
 
-missing = df[df['broker_id'].isnull()]
-print(f"✅ Record not enriched: {len(missing)}")
-
-# add report_date to dataframe
-df["report_date"] = datetime.today()
-
-# remove record with 'RF' segregation code
+# !!!!!!!!!!!!!!! remove record with 'RF' segregation code !!!!!!!!!!!!!!!!!!!!!!
 initial_len = len(df)
 df = df[df["segregation_code"] != "RF"]
 removed = initial_len - len(df)
 print(f"🧹 Removed {removed} record equal to 'RF'")
+
+missing = df[df['broker_id'].isnull()]
+df = df[df["broker_id"].notnull()]
+print(f"✅ Removed {len(missing)} not enriched")
 
 # Getting data from the table (if exist)
 existing_df = pd.DataFrame()
@@ -214,8 +211,7 @@ except Exception as e:
 
 # Filtering expected columns
 expected_cols = [
-    "broker_id", "station_id", "segregation_code", "total",
-    "report_date", "broker_name", "organization_fiscal_code"
+    "broker_id", "station_id", "segregation_code", "total", "broker_name", "organization_fiscal_code"
 ]
 for col in expected_cols:
     if col not in existing_df.columns:
@@ -229,34 +225,38 @@ df["total"] = pd.to_numeric(df["total"], errors="coerce").fillna(0).astype("int6
 merged_df = pd.concat([existing_df, df], ignore_index=True)
 
 # Merge results
+merged_df = merged_df.dropna(subset=[
+    "broker_id", "station_id", "organization_fiscal_code", "segregation_code"
+])
 merged_df = merged_df.groupby(
     ["broker_id", "station_id", "organization_fiscal_code", "segregation_code"],
     as_index=False
 ).agg({
     "total": "sum",
-    "broker_name": "first",
-    #"organization_fiscal_code": "first",
-    "report_date": "max"  # aggiorna alla data più recente
+    "broker_name": "first"
 })
 
 print(f"✅ Existing and new dataframe merged")
 
 # Build the table keys
+merged_df = merged_df.reset_index(drop=True)
 merged_df["PartitionKey"] = merged_df["broker_id"].astype(str)
-merged_df["RowKey"] = merged_df["station_id"].astype(str) + "|" + df["organization_fiscal_code"].astype(str) + "|" + df["segregation_code"].astype(str)
-
-# Convert date format for iso compatibility
-merged_df["report_date"] = pd.to_datetime(merged_df["report_date"], errors="coerce")
-merged_df["report_date"] = merged_df["report_date"].dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+merged_df["RowKey"] = (
+    merged_df["station_id"].astype(str)
+    + "|" + merged_df["organization_fiscal_code"].astype(str)
+    + "|" + merged_df["segregation_code"].astype(str)
+)
+merged_df = merged_df[~merged_df["PartitionKey"].isin(["nan"])]
+merged_df = merged_df[~merged_df["RowKey"].str.contains("nan")]
 
 print(f"✅ Data ready to be uploaded: {len(merged_df)} record")
 
-# Create the table if does not exists
+# Create the table if does not exists and upsert records
 try:
     table_client.create_table()
     print("✅ Table storage created")
 except Exception:
-    print("⚠️ Table Storage already exists, proceed to upsert")
+    print("⚠️ Table Storage already exists")
 
 # === Upsert dei dati
 print(f"🔄 Writing {len(merged_df)} record on Table Storage...")
@@ -265,11 +265,12 @@ for _, row in merged_df.iterrows():
         entity = {
             "PartitionKey": row["PartitionKey"],
             "RowKey": row["RowKey"],
+            "broker_id": row["broker_id"],
             "broker_name": row["broker_name"],
             "organization_fiscal_code": row["organization_fiscal_code"],
+            "station_id": row["station_id"],
             "segregation_code": row["segregation_code"],
-            "total": int(row["total"]),
-            "report_date": row["report_date"]
+            "total": int(row["total"])
         }
 
         # Upsert = Insert or Merge
@@ -280,8 +281,9 @@ for _, row in merged_df.iterrows():
 print("✅ Record stored on Table Storage")
 
 # === Report Management ===
-csv_path = "broker_report.csv"
-chart_path = "top_broker_piechart.png"
+today_str = datetime.today().strftime("%Y%m%d")
+csv_path = f"{today_str}_broker_report.csv"
+chart_path = f"{today_str}_top_broker_piechart.png"
 
 # set data for chart
 chart_df = merged_df.groupby(
@@ -290,7 +292,7 @@ chart_df = merged_df.groupby(
 ).agg({
     "total": "sum"
 })
-chart_df = chart_df.sort_values(by='total', ascending=False).head(10)
+chart_df = chart_df.sort_values(by='total', ascending=False).head(5)
 
 # print chart
 plt.figure(figsize=(8, 8))
@@ -300,7 +302,7 @@ plt.pie(
     autopct='%1.1f%%',
     startangle=140
 )
-plt.title("Top 10 Broker ID per numero posizioni debitorie ACA")
+plt.title("Top 5 Intermediari per numero posizioni caricate su ACA")
 plt.axis('equal')
 plt.tight_layout()
 plt.show()
@@ -351,7 +353,7 @@ csv_url = generate_sas_url(
     container_name=container_name,
     account_name=account_name,
     account_key=account_key,
-    expiry_minutes=60 
+    expiry_minutes=1440 
 )
 
 chart_url = generate_sas_url(
@@ -359,34 +361,46 @@ chart_url = generate_sas_url(
     container_name=container_name,
     account_name=account_name,
     account_key=account_key,
-    expiry_minutes=60
+    expiry_minutes=1440
 )
+
 print(f"🔗 CSV URL: {csv_url}")
 print(f"🔗 Chart URL: {chart_url}")
 
 # generate slack message payload
-top10_text = "\n".join([
-    f"{i+1}. `{row['broker_id']}` - *{row['broker_name']}*: {row['total']:,} ACA"
+top5_text = "\n".join([
+    f"{i+1}. `{row['broker_id']}` - *{row['broker_name']}* posizioni: `{row['total']:,}`"
     for i, row in chart_df.reset_index(drop=True).iterrows()
 ])
 
-
 slack_payload = {
-    "text": "📊 *GPD Broker Report aggiornato!*",
-    "attachments": [
+    "text": "📈 *GPD - Andamento caricamento ACA per Intermediario*",
+    "blocks": [
         {
-            "fallback": "Grafico dei top broker",
-            "title": "Download CSV",
-            "title_link": csv_url,
-            "text": "Scarica il report aggiornato in formato CSV.",
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "📥 *Scarica i dati aggiornati in formato CSV:*\n<{}|Clicca qui per il download>".format(csv_url)
+            }
+        },
+        { "type": "divider" },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*🏆 Top 5 Intermediari per numero ACA:*\n{}".format(top5_text)
+            }
+        },
+        { "type": "divider" },
+        {
+            "type": "image",
+            "title": {
+                "type": "plain_text",
+                "text": "Distribuzione visuale dei top broker",
+                "emoji": True
+            },
             "image_url": chart_url,
-            "fields": [
-                {
-                    "title": "Top 10 Broker",
-                    "value": top10_text,
-                    "short": False
-                }
-            ]
+            "alt_text": "Grafico dei top broker"
         }
     ]
 }
