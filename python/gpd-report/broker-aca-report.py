@@ -251,7 +251,7 @@ merged_df = merged_df[~merged_df["RowKey"].str.contains("nan")]
 
 print(f"✅ Data ready to be uploaded: {len(merged_df)} record")
 
-# Create the table if does not exists and delete all existing records
+# Create the table if does not exists and upsert records
 try:
     table_client.create_table()
     print("✅ Table storage created")
@@ -265,8 +265,10 @@ for _, row in merged_df.iterrows():
         entity = {
             "PartitionKey": row["PartitionKey"],
             "RowKey": row["RowKey"],
+            "broker_id": row["broker_id"],
             "broker_name": row["broker_name"],
             "organization_fiscal_code": row["organization_fiscal_code"],
+            "station_id": row["station_id"],
             "segregation_code": row["segregation_code"],
             "total": int(row["total"])
         }
