@@ -10,7 +10,7 @@ from azure.storage.blob import BlobServiceClient, ContentSettings
 from azure.storage.blob import generate_blob_sas, BlobSasPermissions
 
 # === Generate SAS url to access blob container files ===
-def generate_sas_url(blob_name, container_name, account_name, account_key, expiry_minutes=10080):
+def generate_sas_url(blob_name, container_name, account_name, account_key, expiry_minutes):
     sas_token = generate_blob_sas(
         account_name=account_name,
         container_name=container_name,
@@ -350,7 +350,7 @@ csv_url = generate_sas_url(
     container_name=container_name,
     account_name=account_name,
     account_key=account_key,
-    expiry_minutes=60 
+    expiry_minutes=1440 
 )
 
 chart_url = generate_sas_url(
@@ -358,7 +358,7 @@ chart_url = generate_sas_url(
     container_name=container_name,
     account_name=account_name,
     account_key=account_key,
-    expiry_minutes=60
+    expiry_minutes=1440
 )
 
 print(f"🔗 CSV URL: {csv_url}")
@@ -377,7 +377,7 @@ slack_payload = {
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": "📥 *Scarica i dati aggiornati in formato CSV:*\n<{}|➡️ Clicca qui per il download>".format(csv_url)
+                "text": "📥 *Scarica i dati aggiornati in formato CSV:*\n<{}|Clicca qui per il download>".format(csv_url)
             }
         },
         { "type": "divider" },
@@ -390,14 +390,16 @@ slack_payload = {
         },
         { "type": "divider" },
         {
-            "type": "image",
-            "title": {
-                "type": "plain_text",
-                "text": "Distribuzione visuale dei top broker",
-                "emoji": True
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": "*Distribuzione percentuale dei top 5 broker*"
             },
-            "image_url": chart_url,
-            "alt_text": "Grafico dei top broker"
+            "accessory": {
+                "type": "image",
+                "image_url": chart_url,
+                "alt_text": "Grafico dei top 5 broker"
+            }
         }
     ]
 }
