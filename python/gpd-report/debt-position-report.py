@@ -26,17 +26,16 @@ FROM apd.payment_position;
 
 def fetch_data():
     try:
+        # db connection
+        print("creating db connection")
+        conn = psycopg2.connect(**DB_CONFIG)
+        cursor = conn.cursor()
+        print("db connection created")
         
         # execute query
         retries = 3
         for attempt in range(1, retries + 1):
-            try:
-                # db connection
-                print("creating db connection")
-                conn = psycopg2.connect(**DB_CONFIG)
-                cursor = conn.cursor()
-                print("db connection created")
-                
+            try:                
                 print(f"attempt {attempt} to executing query {QUERY}")
                 cursor.execute(QUERY)
                 result = cursor.fetchone()
