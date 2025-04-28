@@ -33,7 +33,7 @@ def fetch_data():
         print("db connection created")
         
         # execute query
-        retries = 3
+        retries = 1
         for attempt in range(1, retries + 1):
             try:                
                 print(f"attempt {attempt} to executing query {QUERY}")
