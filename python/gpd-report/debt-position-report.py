@@ -2,6 +2,7 @@ import json
 import psycopg2
 from datetime import datetime
 import os
+import time
 
 # Configurazione della connessione al database
 DB_CONFIG = {
@@ -25,18 +26,33 @@ FROM apd.payment_position;
 
 def fetch_data():
     try:
-        # db connection
-        print("creating db connection")
-        conn = psycopg2.connect(**DB_CONFIG)
-        cursor = conn.cursor()
-        print("db connection created")
         
         # execute query
-        print(f"executing query {QUERY}")
-        cursor.execute(QUERY)
-        result = cursor.fetchone()
-        print("query executed")
-        
+        retries = 3
+        for attempt in range(1, retries + 1):
+            try:
+                # db connection
+                print("creating db connection")
+                conn = psycopg2.connect(**DB_CONFIG)
+                cursor = conn.cursor()
+                print("db connection created")
+                
+                print(f"attempt {attempt} to executing query {QUERY}")
+                cursor.execute(QUERY)
+                result = cursor.fetchone()
+                print("query executed")
+                break
+            except Exception as e:
+                print(f"⚠️ Attempt {attempt} failed due to error: {e}")
+                conn.close()
+                if attempt < retries:
+                    wait = 2 ** attempt
+                    print(f"⏳ Retry in {wait} seconds...")
+                    time.sleep(wait)
+                else:
+                    print("❌ No more retry attempt. Raise exception")
+                    raise e
+                    
         # close connection
         cursor.close()
         conn.close()
