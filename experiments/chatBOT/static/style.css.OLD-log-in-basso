@@ -1,0 +1,355 @@
+/* Impostazione Globale */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Contenitore Chat (DEVE essere relative per il logo assoluto) */
+#chat-container {
+    width: 90%;
+    max-width: 800px;
+    margin: 30px auto; /* Centrato */
+    padding: 25px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: relative; /* <<<=== IMPORTANTE: Ripristinato */
+}
+
+/* Logo nell'angolo (Ripristinato) */
+.app-logo {
+    position: absolute;
+    top: 15px;
+    left: 25px;
+    max-width: 60px; /* Aggiusta dimensione se necessario */
+    height: auto;
+    z-index: 10; /* Assicura sia sopra altri elementi se necessario */
+}
+
+/* Titolo H1 (Con flex interno E padding laterale) */
+h1 {
+     color: #0066cc;
+     margin-bottom: 10px;
+     margin-top: 5px;
+     /* Padding per fare spazio al logo nell'angolo */
+     padding-left: 75px;  /* Spazio a sinistra (logo corner + buffer) */
+     padding-right: 75px; /* Spazio a destra (logo corner + buffer) */
+     /* Flexbox per allineare "Chatbot" e logo inline */
+     display: flex;
+     justify-content: center; /* Centra il contenuto flex */
+     align-items: center;     /* Allinea verticalmente */
+     gap: 10px;               /* Spazio tra testo e logo inline */
+     font-size: 1.8em;        /* Dimensione font */
+     flex-wrap: wrap;         /* Va a capo se non c'è spazio */
+     text-align: center;      /* Aiuta a centrare se va a capo */
+}
+
+/* Logo inline (dentro H1) */
+.h1-logo {
+    height: 2.1em; /* Altezza relativa al font H1 */
+    width: auto;
+    vertical-align: middle; /* Aiuta l'allineamento */
+}
+
+
+/* Stili Base Pagina */
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #f8f9fa;
+    color: #333;
+    display: flex; /* Per centrare orizzontalmente il wrapper */
+    justify-content: center;
+    /* min-height: 100vh; <-- Rimosso per evitare scroll verticale non necessario */
+    align-items: flex-start; /* Allinea il wrapper in alto */
+}
+
+/* Contenitore Principale (Opzionale, ma utile per layout futuri) */
+#main-wrapper {
+    width: 100%;
+    max-width: 900px; /* Larghezza massima del contenuto centrale */
+    margin: auto; /* Centra il wrapper stesso se il body non fosse flex */
+    padding: 15px; /* Aggiunge un po' di spazio ai lati su schermi piccoli */
+}
+
+
+/* Contenitore della Chat */
+#chat-container {
+    width: 100%; /* Occupa tutta la larghezza del wrapper */
+    /* max-width: 800px; <-- Rimosso se #main-wrapper controlla la larghezza */
+    margin: 30px 0; /* Margine sopra/sotto dentro il wrapper */
+    padding: 25px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: relative; /* Necessario per posizionamento assoluto del logo */
+}
+
+/* Logo */
+.app-logo {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    max-width: 60px; /* Logo piccolo nell'angolo */
+    height: auto;
+}
+
+/* Titolo */
+h1 {
+     text-align: center;
+     color: #0066cc;
+     margin-bottom: 10px; /* Ridotto spazio sotto */
+     margin-top: 5px;
+     /* Padding per fare spazio al logo */
+     padding-left: 70px;
+     padding-right: 70px;
+     position: relative;
+}
+
+/* Descrizione sotto H1 */
+#chat-container > p { /* Seleziona solo il p diretto figlio */
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #555;
+    font-size: 0.95em;
+}
+
+
+/* Area Chatbox */
+#chatbox {
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    background-color: #ffffff;
+    border-radius: 4px;
+    height: 450px; /* Altezza fissa chat */
+    overflow-y: auto; /* Scroll verticale automatico */
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column; /* Messaggi impilati */
+}
+
+/* Stili Messaggi Generici */
+.message {
+    margin-bottom: 5px; /* Spazio ridotto tra messaggio e fonti */
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: 85%;
+    word-wrap: break-word;
+    line-height: 1.5;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Messaggi Utente */
+.user-message {
+    background-color: #65abf1;
+    margin-left: auto; /* Allinea a destra */
+    border-bottom-right-radius: 5px;
+    align-self: flex-end;
+    margin-bottom: 12px; /* Ripristina margine normale se non seguito da fonti */
+}
+
+/* Messaggi Bot */
+.bot-message {
+    background-color: #eee;
+    margin-right: auto; /* Allinea a sinistra */
+    align-self: flex-start;
+    white-space: pre-wrap; /* Mantiene newline */
+    /* Modifiche per attaccare le fonti sotto */
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-bottom: 0 !important; /* Rimuovi spazio sotto */
+    padding-bottom: 8px;
+}
+
+/* Messaggi di Errore */
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    margin-right: auto;
+    border-bottom-left-radius: 5px;
+    align-self: flex-start;
+    margin-bottom: 12px;
+}
+
+/* Contenitore Fonti */
+.sources-container {
+    margin-top: -1px; /* Sovrapponi leggermente */
+    margin-bottom: 12px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 85%;
+    padding: 8px 15px 10px 15px;
+    font-size: 0.8em;
+    color: #555;
+    background-color: #f0f0f0;
+    border: 1px solid #e0e0e0;
+    border-top: 1px dashed #ccc; /* Separatore tratteggiato */
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    align-self: flex-start;
+}
+
+.sources-title {
+    margin: 0 0 6px 0;
+    padding: 0;
+    font-weight: bold;
+    font-size: 0.95em;
+    color: #333;
+}
+
+.sources-list {
+    margin: 0;
+    padding-left: 18px;
+    list-style: disc;
+}
+
+.sources-list li {
+    margin-bottom: 4px;
+}
+
+.sources-list a {
+    color: #0056b3;
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.sources-list a:hover {
+    text-decoration: underline;
+}
+
+
+/* Area Input Utente */
+#input-area {
+    display: flex;
+    margin-top: 10px; /* Spazio sopra l'area input */
+    gap: 10px; /* Spazio tra gli elementi interni */
+    align-items: center; /* Allinea verticalmente */
+}
+
+#query-input {
+    flex-grow: 1; /* Occupa spazio disponibile */
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 1em;
+}
+
+/* Bottone Chiedi */
+#ask-button {
+    padding: 12px 25px;
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-shrink: 0; /* Non farlo restringere */
+}
+
+#ask-button:hover:not(:disabled) {
+    background-color: #0052a3;
+}
+
+#ask-button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+/* Bottone Svuota Chat */
+#clear-chat-button {
+    padding: 12px 15px;
+    font-size: 0.9em;
+    background-color: #6c757d; /* Grigio */
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-shrink: 0;
+}
+
+#clear-chat-button:hover:not(:disabled) {
+    background-color: #5a6268;
+}
+
+#clear-chat-button:disabled {
+     background-color: #aaa;
+     cursor: not-allowed;
+}
+
+
+/* Loader e Status */
+#status {
+    text-align: center;
+    margin-top: 5px; /* Spazio ridotto sopra il loader */
+    min-height: 30px;
+}
+
+.loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #0066cc;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+/* Area Info Tecniche */
+#info-toggle-container {
+    text-align: center;
+    margin-top: 20px; /* Spazio sopra il bottone toggle */
+    margin-bottom: 10px;
+}
+
+#toggle-info-button {
+    padding: 8px 15px;
+    font-size: 0.9em;
+    background-color: #f8f9fa; /* Sfondo leggero */
+    color: #333;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#toggle-info-button:hover {
+    background-color: #e9ecef;
+}
+
+#info-panel {
+    background-color: #282c34; /* Sfondo scuro */
+    color: #abb2bf; /* Testo chiaro */
+    font-family: 'Courier New', Courier, monospace; /* Font console */
+    font-size: 0.85em;
+    padding: 15px;
+    border-radius: 5px;
+    margin-top: 0; /* Rimuovi margine sopra se il bottone è già spaziato */
+    margin-bottom: 30px;
+    max-height: 350px; /* Altezza massima con scroll */
+    overflow-y: auto;
+    border: 1px solid #444;
+    line-height: 1.4; /* Interlinea per leggibilità log */
+}
+
+#info-panel h2 {
+    color: #61afef; /* Blu chiaro titolo */
+    margin-top: 0;
+    font-size: 1.1em;
+    border-bottom: 1px solid #444;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+#info-log-content p { /* Stile per ogni riga di log */
+    margin: 3px 0;
+    padding: 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+}

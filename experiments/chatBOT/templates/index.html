@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot PagoPA</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+</head>
+
+<body>
+    <div id="main-wrapper">
+
+        <div id="chat-container">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo PagoPA" class="app-logo">
+            <h1>Chatbot <img src="{{ url_for('static', filename='logo_asset.png') }}" alt="PagoPA" class="h1-logo"></h1>
+            <p style="text-align: center;"></p>
+
+            <div id="chatbox">
+            </div>
+
+            <div id="status">
+                <div id="loader" class="loader" style="display: none;"></div>
+            </div>
+
+            <div id="controls-area"
+                style="display: flex; justify-content: center; gap: 20px; margin-bottom: 15px; flex-wrap: wrap;">
+                <div id="model-selector-area">
+                    <label for="model-select" style="margin-right: 10px; font-weight: bold;">Scegli Modello:</label>
+                    <select name="models" id="model-select" style="padding: 5px; border-radius: 4px;">
+                        <optgroup label="Production Models">
+                            <option value="llama-3.1-8b-instant">Llama 3.1 8B Instant (Meta)</option>
+                            <option value="llama3-8b-8192">Llama 3 8B (Meta)</option>
+                            <option value="gemma2-9b-it">Gemma 2 9B IT (Google)</option>
+                            <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Meta)</option>
+                            <option value="llama3-70b-8192">Llama 3 70B (Meta)</option>
+                        </optgroup>
+                        <optgroup label="Preview Models">
+                            <option value="meta-llama/llama-4-scout-17b-16e-instruct">Llama 4 Scout 17B (Meta)</option>
+                            <option value="meta-llama/llama-4-maverick-17b-128e-instruct">Llama 4 Maverick 17B (Meta)
+                            </option>
+                            <option value="mistral-saba-24b">Mistral Saba 24B</option>
+                            <option value="qwen-qwq-32b">Qwen QWQ 32B (Alibaba)</option>
+                            <option value="qwen-2.5-32b">Qwen 2.5 32B (Alibaba)</option>
+                            <option value="deepseek-r1-distill-qwen-32b">Deepseek Distill Qwen 32B</option>
+                            <option value="deepseek-r1-distill-llama-70b">Deepseek Distill Llama 70B</option>
+                            <option value="llama-3.3-70b-specdec">Llama 3.3 70B SpecDec (Meta)</option>
+                            <option value="llama-3.2-3b-preview">Llama 3.2 3B (Meta)</option>
+                            <option value="llama-3.2-1b-preview">Llama 3.2 1B (Meta)</option>
+                            <option value="qwen-2.5-coder-32b">Qwen 2.5 Coder 32B (Alibaba)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div id="persona-selector-area">
+                    <label for="persona-select" style="margin-right: 10px; font-weight: bold;">Stile Risposta:</label>
+                    <select name="personas" id="persona-select" style="padding: 5px; border-radius: 4px;">
+                        <option value="default"
+                            title="Sei un assistente AI informativo specializzato sul contenuto del sito PagoPA. Rispondi alla domanda dell'utente basandoti ESCLUSIVAMENTE sul contesto fornito. Sii conciso e preciso. Se il contesto non contiene informazioni sufficienti per rispondere, indicalo chiaramente dicendo: 'Le informazioni fornite nel contesto non sono sufficienti per rispondere a questa domanda.'. Non aggiungere informazioni non presenti nel contesto. Rispondi in italiano.">
+                            Default (Specialista)
+                        </option>
+                        <option value="formale"
+                            title="Sei un assistente AI professionale specializzato sulla piattaforma PagoPA. Formula una risposta formale, dettagliata e accurata basandoti rigorosamente ed esclusivamente sulle informazioni presenti nel contesto tecnico fornito. Non includere opinioni o informazioni esterne. Qualora il contesto non contenga elementi sufficienti per una risposta esaustiva, indicalo formalmente con la frase 'Il contesto fornito non contiene elementi sufficienti per formulare una risposta completa.'. La risposta deve essere in lingua italiana.">
+                            Formale
+                        </option>
+                        <option value="amichevole"
+                            title="Ciao! 😊 Sono il tuo assistente AI per il sito PagoPA, pronto a darti una mano! Ti spiego le cose basandomi solo sulle informazioni che trovi scritte nel contesto qui sotto. Cerco di essere super chiaro e semplice! Se non trovo la risposta giusta nel contesto, te lo dico senza problemi con un 'Hmm, su questo il contesto non mi aiuta molto...'. Forza con la domanda! Rispondo in italiano.">
+                            Amichevole
+                        </option>
+                        <option value="scorbutico"
+                            title="Ugh, senti, rispondo su PagoPA e basta, ok? Uso *solo* il contesto che mi danno, non mi invento NIENTE. Se le informazioni non ci sono nel contesto che ho, ti dico 'Contesto inutile, non so rispondere.' e finisce lì. Non farmi perdere tempo. Rispondo in italiano.">
+                            Scorbutico
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div id="input-area">
+                <input type="text" id="query-input" placeholder="Scrivi qui la tua domanda..." autocomplete="off">
+                <button id="ask-button">Chiedi</button>
+                <button id="clear-chat-button" title="Svuota la cronologia della chat">Svuota</button>
+            </div>
+        </div>
+        <div id="info-column">
+            <div id="info-toggle-container">
+                <button id="toggle-info-button">Mostra Log</button>
+            </div>
+            <div id="info-panel" style="display: none;">
+                <h2>Log Elaborazione Richiesta</h2>
+                <div id="info-log-content"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // --- Riferimenti agli Elementi DOM (aggiunto personaSelect) ---
+        const queryInput = document.getElementById('query-input');
+        const askButton = document.getElementById('ask-button');
+        const chatbox = document.getElementById('chatbox');
+        const loader = document.getElementById('loader');
+        const modelSelect = document.getElementById('model-select');
+        const personaSelect = document.getElementById('persona-select'); // <-- AGGIUNTO
+        const clearChatButton = document.getElementById('clear-chat-button');
+        const toggleInfoButton = document.getElementById('toggle-info-button');
+        const infoPanel = document.getElementById('info-panel');
+        const infoLogContent = document.getElementById('info-log-content');
+
+        // --- Event Listeners (invariati) ---
+        askButton.addEventListener('click', handleAsk);
+        queryInput.addEventListener('keypress', function (event) { if (event.key === 'Enter' && !askButton.disabled) { event.preventDefault(); handleAsk(); } });
+        clearChatButton.addEventListener('click', function () { if (confirm('Sei sicuro di voler cancellare la chat e i log?')) { chatbox.innerHTML = ''; infoLogContent.innerHTML = ''; console.log('Chat e log svuotati.'); resetUI(); } });
+        toggleInfoButton.addEventListener('click', function () { const isHidden = infoPanel.style.display === 'none'; infoPanel.style.display = isHidden ? 'block' : 'none'; toggleInfoButton.textContent = isHidden ? 'Nascondi Log' : 'Mostra Log'; if (!isHidden) infoPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
+
+
+        function appendMessage(text, type) {
+            console.log(`--- appendMessage START --- Tipo: ${type}`);
+            try {
+                if (!chatbox) { console.error("!!! ERRORE: 'chatbox' non trovato!"); return; }
+
+                const messageContainer = document.createElement('div'); // Contenitore per messaggio + ragionamento
+                messageContainer.classList.add('message-container', `message-container-${type}`); // Classe per container generale
+
+                const messageDiv = document.createElement('div'); // Div per il messaggio visibile
+                messageDiv.classList.add('message', type);
+
+                const answerSpan = document.createElement('span'); // Span per il testo della risposta
+                answerSpan.classList.add('answer-text');
+
+                const reasoningDiv = document.createElement('div'); // Div per il pannello ragionamento
+                reasoningDiv.classList.add('reasoning-panel');
+                reasoningDiv.style.display = 'none'; // Nascosto di default
+
+                const reasoningTitle = document.createElement('p'); // Titolo pannello ragionamento
+                reasoningTitle.classList.add('reasoning-title');
+                reasoningTitle.textContent = 'Processo di Ragionamento:';
+                reasoningDiv.appendChild(reasoningTitle);
+
+                const reasoningContent = document.createElement('div'); // Contenuto pannello ragionamento
+                reasoningContent.classList.add('reasoning-content');
+                reasoningDiv.appendChild(reasoningContent);
+
+                // Aggiungi span risposta e pannello ragionamento (nascosto) al div messaggio
+                messageDiv.appendChild(answerSpan);
+                messageDiv.appendChild(reasoningDiv);
+
+                // Logica specifica per messaggi del bot
+                if (type === 'bot-message') {
+                    let cleanAnswer = text;
+                    let reasoningText = '';
+                    const reasoningBlocks = [];
+
+                    // Regex per trovare i blocchi <think>...</think>
+                    // Nota: questa regex è semplice, potrebbe non gestire casi complessi (es. tag annidati)
+                    const thinkRegex = /<think>([\s\S]*?)<\/think>/g;
+                    let match;
+
+                    // Estrai tutti i blocchi di ragionamento
+                    while ((match = thinkRegex.exec(text)) !== null) {
+                        reasoningBlocks.push(match[1].trim()); // Salva il contenuto interno
+                    }
+
+                    // Se abbiamo trovato blocchi di ragionamento...
+                    if (reasoningBlocks.length > 0) {
+                        reasoningText = reasoningBlocks.join('\n---\n'); // Unisci più blocchi se presenti
+                        cleanAnswer = text.replace(thinkRegex, '').trim(); // Rimuovi i blocchi dalla risposta principale
+
+                        // Se la risposta pulita è vuota, metti un placeholder
+                        if (!cleanAnswer) {
+                            cleanAnswer = "(La risposta è contenuta nel processo di ragionamento)";
+                        }
+
+                        console.log("Blocchi <think> trovati:", reasoningBlocks.length);
+                        // Popola e mostra il pannello del ragionamento
+                        reasoningContent.textContent = reasoningText;
+                        reasoningDiv.style.display = 'block'; // Mostra il pannello!
+                    } else {
+                        console.log("Nessun tag <think> trovato.");
+                    }
+                    // Imposta il testo (pulito o originale) nello span della risposta
+                    answerSpan.textContent = cleanAnswer;
+
+                } else {
+                    // Per messaggi utente o errori, usa il testo originale
+                    answerSpan.textContent = text;
+                }
+
+                // Aggiungi il div del messaggio (con dentro risposta e pannello ragionamento) al contenitore generale
+                messageContainer.appendChild(messageDiv);
+                // Aggiungi il contenitore generale alla chatbox
+                chatbox.appendChild(messageContainer);
+                console.log("  Elemento messaggio aggiunto al DOM.");
+
+                scrollToBottom(chatbox);
+                console.log("--- appendMessage END ---");
+
+            } catch (error) {
+                console.error("!!! ERRORE IMPREVISTO DENTRO appendMessage:", error);
+            }
+        }
+
+        // --- Funzioni Helper UI ---
+        function appendMessageOLD(text, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', type);
+            messageDiv.textContent = text; // Usa textContent per sicurezza
+            chatbox.appendChild(messageDiv);
+            scrollToBottom(chatbox); // Scrolla chatbox
+        }
+
+        function appendSources(sourceList) {
+            const sourcesDiv = document.createElement('div'); sourcesDiv.classList.add('sources-container');
+            const title = document.createElement('p'); title.classList.add('sources-title'); title.textContent = 'Fonti utilizzate:'; sourcesDiv.appendChild(title);
+            const list = document.createElement('ul'); list.classList.add('sources-list');
+            sourceList.forEach(url => { const li = document.createElement('li'); const a = document.createElement('a'); a.href = url; a.textContent = url; a.target = '_blank'; li.appendChild(a); list.appendChild(li); });
+            sourcesDiv.appendChild(list); chatbox.appendChild(sourcesDiv);
+            scrollToBottom(chatbox); // Scrolla chatbox
+        }
+
+        function appendLog(logText) {
+            const logEntry = document.createElement('p');
+            //logEntry.textContent = `✅ ${escapeHtml(logText)}`; // <-- MODIFICA QUI
+            logEntry.textContent = escapeHtml(logText); // Escaping per sicurezza
+            infoLogContent.appendChild(logEntry);
+            // Scrolla il pannello INFO in fondo se è visibile
+            if (infoPanel.style.display !== 'none') {
+                infoPanel.scrollTop = infoPanel.scrollHeight;
+            }
+        }
+
+
+        function escapeHtml(unsafe) {
+            if (typeof unsafe !== 'string') return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function scrollToBottom(element) { element.scrollTop = element.scrollHeight; }
+
+        // --- Funzioni resetUI e disableUI (AGGIORNATE) ---
+        function resetUI() {
+            loader.style.display = 'none';
+            disableUI(false); // Riabilita
+            queryInput.focus();
+        }
+
+        function disableUI(isDisabled) {
+            askButton.disabled = isDisabled;
+            queryInput.disabled = isDisabled;
+            modelSelect.disabled = isDisabled;
+            personaSelect.disabled = isDisabled; // <-- AGGIUNTO
+            clearChatButton.disabled = isDisabled;
+        }
+
+        // --- Gestione Eventi SSE (Versione Corretta e Pulita) ---
+        function handleServerEvent(eventData) {
+            // Log utile per vedere cosa arriva dal server
+            console.log(">>> Evento SSE Ricevuto:", eventData);
+
+            switch (eventData.type) {
+                case 'log':
+                    // Aggiunge il log al pannello INFO (come prima)
+                    appendLog(eventData.data);
+                    break;
+                case 'result':
+                    console.log('Processo evento "result"...'); // Log inizio
+                    try {
+                        // Estrai i dati dalla risposta finale
+                        const answerText = eventData.data.answer || "(Nessuna risposta ricevuta)";
+                        const sources = eventData.data.sources;
+                        const noContextMessage = "Le informazioni fornite nel contesto non sono sufficienti per rispondere a questa domanda.";
+
+                        // --- Visualizzazione Risposta (UNA SOLA VOLTA) ---
+                        appendMessage(answerText, 'bot-message');
+                        // --------------------------------------------------
+
+                        // --- Visualizzazione Fonti (Condizionale) ---
+                        const shouldAppendSources = sources && sources.length > 0 && answerText !== noContextMessage;
+                        if (shouldAppendSources) {
+                            appendSources(sources);
+                        } else {
+                            // Log opzionale se le fonti non vengono mostrate
+                            // console.log('Fonti non mostrate.');
+                        }
+                        // ---------------------------------------------
+
+                        resetUI(); // Resetta l'interfaccia utente
+                        console.log("-> Processo evento 'result' completato."); // Log fine
+
+                    } catch (e) {
+                        // Gestione errori interni al blocco 'result'
+                        console.error("!!! Errore durante l'elaborazione dell'evento 'result':", e);
+                        appendMessage("Errore interno durante la visualizzazione della risposta.", "error-message");
+                        resetUI(); // Resetta comunque l'UI
+                    }
+                    break;
+                case 'error':
+                    // Gestione evento 'error' inviato dal backend
+                    console.error("Evento 'error' ricevuto dal backend:", eventData.data);
+                    appendMessage(`Errore dal backend: ${eventData.data}`, 'error-message');
+                    resetUI();
+                    break;
+                default:
+                    // Gestione tipi evento sconosciuti
+                    console.warn("Ricevuto evento SSE di tipo sconosciuto:", eventData.type, eventData.data);
+            }
+        }
+
+        // --- Funzione Principale Ask (invariata - usa già fetch + parsing SSE) ---
+        async function handleAsk() {
+            // ... (come l'ultima versione fornita) ...
+            const query = queryInput.value.trim(); const selectedModel = modelSelect.value; const selectedPersona = personaSelect.value; if (!query) return;
+            appendMessage(query, 'user-message'); queryInput.value = ''; infoLogContent.innerHTML = '';
+            loader.style.display = 'block'; disableUI(true);
+            const requestData = { query: query, model: selectedModel, persona: selectedPersona };
+            fetch('/ask', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream' }, body: JSON.stringify(requestData) })
+                .then(response => { if (!response.ok || !response.body) { return response.json().then(errData => { throw new Error(errData.error || `Errore HTTP: ${response.status}`); }).catch(() => { throw new Error(`Errore HTTP: ${response.status} o stream non disponibile`); }); } console.log("Connessione SSE stabilita..."); const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = ''; function processStream() { reader.read().then(({ done, value }) => { if (done) { console.log("Stream terminato."); if (loader.style.display === 'block') { console.warn("Stream terminato senza evento result/error."); appendMessage("Risposta incompleta o errore stream.", "error-message"); resetUI(); } return; } buffer += decoder.decode(value, { stream: true }); let boundary = buffer.indexOf('\n\n'); while (boundary !== -1) { const message = buffer.substring(0, boundary); buffer = buffer.substring(boundary + 2); if (message.startsWith('data:')) { const jsonData = message.substring(5).trim(); try { const eventData = JSON.parse(jsonData); handleServerEvent(eventData); } catch (e) { console.error("Errore parsing JSON da SSE:", e, "Dati:", jsonData); } } boundary = buffer.indexOf('\n\n'); } processStream(); }).catch(error => { console.error('Errore lettura stream:', error); appendMessage(`Errore lettura stream: ${error.message}`, 'error-message'); resetUI(); }); } processStream(); })
+                .catch(error => { console.error('Errore fetch/SSE:', error); appendMessage(`Errore: ${error.message}`, 'error-message'); resetUI(); });
+        }
+
+
+        // --- Altre Funzioni (resetUI, disableUI, ecc. invariate) ---
+        // ...
+        // Assicurati che disableUI e resetUI includano personaSelect
+        function disableUI(isDisabled) { askButton.disabled = isDisabled; queryInput.disabled = isDisabled; modelSelect.disabled = isDisabled; personaSelect.disabled = isDisabled; clearChatButton.disabled = isDisabled; }
+        function resetUI() { loader.style.display = 'none'; disableUI(false); queryInput.focus(); }
+        // ... (appendMessage, appendSources, appendLog, escapeHtml, scrollToBottom) ...
+        // ...
+        resetUI(); // Chiamata iniziale
+
+    </script>
+</body>
+
+</html>
