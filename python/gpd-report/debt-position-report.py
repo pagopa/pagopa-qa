@@ -18,9 +18,12 @@ QUERY = """
 SELECT 
     COUNT(*) AS TOTAL,
     COUNT(CASE WHEN service_type = 'GPD' THEN 1 END) AS GPD,
+    COUNT(CASE WHEN service_type = 'GPD' AND status in ('VALID', 'PARTIALLY_PAID') THEN 1 END) AS GPD_PAYABLE,
     COUNT(CASE WHEN service_type = 'WISP' THEN 1 END) AS WISP,
     COUNT(CASE WHEN iupd NOT LIKE 'ACA_%' AND service_type = 'ACA' THEN 1 END) AS gpd4aca,
-    COUNT(CASE WHEN iupd LIKE 'ACA_%' AND service_type = 'ACA' THEN 1 END) AS paCreatePosition
+    COUNT(CASE WHEN iupd NOT LIKE 'ACA_%' AND service_type = 'ACA' AND status in ('VALID', 'PARTIALLY_PAID') THEN 1 END) AS ACA_GPD4ACA_PAYABLE,
+    COUNT(CASE WHEN iupd LIKE 'ACA_%' AND service_type = 'ACA' THEN 1 END) AS paCreatePosition,
+    COUNT(CASE WHEN iupd LIKE 'ACA_%' AND service_type = 'ACA' AND status in ('VALID', 'PARTIALLY_PAID') THEN 1 END) AS ACA_GPD_CREATE_POSITION_PAYABLE
 FROM apd.payment_position;
 """
 
@@ -59,9 +62,12 @@ def fetch_data():
         result = {
             "TOTAL": result[0],
             "GPD": result[1],
-            "WISP": result[2],
-            "gpd4aca": result[3],
-            "paCreatePosition": result[4]
+            "GPD_PAYABLE": result[2],
+            "WISP": result[3],
+            "GPD4ACA": result[4],
+            "GPD4ACA_PAYABLE": result[5],
+            "PA_CREATE_POSITION": result[6],
+            "PA_CREATE_POSITION_PAYABLE": result[7]
         }
 
         print(f"report data {result}")
@@ -77,12 +83,20 @@ def generate_report(data):
     report = {
         "text": "Report numeriche GPD",
         "blocks": [
-            {"type": "section", "text": {"type": "mrkdwn", "text": f":calendar: *Data Rilevamento:* {today}"}},
+            {"type": "header", "text": {"type": "plain_text", "text": "📊 Statistiche Posizioni Debitorie GPD"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"📅 *Data Rilevamento:* {today}"}},
+            {"type": "divider"},
             {"type": "section", "text": {"type": "mrkdwn", "text": f"🟢 *Totale PD:* {data['TOTAL']:,}"}},
+            {"type": "divider"},
             {"type": "section", "text": {"type": "mrkdwn", "text": f"🔵 *PD GPD:* {data['GPD']:,}"}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟡 *PD WISP:* {data['WISP']:,}"}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟣 *PD GPD4ACA:* {data['gpd4aca']:,}"}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟤 *PD paCreatePosition:* {data['paCreatePosition']:,}"}}
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🔵 *PD GPD PAGABILI:* {data['GPD_PAYABLE']:,}"}},
+            {"type": "divider"},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟣 *PD GPD4ACA:* {data['GPD4ACA']:,}"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟣 *PD GPD4ACA PAGABILI:* {data['GPD4ACA_PAYABLE']:,}"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟣 *PD paCreatePosition:* {data['PA_CREATE_POSITION']:,}"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟣 *PD paCreatePosition: PAGABILI* {data['PA_CREATE_POSITION_PAYABLE']:,}"}},
+            {"type": "divider"},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟡 *PD WISP:* {data['WISP']:,}"}}
         ]
     }
     print("json report created")
