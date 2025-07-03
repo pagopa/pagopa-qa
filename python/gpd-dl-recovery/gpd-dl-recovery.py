@@ -195,7 +195,32 @@ def send_all_batches(batch_pp, batch_po, batch_tr, chunk_size=50):
             if attempt == RETRY_LIMIT:
                 logging.error("❌ send_all_batches - All retry attempts failed. Aborting batch.")
                 raise
-
+            
+            
+def generate_report(data):
+    print("generate_report - creating json report")
+    today = datetime.now().strftime("%Y-%m-%d")
+    report = {
+        "text": "GPD - Data Lake Recovery Report",
+        "blocks": [
+            {"type": "header", "text": {"type": "plain_text", "text": "📊 Report recovery posizioni debitorie su Data Lake"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"📅 *Intervallo recuperato:* {data["start_date"]} - {data["end_date"]}"}},
+            {"type": "divider"},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"⏱️ *Durata:* {data["duration"]}"}},
+            {"type": "divider"},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟢 *Totale payment_position:* {data["payment_position"]}"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟡 *Totale payment_position:* {data["payment_option"]}"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🔵 *Totale payment_position:* {data["transfer"]}"}}
+        ]
+    }
+    
+    # write report to file
+    with open("report.json", "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=4, ensure_ascii=False)
+    
+    print("generate_report - json report created")
+    
+    
 def main(start_date, end_date):
     
     start_time = time.time()
@@ -388,27 +413,3 @@ if __name__ == "__main__":
 
     # Pass as string, unchanged
     main(args.start_date, args.end_date)
-
-def generate_report(data):
-    print("generate_report - creating json report")
-    today = datetime.now().strftime("%Y-%m-%d")
-    report = {
-        "text": "GPD - Data Lake Recovery Report",
-        "blocks": [
-            {"type": "header", "text": {"type": "plain_text", "text": "📊 Report recovery posizioni debitorie su Data Lake"}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f"📅 *Intervallo recuperato:* {data["start_date"]} - {data["end_date"]}"}},
-            {"type": "divider"},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f"⏱️ *Durata:* {data["duration"]}"}},
-            {"type": "divider"},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟢 *Totale payment_position:* {data["payment_position"]}"}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟡 *Totale payment_position:* {data["payment_option"]}"}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f"🔵 *Totale payment_position:* {data["transfer"]}"}}
-        ]
-    }
-    print("generate_report - json report created")
-    
-    # write report to file
-    with open("report.json", "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=4, ensure_ascii=False)
-    
-    print(f"report susscessfully generated: {report}")
