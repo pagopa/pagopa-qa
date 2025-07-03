@@ -160,7 +160,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": "❌ *Si è verificato un errore durante il recovery del periodo ${{ github.event.inputs.start_date }} - ${{ github.event.inputs.end_date }} *"
+                  "text": "❌ *Errore durante il recovery:* ${{ github.event.inputs.start_date }} - ${{ github.event.inputs.end_date }}"
                 }
               }
             ]
