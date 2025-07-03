@@ -177,7 +177,7 @@ jobs:
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
   approve_cleanup_runner:
-    needs: [ create_runner, recovery_script ]
+    needs: [ recovery_script ]
     name: Execute auto-approve for 'Cleanup Runner'
     runs-on: ubuntu-latest
     environment: 
