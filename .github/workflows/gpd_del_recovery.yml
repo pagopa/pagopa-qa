@@ -1,0 +1,209 @@
+name: GPD Data Lake event recovery
+on:    
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        type: choice
+        description: Select the Environment
+        options:
+          - uat
+          - prod
+        default: prod
+      start_date:
+        description: "Start date (format: YYYY-MM-DDTHH:MM:SS)"
+        required: true
+        type: string
+      end_date:
+        description: "End date (format: YYYY-MM-DDTHH:MM:SS)"
+        required: true
+        type: string
+      batch_size:
+        description: "Number of db record for each chunk"
+        required: true
+        type: string
+        default: "10000"
+      retry_limit:
+        description: "Number of retry whille reading from db"
+        required: true
+        type: string
+        default: "3"
+      evh_chunk_size:
+        description: "batch size for message to send to EVH"
+        required: true
+        type: string
+        default: "100"
+      notify:
+        description: 'notify report results'
+        required: false
+        type: boolean
+        default: true
+          
+permissions:
+  id-token: write
+  contents: read
+  deployments: write
+
+jobs:
+
+  approve_create_runner:
+    name: Execute auto-approve for 'Create Runner'
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.event.inputs == null || github.event.inputs == 'prod' }}
+    steps:    
+      - name: Auto approve
+        uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
+        with:
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          environment: ${{ inputs.environment || 'prod' }}
+        
+  create_runner:
+    name: Create Runner
+    runs-on: ubuntu-22.04
+    environment:
+      name: ${{(github.event.inputs == null && 'prod') || inputs.environment }}
+    outputs:
+      runner_name: ${{ steps.create_github_runner.outputs.runner_name }}
+    steps:     
+      - name: Create GitHub Runner
+        id: create_github_runner
+        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-create-action@main
+        with:
+          client_id: ${{ secrets.CLIENT_ID }}
+          tenant_id: ${{ secrets.TENANT_ID }}
+          subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
+          container_app_environment_name: ${{ vars.CONTAINER_APP_ENVIRONMENT_NAME }}
+          resource_group_name: ${{ vars.CONTAINER_APP_ENVIRONMENT_RESOURCE_GROUP_NAME }} # RG of the runner
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          self_hosted_runner_image_tag: "latest"
+      - name: Install dependencies
+        run: |
+          export RUNNER_ALLOW_RUNASROOT="1"
+          sudo apt-get update && sudo apt-get install -y libpq-dev
+
+  approve_report_script:
+    needs: [ create_runner ]
+    name: Execute auto-approve for 'Report Script'
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.event.inputs == null || github.event.inputs == 'prod' }}
+    steps:
+      - name: Auto approve
+        uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
+        with:
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          environment: ${{ inputs.environment || 'prod' }} 
+
+  
+  recovery_script:
+    needs: [ create_runner ]
+    name: GPD DL Recovery
+    runs-on: [ self-hosted, "${{ needs.create_runner.outputs.runner_name }}" ]
+    environment: ${{ inputs.environment || 'prod' }}
+
+    steps:
+        
+      - name: Set up Python
+        uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 # v4
+        with:
+          python-version: '3.12'
+        
+      - name: Check out the repository
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+            
+      - name: Install dependencies
+        run: |
+          cd ./python/gpd-dl-recovery
+          pip install -r requirements.txt
+
+      - name: Login
+        id: login
+        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
+        with:
+          client-id: ${{ secrets.CLIENT_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+
+      - name: Run Recovery
+        shell: bash
+        env:
+          PAYMENT_POSITION_OUTPUT_EVENTHUB_CONN_STRING: ${{ secrets.RECOVERY_PP_EVH_CONN_STRING }}
+          PAYMENT_OPTION_OUTPUT_EVENTHUB_CONN_STRING: ${{ secrets.RECOVERY_PO_EVH_CONN_STRING }}
+          TRANSFER_OUTPUT_EVENTHUB_CONN_STRING: ${{ secrets.RECOVERY_T_EVH_CONN_STRING }}
+          TOPIC_PAYMENT_POSITION: "gpd-ingestion.apd.payment_position"
+          TOPIC_PAYMENT_OPTION: "gpd-ingestion.apd.payment_option"
+          TOPIC_TRANSFER: "gpd-ingestion.apd.transfer"
+          DB_HOST: "pagopa-p-neu-gps-pgflex.postgres.database.azure.com"
+          DB_PORT: "6432"
+          DB_NAME: "apd"
+          DB_USER: "apduser"
+          DB_PASSWORD: ${{ secrets.RECOVERY_PG_PASSWORD }}
+          BATCH_SIZE: ${{ github.event.inputs.batch_size }}
+          RETRY_LIMIT: ${{ github.event.inputs.retry_limit }}
+          EVH_CHUNK_SIZE: ${{ github.event.inputs.evh_chunk_size }}
+          PYTHONUNBUFFERED: "1"
+
+        run: |
+          cd ./python/gpd-dl-recovery
+          python gpd-dl-recovery.py \
+            --start_date "${{ github.event.inputs.start_date }}" \
+            --end_date "${{ github.event.inputs.end_date }}"
+
+      - name: Create failure payload
+        if: ${{ failure() && inputs.notify }}
+        run: |
+          echo '{
+            "text": "❌ *GPD Data Lake Recovery Failed.",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "❌ *Si è verificato un errore durante il recovery del periodo ${{ github.event.inputs.start_date }} - ${{ github.event.inputs.end_date }} *"
+                }
+              }
+            ]
+          }' > ./python/gpd-dl-recovery/report.json
+          
+      - name: Send notification to Slack
+        id: slack
+        if: ${{ (success() || failure()) && (inputs.notify != 'false' || github.event_name == 'schedule') }}
+        uses: slackapi/slack-github-action@e28cf165c92ffef168d23c5c9000cffc8a25e117 #v1.24.0
+        with: 
+            payload-file-path: "./python/gpd-dl-recovery/report.json"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_GPD_APD_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+  approve_cleanup_runner:
+    needs: [ recovery_script ]
+    name: Execute auto-approve for 'Cleanup Runner'
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.event.inputs == null || github.event.inputs == 'prod' }}
+    steps:        
+      - name: Auto approve
+        uses: andrea-deri/auto-approve@042a1e58fa51acef74997dc9cebb1c665677d2ac
+        with:
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+          environment: ${{ inputs.environment || 'prod' }}
+
+  cleanup_runner:
+    name: Cleanup Runner
+    needs: [ create_runner, recovery_script ]
+    if: ${{ always() }}
+    runs-on: ubuntu-22.04
+    environment: ${{(github.event.inputs == null && 'uat') || inputs.environment }}
+    steps:
+      - name: Cleanup GitHub Runner
+        id: cleanup_github_runner
+        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-cleanup-action@0ee2f58fd46d10ac7f00bce4304b98db3dbdbe9a
+        with:
+          client_id: ${{ secrets.CLIENT_ID }}
+          tenant_id: ${{ secrets.TENANT_ID }}
+          subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
+          resource_group_name: ${{ vars.CONTAINER_APP_ENVIRONMENT_RESOURCE_GROUP_NAME }}
+          runner_name: ${{ needs.create_runner.outputs.runner_name }}
+          pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
+      
