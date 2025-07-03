@@ -401,8 +401,8 @@ def generate_report(data):
             {"type": "section", "text": {"type": "mrkdwn", "text": f"⏱️ *Durata:* {data["duration"]}"}},
             {"type": "divider"},
             {"type": "section", "text": {"type": "mrkdwn", "text": f"🟢 *Totale payment_position:* {data["payment_position"]}"}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟡 *Totale payment_position:* {data["payment_option"]}"}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": f"🔵 *Totale payment_position:* {data["transfer"]}"}}
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🟡 *Totale payment_option:* {data["payment_option"]}"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"🔵 *Totale transfer:* {data["transfer"]}"}}
         ]
     }
     print("generate_report - json report created")
