@@ -34,7 +34,7 @@ on:
         type: string
         default: "100"
       notify:
-        description: 'notify report results'
+        description: 'notify recovery results'
         required: false
         type: boolean
         default: true
@@ -84,7 +84,7 @@ jobs:
 
   approve_report_script:
     needs: [ create_runner ]
-    name: Execute auto-approve for 'Report Script'
+    name: Execute auto-approve for 'Recovery Script'
     runs-on: ubuntu-latest
     environment: 
       name: ${{ github.event.inputs == null || github.event.inputs == 'prod' }}
@@ -177,7 +177,7 @@ jobs:
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
 
   approve_cleanup_runner:
-    needs: [ recovery_script ]
+    needs: [ create_runner, recovery_script ]
     name: Execute auto-approve for 'Cleanup Runner'
     runs-on: ubuntu-latest
     environment: 
