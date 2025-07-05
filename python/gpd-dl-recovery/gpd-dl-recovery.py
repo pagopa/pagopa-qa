@@ -11,6 +11,8 @@ import time
 import argparse
 import re
 
+import psutil
+
 # Logging setup
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 for name in ["uamqp", "uamqp.connection", "uamqp.send", "uamqp.management_link", "azure"]:
@@ -373,6 +375,11 @@ def main(start_date, end_date):
         inserted_pp += len(batch_pp)
         inserted_po += len(batch_po)
         inserted_t += len(batch_tr)
+        
+        # write memory usage
+        process = psutil.Process()
+        memory_usage_mb = process.memory_info().rss / 1024 / 1024
+        logging.info(f"💾 Memory usage: {memory_usage_mb:.2f} MB")
     
     # closing db connection    
     cur.close()
@@ -383,7 +390,7 @@ def main(start_date, end_date):
     
     # calculating elapsed
     elapsed = timedelta(seconds=round(time.time() - start_time))
-    print(f"main - Execution time: {str(elapsed)}")
+    logging.info(f"main - Execution time: {str(elapsed)}")
     
     report_data = {
         "start_date": start_date,
