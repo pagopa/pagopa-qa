@@ -168,7 +168,7 @@ jobs:
           
       - name: Send notification to Slack
         id: slack
-        if: ${{ (success() || failure()) && (inputs.notify != 'false' || github.event_name == 'schedule') }}
+        if: ${{ (success() || failure()) && inputs.notify }}
         uses: slackapi/slack-github-action@e28cf165c92ffef168d23c5c9000cffc8a25e117 #v1.24.0
         with: 
             payload-file-path: "./python/gpd-dl-recovery/report.json"
