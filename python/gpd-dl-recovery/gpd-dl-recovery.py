@@ -72,7 +72,7 @@ def to_millis(value):
     else:
         raise TypeError(f"Unsupported type: {type(value)}. Expected str or datetime/date or None.")
 
-    return int(dt.timestamp() * 1000)
+    return int(dt.timestamp() * 1_000_000) + dt.microsecond
 
 def transform_payment_position(row):
     ts_ms, ts_us, ts_ns = current_timestamps()
@@ -276,10 +276,18 @@ def main(start_date, end_date):
                 pp_records = cur.fetchall()
             except Exception as e:
                 logging.warning(f"⚠️ main - Attempt {attempt} to query payment_position failed: {e}")
+                
+                # trying re-extablishing db connection
+                logging.warning(f"⚠️ main - Trying to re-extblish db connection")
+                conn = psycopg2.connect(**DB_CONFIG)
+                conn.set_session(autocommit=True)
+                cur = conn.cursor(cursor_factory=RealDictCursor)
+                
                 if attempt == RETRY_LIMIT:
                     logging.error("❌ main - All retry attempts to query payment_position failed. Aborting batch.")
                     raise
-                
+            break
+          
         if not pp_records:
             logging.info("ℹ️ main - No moere payment position to elaborate for current chunk, skip forward")
             break
@@ -325,9 +333,17 @@ def main(start_date, end_date):
                 po_records = cur.fetchall()
             except Exception as e:
                 logging.warning(f"⚠️ main - Attempt {attempt} to query payment_option failed: {e}")
+                
+                # trying re-extablishing db connection
+                logging.warning(f"⚠️ main - Trying to re-extblish db connection")
+                conn = psycopg2.connect(**DB_CONFIG)
+                conn.set_session(autocommit=True)
+                cur = conn.cursor(cursor_factory=RealDictCursor)
+                                
                 if attempt == RETRY_LIMIT:
                     logging.error("❌ main - All retry attempts to query payment_option failed. Aborting batch.")
                     raise
+            break
         
         # extracting payment option ids    
         po_ids = tuple(r["id"] for r in po_records)
@@ -355,9 +371,17 @@ def main(start_date, end_date):
                     tr_records = cur.fetchall()
                 except Exception as e:
                     logging.warning(f"⚠️ main - Attempt {attempt} to query transfer failed: {e}")
+                    
+                    # trying re-extablishing db connection
+                    logging.warning(f"⚠️ main - Trying to re-extblish db connection")
+                    conn = psycopg2.connect(**DB_CONFIG)
+                    conn.set_session(autocommit=True)
+                    cur = conn.cursor(cursor_factory=RealDictCursor)
+                                    
                     if attempt == RETRY_LIMIT:
                         logging.error("❌ main - All retry attempts to query transfer failed. Aborting batch.")
                         raise
+                break
         else:
             logging.warning(f"⚠️ main - no payment option found for the current chunk")
             tr_records = []
