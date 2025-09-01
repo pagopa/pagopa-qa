@@ -101,6 +101,7 @@ conds += [
     "total_kpi_sample IS NOT NULL",
     "total_kpi_fault  IS NOT NULL"
 ]
+log.info(f"CONDS: {conds}")
 
 where_sql = (" WHERE " + " AND ".join(conds)) if conds else ""
 limit_sql = f" LIMIT {sample_lim}" if sample_lim > 0 else ""
