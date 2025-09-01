@@ -6,6 +6,7 @@ from pyspark.sql.functions import (
     col, trim, split, transform, array_sort, array_join, explode,
     coalesce, sum as fsum, max as fmax, when, lit, isnan, size, expr, round
 )
+from datetime import datetime, date, timedelta
 
 # ----------------------
 # Logging configuration
@@ -38,21 +39,26 @@ src_fqn = f"{source_db}.{source_tbl}"
 agg_fqn = f"{agg_db}.{agg_tbl}"
 tgt_fqn = f"{target_db}.{target_tbl}"
 
+log.info("------------------------")
+log.info("---- Parameters --------")
+log.info("------------------------")
 log.info(f"KPI source table: {src_fqn}")
 log.info(f"PSP aggregations table: {agg_fqn}")
 log.info(f"Aggregate kpis gold table: {tgt_fqn}")
+log.info(f"Period start: {period_start or '(none)'}")
+log.info(f"Period end: {period_end or '(none)'}")
+log.info(f"Use range: {use_range}")
+log.info(f"count_groups_of_one={count_groups_of_one}")
 if sample_lim > 0: log.info(f"Sampling source with LIMIT {sample_lim}")
 if target_loc:     log.info(f"Target LOCATION: {target_loc}")
-log.info(f"count_groups_of_one={count_groups_of_one}")
-
+log.info("------------------------")
 
 # ---------------------------------
-# Create or append to Iceberg table
+# Utility functions
 # ---------------------------------
 def table_exists(db: str, tbl: str) -> bool:
     ident = f"{db}.{tbl}"
     try:
-        # Spark 3.4+ preferred form
         return spark.catalog.tableExists(ident)
     except Exception as e:
         log.warning("catalog.tableExists(%s) failed: %s", ident, e)
@@ -74,56 +80,47 @@ def is_iceberg_table(db, tbl) -> bool:
     except Exception:
         return False
 
-
+def previous_month_range(today: date | None = None) -> tuple[str, str]:
+    if today is None:
+        # today = datetime.utcnow().date()
+        today = datetime.now(datetime.timezone.utc).date()
+    first_this = date(today.year, today.month, 1)
+    last_prev  = first_this - timedelta(days=1)                 # last day of previous month
+    first_prev = date(last_prev.year, last_prev.month, 1)       # first day of previous month
+    return (
+        first_prev.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        last_prev.strftime("%Y-%m-%dT%H:%M:%SZ"),
+    )
+    
 # -----------------------
 # Read source KPIs
 # -----------------------
 
 # date/period filters
 conds = []
-if period_start and period_end and use_range:
-    # inclusive range by strings (works for ISO8601 with Z)
-    conds += [f"`start` >= '{period_start}'", f"`end` <= '{period_end}'"]
-elif period_start and not use_range:
-    conds += [f"`start` = '{period_start}'"]
-    if period_end:  # optional guard
-        conds += [f"`end` = '{period_end}'"]
-elif period_start:
-    conds += [f"`start` >= '{period_start}'"]
-if period_end and not (period_start and not use_range):
-    # add end <= if we didn't already add strict equality above
-    conds += [f"`end` <= '{period_end}'"]
+if not period_start or not period_end:
+    # Missing one or both -> fall back to previous month
+    period_start, period_end = previous_month_range()
 
 # quality guards (same ones you had)
-conds += [
+conds = [
+    f"`start` >= '{period_start}'",
+    f"`end`   <= '{period_end}'",
     "perc_kpi IS NOT NULL",
     "NOT isnan(perc_kpi)",
     "total_kpi_sample IS NOT NULL",
-    "total_kpi_fault  IS NOT NULL"
+    "total_kpi_fault  IS NOT NULL",
 ]
 log.info(f"CONDS: {conds}")
 
-where_sql = (" WHERE " + " AND ".join(conds)) if conds else ""
+where_sql = (" WHERE " + " AND ".join(conds))
 limit_sql = f" LIMIT {sample_lim}" if sample_lim > 0 else ""
-
 src_sql = f"SELECT * FROM {src_fqn}{where_sql}{limit_sql}"
 src = spark.sql(src_sql)
 
-# src_sql = f"SELECT * FROM {src_fqn}" + (f" LIMIT {sample_lim}" if sample_lim > 0 else "")
-# src = spark.sql(src_sql).filter(
-#     col("perc_kpi").isNotNull() & ~isnan(col("perc_kpi")) &
-#     col("total_kpi_sample").isNotNull() & col("total_kpi_fault").isNotNull()
-# )
-
-# # currently we don't have the grant to perform count()
-# log.info(f"Source rows after filters: {src.count()}")
-
-# -----------------------
-# Build aggregation mapping from CRM
-# - provider_names: single psp id OR comma-separated list
-# - group_key: sorted, comma-joined members (canonical)
-# - Only treat as group if size > 1 (unless count_groups_of_one=True)
-# -----------------------
+# ---------------------------------------
+# Read crm table to get aggreations
+# ---------------------------------------
 crm = spark.table(agg_fqn).select("provider_names").where(
     col("provider_names").isNotNull() & (trim(col("provider_names")) != "")
 )
@@ -149,11 +146,11 @@ mapping = (
 
 # log.info(f"Aggregation mapping size (distinct members): {mapping.count()}")
 
-# -----------------------
+# -------------------------------------------------------------------------------
 #   A) group members: PSPs present in mapping  -> aggregate by group_key
 #   B) SINGLES      : PSPs NOT present in mapping -> keep single aggregation
 #   If a PSP appears both alone and in a group, we keep only the group row.
-# -----------------------
+# -------------------------------------------------------------------------------
 
 # A) groupe members
 grp_rows = (
@@ -200,7 +197,9 @@ agg_single = (
            )
 )
 
-# compute perc_kpi and kpi_outcome
+# ------------------------------------------------------
+# compute perc_kpi and and write them to gold table
+# ------------------------------------------------------
 perc_s = when(col("sum_sample") > 0, round(col("sum_fault") * 100.0 / col("sum_sample"), 2)).otherwise(lit(None).cast("double"))
 out_s  = when(perc_s <= col("kpi_threshold"), lit("OK")).otherwise(lit("KO"))
 
@@ -246,7 +245,7 @@ if not table_exists(target_db, target_tbl):
         else:
             raise
 
-# Append if the table was already there (or appeared during CTAS)
+# Append if the table already exists
 if not created_now:
     if not is_iceberg_table(target_db, target_tbl):
         raise RuntimeError(f"Target {tgt_fqn} exists but is NOT an Iceberg table.")
