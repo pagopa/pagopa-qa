@@ -15,6 +15,7 @@ log = logging.getLogger("kpi-gold-job")
 # -----------------------
 # Parameters
 # -----------------------
+spark = SparkSession.builder.appName("kpi-gold-iceberg").getOrCreate()
 source_db   = spark.conf.get("job.source_db",  "pagopa")
 source_tbl  = spark.conf.get("job.source_table","silver_kpi_psp")
 agg_db      = spark.conf.get("job.agg_db",     "pagopa_any_registries_pda")
@@ -68,7 +69,6 @@ def is_iceberg_table(db, tbl) -> bool:
 # -----------------------
 # Read source KPIs
 # -----------------------
-spark = SparkSession.builder.appName("kpi-gold-iceberg").getOrCreate()
 
 # date/period filters
 conds = []
