@@ -1,6 +1,7 @@
 # process_kpi_to_gold.py
 import logging
 from pyspark.sql import SparkSession
+from pyspark.sql.utils import AnalysisException
 from pyspark.sql.functions import (
     col, trim, split, transform, array_sort, array_join, explode,
     coalesce, sum as fsum, max as fmax, when, lit, isnan, size, expr, round
@@ -48,11 +49,19 @@ log.info(f"count_groups_of_one={count_groups_of_one}")
 # ---------------------------------
 # Create or append to Iceberg table
 # ---------------------------------
-def table_exists(db, tbl) -> bool:
+def table_exists(db: str, tbl: str) -> bool:
+    ident = f"{db}.{tbl}"
     try:
-        return spark.catalog.tableExists(db, tbl)
-    except Exception:
-        return False
+        # Spark 3.4+ preferred form
+        return spark.catalog.tableExists(ident)
+    except Exception as e:
+        log.warning("catalog.tableExists(%s) failed: %s", ident, e)
+
+    try:
+        return spark.sql(f"SHOW TABLES IN {db} LIKE '{tbl}'").count() > 0
+    except Exception as e2:
+        log.warning("SHOW TABLES fallback failed for %s: %s", ident, e2)
+        return True
 
 def is_iceberg_table(db, tbl) -> bool:
     try:
@@ -213,25 +222,33 @@ log.info(f"Final rows to write: {result.count()}")
 
 result.createOrReplaceTempView("result_tmp")
 
+created_now = False
 if not table_exists(target_db, target_tbl):
     log.info("Target does not exist: creating EXTERNAL Iceberg v2 with required properties.")
     loc = f" LOCATION '{target_loc}'" if target_loc else ""
-    spark.sql(f"""
-        CREATE EXTERNAL TABLE {tgt_fqn}
-        USING iceberg
-        TBLPROPERTIES ('format-version'='2','engine.hive.enabled'='true')
-        {loc}
-        AS
-        SELECT kpi_id, psp_id, kpi_threshold, perc_kpi, kpi_outcome, `start`, `end`
-        FROM result_tmp
-    """)
-    log.info("Create Iceberg table completed.")
-else:
+    try:
+        spark.sql(f"""
+            CREATE EXTERNAL TABLE {tgt_fqn}
+            USING iceberg
+            TBLPROPERTIES ('format-version'='2','engine.hive.enabled'='true')
+            {loc}
+            AS
+            SELECT kpi_id, psp_id, kpi_threshold, perc_kpi, kpi_outcome, `start`, `end`
+            FROM result_tmp
+        """)
+        created_now = True
+        log.info("Create Iceberg table completed.")
+    except AnalysisException as e:
+        msg = str(e)
+        if "TABLE_OR_VIEW_ALREADY_EXISTS" in msg:
+            log.warning("Race detected: %s was created by another run; switching to append.", tgt_fqn)
+        else:
+            raise
+
+# Append if the table was already there (or appeared during CTAS)
+if not created_now:
     if not is_iceberg_table(target_db, target_tbl):
-        raise RuntimeError(
-            f"Target {tgt_fqn} exists but is NOT an Iceberg table. "
-            f"Drop/convert it to Iceberg before appending."
-        )
+        raise RuntimeError(f"Target {tgt_fqn} exists but is NOT an Iceberg table.")
     log.info("Appending to existing Iceberg table.")
     tgt_cols = [f.name for f in spark.table(tgt_fqn).schema.fields]
     result.select(*tgt_cols).writeTo(tgt_fqn).append()
