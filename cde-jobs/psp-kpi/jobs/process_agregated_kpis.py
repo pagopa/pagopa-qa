@@ -17,22 +17,22 @@ log = logging.getLogger("kpi-gold-job")
 # Parameters
 # -----------------------
 spark = SparkSession.builder.appName("kpi-gold-iceberg").getOrCreate()
-source_db   = spark.conf.get("job.source_db",  "pagopa")
-source_tbl  = spark.conf.get("job.source_table","silver_kpi_psp")
-agg_db      = spark.conf.get("job.agg_db",     "pagopa_any_registries_pda")
-agg_tbl     = spark.conf.get("job.agg_table",  "contracts_crm")
-target_db   = spark.conf.get("job.target_db",  "pagopa_dev")
-target_tbl  = spark.conf.get("job.target_table","gold_kpi_pagamenti_psp")
-sample_lim  = int(spark.conf.get("job.sample_limit", "0")) # only for test (0 = all)
-target_loc  = spark.conf.get("job.target_location", "") # location for wherehouse (optional S3/ABFS prefix)
+source_db   = spark.conf.get("spark.job.source_db",  "pagopa")
+source_tbl  = spark.conf.get("spark.job.source_table","silver_kpi_psp")
+agg_db      = spark.conf.get("spark.job.agg_db",     "pagopa_any_registries_pda")
+agg_tbl     = spark.conf.get("spark.job.agg_table",  "contracts_crm")
+target_db   = spark.conf.get("spark.job.target_db",  "pagopa_dev")
+target_tbl  = spark.conf.get("spark.job.target_table","gold_kpi_pagamenti_psp")
+sample_lim  = int(spark.conf.get("spark.job.sample_limit", "0")) # only for test (0 = all)
+target_loc  = spark.conf.get("spark.job.target_location", "") # location for wherehouse (optional S3/ABFS prefix)
 
 # preiod range
-period_start = spark.conf.get("job.period_start", "")   # e.g. '2024-05-01T00:00:00Z'
-period_end   = spark.conf.get("job.period_end", "")     # e.g. '2024-05-31T00:00:00Z'
-use_range    = spark.conf.get("job.period_use_range", "true").lower() == "true"
+period_start = spark.conf.get("spark.job.period_start", "") # e.g. '2025-05-01T00:00:00Z'
+period_end   = spark.conf.get("spark.job.period_end", "") # e.g. '2025-05-31T00:00:00Z'
+use_range    = spark.conf.get("spark.job.period_use_range", "true").lower() == "true"
 
 # If True, a CRM "group" with a single member still counts as a group (default False to avoid duplicates)
-count_groups_of_one = spark.conf.get("job.count_groups_of_one", "false").lower() == "true"
+count_groups_of_one = spark.conf.get("spark.job.count_groups_of_one", "false").lower() == "true"
 
 src_fqn = f"{source_db}.{source_tbl}"
 agg_fqn = f"{agg_db}.{agg_tbl}"
