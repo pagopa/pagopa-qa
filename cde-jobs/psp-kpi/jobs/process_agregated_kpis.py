@@ -29,7 +29,7 @@ target_loc  = spark.conf.get("job.target_location", "") # location for wherehous
 # preiod range
 period_start = spark.conf.get("job.period_start", "")   # e.g. '2024-05-01T00:00:00Z'
 period_end   = spark.conf.get("job.period_end", "")     # e.g. '2024-05-31T00:00:00Z'
-use_range    = spark.conf.get("job.period_use_range", "false").lower() == "true"
+use_range    = spark.conf.get("job.period_use_range", "true").lower() == "true"
 
 # If True, a CRM "group" with a single member still counts as a group (default False to avoid duplicates)
 count_groups_of_one = spark.conf.get("job.count_groups_of_one", "false").lower() == "true"
