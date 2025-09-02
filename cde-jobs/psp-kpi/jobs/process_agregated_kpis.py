@@ -7,6 +7,8 @@ from pyspark.sql.functions import (
     coalesce, sum as fsum, max as fmax, when, lit, isnan, size, expr, round
 )
 from datetime import datetime, date, timedelta
+from typing import Optional, Tuple
+
 
 # ----------------------
 # Logging configuration
@@ -30,7 +32,6 @@ target_loc  = spark.conf.get("spark.job.target_location", "") # location for whe
 # preiod range
 period_start = spark.conf.get("spark.job.period_start", "") # e.g. '2025-05-01T00:00:00Z'
 period_end   = spark.conf.get("spark.job.period_end", "") # e.g. '2025-05-31T00:00:00Z'
-use_range    = spark.conf.get("spark.job.period_use_range", "true").lower() == "true"
 
 # If True, a CRM "group" with a single member still counts as a group (default False to avoid duplicates)
 count_groups_of_one = spark.conf.get("spark.job.count_groups_of_one", "false").lower() == "true"
@@ -47,7 +48,6 @@ log.info(f"PSP aggregations table: {agg_fqn}")
 log.info(f"Aggregate kpis gold table: {tgt_fqn}")
 log.info(f"Period start: {period_start or '(none)'}")
 log.info(f"Period end: {period_end or '(none)'}")
-log.info(f"Use range: {use_range}")
 log.info(f"count_groups_of_one={count_groups_of_one}")
 if sample_lim > 0: log.info(f"Sampling source with LIMIT {sample_lim}")
 if target_loc:     log.info(f"Target LOCATION: {target_loc}")
@@ -80,24 +80,22 @@ def is_iceberg_table(db, tbl) -> bool:
     except Exception:
         return False
 
-def previous_month_range(today: date | None = None) -> tuple[str, str]:
+def previous_month_range(today: Optional[date] = None) -> Tuple[str, str]:
+    """Return ('YYYY-MM-01T00:00:00Z', 'YYYY-MM-lastT00:00:00Z') for the previous month."""
     if today is None:
-        # today = datetime.utcnow().date()
-        today = datetime.now(datetime.timezone.utc).date()
+        today = datetime.utcnow().date()
     first_this = date(today.year, today.month, 1)
-    last_prev  = first_this - timedelta(days=1)                 # last day of previous month
-    first_prev = date(last_prev.year, last_prev.month, 1)       # first day of previous month
-    return (
-        first_prev.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        last_prev.strftime("%Y-%m-%dT%H:%M:%SZ"),
-    )
+    last_prev  = first_this - timedelta(days=1)            # last day of previous month
+    first_prev = date(last_prev.year, last_prev.month, 1)  # first day of previous month
+    start = f"{first_prev.strftime('%Y-%m-%d')}T00:00:00Z"
+    end   = f"{last_prev.strftime('%Y-%m-%d')}T00:00:00Z"
+    return start, end
     
 # -----------------------
 # Read source KPIs
 # -----------------------
 
 # date/period filters
-conds = []
 if not period_start or not period_end:
     # Missing one or both -> fall back to previous month
     period_start, period_end = previous_month_range()
@@ -132,6 +130,7 @@ crm_norm = (
 )
 
 if not count_groups_of_one:
+    log.info("Dropping CRM groups with a single member (to avoid duplicates)")
     crm_norm = crm_norm.where(size(col("members_array")) > 1)
 
 crm_norm = crm_norm.withColumn("group_key", array_join(array_sort(col("members_array")), ","))
