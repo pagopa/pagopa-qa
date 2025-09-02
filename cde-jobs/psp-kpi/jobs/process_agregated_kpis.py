@@ -219,7 +219,11 @@ df_single = (
 
 # Final union
 result = df_grouped.unionByName(df_single)
-log.info(f"Final rows to write: {result.count()}")
+
+try:
+    log.info(f"Final rows to write: {result.count()}")
+except Exception as e:
+    log.warning("Skipping count() due to cloud auth/listing issue: %s", e)
 
 # Add _ts column with current timestamp
 batch_ts_ms = int(time() * 1000)   # single value for the whole load
