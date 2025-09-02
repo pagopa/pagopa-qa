@@ -20,18 +20,19 @@ log = logging.getLogger("kpi-gold-job")
 # Parameters
 # -----------------------
 spark = SparkSession.builder.appName("kpi-gold-iceberg").getOrCreate()
-source_db   = spark.conf.get("spark.job.source_db",  "pagopa")
-source_tbl  = spark.conf.get("spark.job.source_table","silver_kpi_psp")
-agg_db      = spark.conf.get("spark.job.agg_db",     "pagopa_any_registries_pda")
-agg_tbl     = spark.conf.get("spark.job.agg_table",  "contracts_crm")
-target_db   = spark.conf.get("spark.job.target_db",  "pagopa_dev")
-target_tbl  = spark.conf.get("spark.job.target_table","gold_kpi_pagamenti_psp")
-sample_lim  = int(spark.conf.get("spark.job.sample_limit", "0")) # only for test (0 = all)
-target_loc  = spark.conf.get("spark.job.target_location", "") # location for wherehouse (optional S3/ABFS prefix)
+
+source_db   = spark.conf.get("spark.job.source_db",         "pagopa")
+source_tbl  = spark.conf.get("spark.job.source_table",      "silver_kpi_psp")
+agg_db      = spark.conf.get("spark.job.agg_db",            "pagopa_any_registries_pda")
+agg_tbl     = spark.conf.get("spark.job.agg_table",         "contracts_crm")
+target_db   = spark.conf.get("spark.job.target_db",         "pagopa_dev")
+target_tbl  = spark.conf.get("spark.job.target_table",      "gold_kpi_pagamenti_psp")
+sample_lim  = int(spark.conf.get("spark.job.sample_limit",  "0")) # only for test (0 = all)
+target_loc  = spark.conf.get("spark.job.target_location",   "") # location for wherehouse (optional S3/ABFS prefix)
 
 # preiod range
-period_start = spark.conf.get("spark.job.period_start", "") # e.g. '2025-05-01T00:00:00Z'
-period_end   = spark.conf.get("spark.job.period_end", "") # e.g. '2025-05-31T00:00:00Z'
+period_start = spark.conf.get("spark.job.period_start",     "") # e.g. '2025-05-01T00:00:00Z'
+period_end   = spark.conf.get("spark.job.period_end",       "") # e.g. '2025-05-31T00:00:00Z'
 
 # If True, a CRM "group" with a single member still counts as a group (default False to avoid duplicates)
 count_groups_of_one = spark.conf.get("spark.job.count_groups_of_one", "false").lower() == "true"
@@ -219,6 +220,12 @@ df_single = (
 result = df_grouped.unionByName(df_single)
 log.info(f"Final rows to write: {result.count()}")
 
+# Add _ts column with current timestamp
+batch_ts_ms = int(time() * 1000)   # single value for the whole load
+log.info(f"Batch insert timestamp (ms): {batch_ts_ms}")
+result = result.withColumn("_ts", lit(batch_ts_ms).cast("bigint"))
+
+# Create temp view for SQL CTAS
 result.createOrReplaceTempView("result_tmp")
 
 created_now = False
@@ -232,7 +239,7 @@ if not table_exists(target_db, target_tbl):
             TBLPROPERTIES ('format-version'='2','engine.hive.enabled'='true')
             {loc}
             AS
-            SELECT kpi_id, psp_id, kpi_threshold, perc_kpi, kpi_outcome, `start`, `end`
+            SELECT kpi_id, psp_id, kpi_threshold, perc_kpi, kpi_outcome, `start`, `end`, _ts
             FROM result_tmp
         """)
         created_now = True
@@ -248,10 +255,40 @@ if not table_exists(target_db, target_tbl):
 if not created_now:
     if not is_iceberg_table(target_db, target_tbl):
         raise RuntimeError(f"Target {tgt_fqn} exists but is NOT an Iceberg table.")
-    log.info("Appending to existing Iceberg table.")
-    tgt_cols = [f.name for f in spark.table(tgt_fqn).schema.fields]
-    result.select(*tgt_cols).writeTo(tgt_fqn).append()
-    log.info("Append completed.")
+    log.info("Merging new data to existing Iceberg table.")
+    # tgt_cols = [f.name for f in spark.table(tgt_fqn).schema.fields]
+    # result.select(*tgt_cols).writeTo(tgt_fqn).append()
+    
+    spark.sql("""
+        CREATE OR REPLACE TEMP VIEW staged_result AS
+        SELECT kpi_id, psp_id, kpi_threshold, perc_kpi, kpi_outcome, `start`, `end`, _ts
+        FROM (
+        SELECT *,
+                ROW_NUMBER() OVER (PARTITION BY kpi_id, psp_id, `start`, `end`
+                                    ORDER BY _ts DESC) AS rn
+        FROM result_tmp
+        ) t
+        WHERE rn = 1
+    """)
+    
+    spark.sql(f"""
+        MERGE INTO {tgt_fqn} AS t
+        USING staged_result AS s
+        ON  t.kpi_id = s.kpi_id
+        AND t.psp_id = s.psp_id
+        AND t.`start` = s.`start`
+        AND t.`end`   = s.`end`
+        WHEN MATCHED THEN UPDATE SET
+        t.kpi_threshold = s.kpi_threshold,
+        t.perc_kpi      = s.perc_kpi,
+        t.kpi_outcome   = s.kpi_outcome,
+        t.`start`       = s.`start`,
+        t.`end`         = s.`end`,
+        t._ts           = s._ts
+        WHEN NOT MATCHED THEN INSERT *
+    """)
+
+    log.info("Merge (upsert) completed.")
 
 log.info("Job finished successfully.")
 spark.stop()
