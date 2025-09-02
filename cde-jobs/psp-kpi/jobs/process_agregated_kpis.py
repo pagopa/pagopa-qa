@@ -7,6 +7,7 @@ from pyspark.sql.functions import (
     coalesce, sum as fsum, max as fmax, when, lit, isnan, size, expr, round
 )
 from datetime import datetime, date, timedelta
+from time import time
 from typing import Optional, Tuple
 
 
