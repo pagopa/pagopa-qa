@@ -43,8 +43,7 @@
                             <option value="mistral-saba-24b">Mistral Saba 24B</option>
                             <option value="qwen-qwq-32b">Qwen QWQ 32B (Alibaba)</option>
                             <option value="qwen-2.5-32b">Qwen 2.5 32B (Alibaba)</option>
-                            <option value="deepseek-r1-distill-qwen-32b">Deepseek Distill Qwen 32B</option>
-                            <option value="deepseek-r1-distill-llama-70b">Deepseek Distill Llama 70B</option>
+                            <option value="deepseek-r1-distill-llama-70b">(Reasoning) Deepseek Distill Llama 70B</option>
                             <option value="llama-3.3-70b-specdec">Llama 3.3 70B SpecDec (Meta)</option>
                             <option value="llama-3.2-3b-preview">Llama 3.2 3B (Meta)</option>
                             <option value="llama-3.2-1b-preview">Llama 3.2 1B (Meta)</option>
@@ -71,6 +70,14 @@
                             title="Ugh, senti, rispondo su PagoPA e basta, ok? Uso *solo* il contesto che mi danno, non mi invento NIENTE. Se le informazioni non ci sono nel contesto che ho, ti dico 'Contesto inutile, non so rispondere.' e finisce lì. Non farmi perdere tempo. Rispondo in italiano.">
                             Scorbutico
                         </option>
+                    </select>
+                </div>
+                <div id="temperature-selector-area">
+                    <label for="temperature-select" style="margin-right: 10px; font-weight: bold;">Temperature:</label>
+                    <select name="temperature" id="temperature-select" style="padding: 5px; border-radius: 4px;">
+                    <option value="0.2" title="Risposte precise e ripetibili.">Preciso (0.2)</option>
+                    <option value="0.7" selected title="Equilibrio tra accuratezza e variazione.">Bilanciato (0.7)</option>
+                    <option value="1.0" title="Risposte più creative, meno prevedibili.">Creativo (1.0)</option>
                     </select>
                 </div>
             </div>
@@ -104,6 +111,8 @@
         const toggleInfoButton = document.getElementById('toggle-info-button');
         const infoPanel = document.getElementById('info-panel');
         const infoLogContent = document.getElementById('info-log-content');
+        const temperatureSelect = document.getElementById('temperature-select');
+
 
         // --- Event Listeners (invariati) ---
         askButton.addEventListener('click', handleAsk);
@@ -253,6 +262,8 @@
             modelSelect.disabled = isDisabled;
             personaSelect.disabled = isDisabled; // <-- AGGIUNTO
             clearChatButton.disabled = isDisabled;
+            temperatureSelect.disabled = isDisabled;
+
         }
 
         // --- Gestione Eventi SSE (Versione Corretta e Pulita) ---
@@ -312,10 +323,11 @@
         // --- Funzione Principale Ask (invariata - usa già fetch + parsing SSE) ---
         async function handleAsk() {
             // ... (come l'ultima versione fornita) ...
+            const selectedTemperature = parseFloat(temperatureSelect.value);
             const query = queryInput.value.trim(); const selectedModel = modelSelect.value; const selectedPersona = personaSelect.value; if (!query) return;
             appendMessage(query, 'user-message'); queryInput.value = ''; infoLogContent.innerHTML = '';
             loader.style.display = 'block'; disableUI(true);
-            const requestData = { query: query, model: selectedModel, persona: selectedPersona };
+            const requestData = { query: query, model: selectedModel, persona: selectedPersona , temperature: selectedTemperature};
             fetch('/ask', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream' }, body: JSON.stringify(requestData) })
                 .then(response => { if (!response.ok || !response.body) { return response.json().then(errData => { throw new Error(errData.error || `Errore HTTP: ${response.status}`); }).catch(() => { throw new Error(`Errore HTTP: ${response.status} o stream non disponibile`); }); } console.log("Connessione SSE stabilita..."); const reader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = ''; function processStream() { reader.read().then(({ done, value }) => { if (done) { console.log("Stream terminato."); if (loader.style.display === 'block') { console.warn("Stream terminato senza evento result/error."); appendMessage("Risposta incompleta o errore stream.", "error-message"); resetUI(); } return; } buffer += decoder.decode(value, { stream: true }); let boundary = buffer.indexOf('\n\n'); while (boundary !== -1) { const message = buffer.substring(0, boundary); buffer = buffer.substring(boundary + 2); if (message.startsWith('data:')) { const jsonData = message.substring(5).trim(); try { const eventData = JSON.parse(jsonData); handleServerEvent(eventData); } catch (e) { console.error("Errore parsing JSON da SSE:", e, "Dati:", jsonData); } } boundary = buffer.indexOf('\n\n'); } processStream(); }).catch(error => { console.error('Errore lettura stream:', error); appendMessage(`Errore lettura stream: ${error.message}`, 'error-message'); resetUI(); }); } processStream(); })
                 .catch(error => { console.error('Errore fetch/SSE:', error); appendMessage(`Errore: ${error.message}`, 'error-message'); resetUI(); });
