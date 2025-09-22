@@ -104,8 +104,8 @@ if not period_start or not period_end:
 
 # quality guards (same ones you had)
 conds = [
-    f"`start` >= '{period_start}'",
-    f"`end`   <= '{period_end}'",
+    f"`start` = '{period_start}'",
+    f"`end`   = '{period_end}'",
     "perc_kpi IS NOT NULL",
     "NOT isnan(perc_kpi)",
     "total_kpi_sample IS NOT NULL",
