@@ -196,17 +196,17 @@ h1 {
     border: 1px solid #e0e0e0;
 }
 
-#model-selector-area, #persona-selector-area {
+#model-selector-area, #persona-selector-area , #temperature-selector-area{
    /* Rimuovi margine bottom se presente prima */
    margin-bottom: 0;
 }
 
-#model-selector-area label, #persona-selector-area label {
+#model-selector-area label, #persona-selector-area label, #temperature-selector-area label{
     margin-right: 8px;
     font-weight: bold;
     font-size: 0.9em;
 }
-#model-selector-area select, #persona-selector-area select {
+#model-selector-area select, #persona-selector-area select, #temperature-selector-area select {
     padding: 6px 8px;
     border-radius: 4px;
     border: 1px solid #ccc;
