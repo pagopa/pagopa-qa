@@ -4,3 +4,4 @@ psycopg2-binary
 sqlalchemy
 azure-data-tables
 azure-storage-blob
+slack_sdk
