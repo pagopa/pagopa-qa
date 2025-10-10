@@ -118,7 +118,7 @@ jobs:
         run: |
           export PG_APD_CONNECTION_STRING=${{ secrets.PG_APD_CONNECTION_STRING}}
           export PG_CFG_CONNECTION_STRING=${{ secrets.PG_CFG_CONNECTION_STRING}}
-          export SLACK_PAGAMENTI_REPORT_BOT_TOKEN=${{ secrets.PG_CFG_CONNECTION_STRING}}
+          export SLACK_PAGAMENTI_REPORT_BOT_TOKEN=${{ secrets.SLACK_PAGAMENTI_REPORT_BOT_TOKEN}}
           export SA_ACCOUNT_KEY=${{ secrets.SA_ACCOUNT_KEY }}
           export SA_ACCOUNT_NAME="pagopadweuqifnsa"
           export SA_BLOB_CONTAINER_NAME="qibrokerreport"
