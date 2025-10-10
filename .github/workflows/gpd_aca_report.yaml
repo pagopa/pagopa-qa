@@ -128,34 +128,8 @@ jobs:
           export PYTHONUNBUFFERED="1"
 
           cd ./python/gpd-report
-          python broker-aca-report.py
+          python broker-aca-report.py   
 
-      - name: Create failure payload
-        if: ${{ failure() && inputs.notify }}
-        run: |
-          echo '{
-            "text": "❌ *Errore* Non è stato possibile aggiornare il report sul caricamento delle posizioni debitorie ACA.",
-            "blocks": [
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "❌ *Si è verificato un errore durante l'esecuzione del job*"
-                }
-              }
-            ]
-          }' > ./python/gpd-report/payload.json
-          
-      - name: Send notification to Slack
-        id: slack
-        if: ${{ (success() || failure()) && (inputs.notify != 'false' || github.event_name == 'schedule') }}
-        uses: slackapi/slack-github-action@e28cf165c92ffef168d23c5c9000cffc8a25e117 #v1.24.0
-        with: 
-            payload-file-path: "./python/gpd-report/payload.json"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_GPD_ACA_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK          
-  
   approve_cleanup_runner:
     needs: [ report_script ]
     name: Execute auto-approve for 'Cleanup Runner'
