@@ -111,12 +111,13 @@ conds = [
     "total_kpi_sample IS NOT NULL",
     "total_kpi_fault  IS NOT NULL",
 ]
-log.info(f"CONDS: {conds}")
 
 where_sql = (" WHERE " + " AND ".join(conds))
 limit_sql = f" LIMIT {sample_lim}" if sample_lim > 0 else ""
 src_sql = f"SELECT * FROM {src_fqn}{where_sql}{limit_sql}"
+log.info(f"Reading source KPIs with SQL:\n{src_sql}")
 src = spark.sql(src_sql)
+log.info(f"Source rows read: {src.count()}")
 
 # ---------------------------------------
 # Read crm table to get aggreations
@@ -130,12 +131,14 @@ crm_norm = (
     .withColumn("members_array", transform(split(col("provider_names"), ","), lambda x: trim(x)))
     .withColumn("members_array", expr("filter(members_array, x -> x <> '')"))
 )
-
+log.info(f"CRM groups read: {crm_norm.count()}")
 if not count_groups_of_one:
     log.info("Dropping CRM groups with a single member (to avoid duplicates)")
     crm_norm = crm_norm.where(size(col("members_array")) > 1)
+    log.info(f"CRM groups after drop: {crm_norm.count()}")
 
 crm_norm = crm_norm.withColumn("group_key", array_join(array_sort(col("members_array")), ","))
+log.info(f"CRM afert grouping: {crm_norm.count()}")
 
 # Map each member -> single canonical group_key (if member appears in multiple groups, pick the smallest)
 mapping = (
