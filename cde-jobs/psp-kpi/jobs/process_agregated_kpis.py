@@ -87,12 +87,12 @@ def previous_month_range(today: Optional[date] = None) -> Tuple[str, str]:
     if today is None:
         today = datetime.utcnow().date()
     first_this = date(today.year, today.month, 1)
-    last_prev  = first_this - timedelta(days=1)            # last day of previous month
-    first_prev = date(last_prev.year, last_prev.month, 1)  # first day of previous month
+    last_prev  = first_this - timedelta(days=1)         # last day of previous month
+    first_prev = date(last_prev.year, last_prev.month, 1) # first day of previous month
     start = f"{first_prev.strftime('%Y-%m-%d')}T00:00:00Z"
     end   = f"{last_prev.strftime('%Y-%m-%d')}T00:00:00Z"
     return start, end
-    
+
 # -----------------------
 # Read source KPIs
 # -----------------------
@@ -122,7 +122,7 @@ log.info(f"Source rows read: {src.count()}")
 # ---------------------------------------
 # Read crm table to get aggreations
 # ---------------------------------------
-crm = spark.table(agg_fqn).select("provider_names").where(
+crm = spark.table(agg_fqn).select("provider_names", "contract_id").where(
     col("provider_names").isNotNull() & (trim(col("provider_names")) != "")
 )
 
@@ -132,6 +132,21 @@ crm_norm = (
     .withColumn("members_array", expr("filter(members_array, x -> x <> '')"))
 )
 log.info(f"CRM groups read: {crm_norm.count()}")
+
+# <-- NEW (2)
+# Create a lookup for all individual psp_members to their contract_id
+# This is needed for "singles" that might be in groups of 1 (filtered later)
+psp_to_contract_id_lookup = (
+    crm_norm
+    .select("contract_id", explode(col("members_array")).alias("psp_member"))
+    .dropDuplicates(["psp_member", "contract_id"])
+    # If a psp is in multiple contracts (which shouldn't happen?), pick the "min"
+    .groupBy("psp_member")
+    .agg(expr("min(contract_id)").alias("contract_id"))
+    .withColumnRenamed("psp_member", "lookup_psp_id") # To avoid join ambiguity
+)
+psp_to_contract_id_lookup.cache() # Cache this as it's used later in a join
+
 if not count_groups_of_one:
     log.info("Dropping CRM groups with a single member (to avoid duplicates)")
     crm_norm = crm_norm.where(size(col("members_array")) > 1)
@@ -141,36 +156,52 @@ crm_norm = crm_norm.withColumn("group_key", array_join(array_sort(col("members_a
 log.info(f"CRM afert grouping: {crm_norm.count()}")
 
 # Map each member -> single canonical group_key (if member appears in multiple groups, pick the smallest)
-mapping = (
+# We also need to carry the contract_id associated with that smallest group_key
+mapping_with_contract = (
     crm_norm
-    .select("group_key", explode(col("members_array")).alias("psp_member"))
-    .dropDuplicates(["psp_member", "group_key"])
-    .groupBy("psp_member").agg(expr("min(group_key)").alias("group_key"))
+    .select("group_key", "contract_id", explode(col("members_array")).alias("psp_member"))
+    .dropDuplicates(["psp_member", "group_key", "contract_id"])
 )
 
+# Find the min group_key for each member
+min_group_mapping = (
+    mapping_with_contract
+    .groupBy("psp_member")
+    .agg(expr("min(group_key)").alias("group_key"))
+)
+
+# Join back to get the contract_id for that specific min group
+mapping = (
+    min_group_mapping
+    .join(
+        mapping_with_contract.select("group_key", "contract_id").dropDuplicates(),
+        "group_key",
+        "left"
+    )
+)
 # log.info(f"Aggregation mapping size (distinct members): {mapping.count()}")
 
 # -------------------------------------------------------------------------------
 #   A) group members: PSPs present in mapping  -> aggregate by group_key
-#   B) SINGLES      : PSPs NOT present in mapping -> keep single aggregation
+#   B) SINGLES       : PSPs NOT present in mapping -> keep single aggregation
 #   If a PSP appears both alone and in a group, we keep only the group row.
 # -------------------------------------------------------------------------------
 
 # A) groupe members
 grp_rows = (
     src.join(mapping, src.psp_id == mapping.psp_member, "inner")
-       .drop("psp_member")
-       .withColumn("target_psp_id", col("group_key"))
+    .drop("psp_member")
+    .withColumn("target_psp_id", col("group_key"))
 )
 
 # sum total_kpi_fault and total_kpi_sample, take max kpi_threshold
 agg_grouped = (
-    grp_rows.groupBy("kpi_id", "start", "end", "target_psp_id")
-            .agg(
-                fsum(col("total_kpi_fault").cast("long")).alias("sum_fault"),
-                fsum(col("total_kpi_sample").cast("long")).alias("sum_sample"),
-                fmax(col("kpi_threshold").cast("double")).alias("kpi_threshold")
-            )
+    grp_rows.groupBy("kpi_id", "start", "end", "target_psp_id", "contract_id")
+    .agg(
+        fsum(col("total_kpi_fault").cast("long")).alias("sum_fault"),
+        fsum(col("total_kpi_sample").cast("long")).alias("sum_sample"),
+        fmax(col("kpi_threshold").cast("double")).alias("kpi_threshold")
+    )
 )
 
 # compute perc_kpi and kpi_outcome
@@ -181,7 +212,8 @@ out_g  = when(perc_g <= col("kpi_threshold"), lit("OK")).otherwise(lit("KO"))
 df_grouped = (
     agg_grouped.select(
         col("kpi_id").cast("string").alias("kpi_id"),
-        col("target_psp_id").cast("string").alias("psp_id"),   # comma-separated ids
+        col("target_psp_id").cast("string").alias("psp_id"),
+        col("contract_id").cast("string").alias("contract_id"),
         col("kpi_threshold").cast("double").alias("kpi_threshold"),
         perc_g.cast("double").alias("perc_kpi"),
         out_g.cast("string").alias("kpi_outcome"),
@@ -191,14 +223,25 @@ df_grouped = (
 )
 
 # B) singles PSP - left_anti on mapping (PSPs not belonging to any group)
-singles = src.join(mapping, src.psp_id == mapping.psp_member, "left_anti")
+singles = src.join(mapping.select("psp_member"), src.psp_id == mapping.psp_member, "left_anti") # <-- MODIFIED (6) (select)
 agg_single = (
     singles.groupBy("kpi_id", "start", "end", "psp_id")
-           .agg(
-               fsum(col("total_kpi_fault").cast("long")).alias("sum_fault"),
-               fsum(col("total_kpi_sample").cast("long")).alias("sum_sample"),
-               fmax(col("kpi_threshold").cast("double")).alias("kpi_threshold")
-           )
+    .agg(
+        fsum(col("total_kpi_fault").cast("long")).alias("sum_fault"),
+        fsum(col("total_kpi_sample").cast("long")).alias("sum_sample"),
+        fmax(col("kpi_threshold").cast("double")).alias("kpi_threshold")
+    )
+)
+
+# <-- NEW (6)
+# Join with the lookup to get contract_id for singles
+agg_single_with_contract = (
+    agg_single
+    .join(
+        psp_to_contract_id_lookup,
+        agg_single.psp_id == psp_to_contract_id_lookup.lookup_psp_id,
+        "left" # Use left join so we don't drop singles that aren't in CRM
+    )
 )
 
 # ------------------------------------------------------
@@ -209,9 +252,10 @@ out_s  = when(perc_s <= col("kpi_threshold"), lit("OK")).otherwise(lit("KO"))
 
 # final df result for single PSPs
 df_single = (
-    agg_single.select(
+    agg_single_with_contract.select(
         col("kpi_id").cast("string").alias("kpi_id"),
         col("psp_id").cast("string").alias("psp_id"),
+        col("contract_id").cast("string").alias("contract_id"),
         col("kpi_threshold").cast("double").alias("kpi_threshold"),
         perc_s.cast("double").alias("perc_kpi"),
         out_s.cast("string").alias("kpi_outcome"),
@@ -247,7 +291,7 @@ if not table_exists(target_db, target_tbl):
             TBLPROPERTIES ('format-version'='2','engine.hive.enabled'='true')
             {loc}
             AS
-            SELECT kpi_id, psp_id, kpi_threshold, perc_kpi, kpi_outcome, `start`, `end`, _ts
+            SELECT kpi_id, psp_id, contract_id, kpi_threshold, perc_kpi, kpi_outcome, `start`, `end`, _ts
             FROM result_tmp
         """)
         created_now = True
@@ -264,21 +308,19 @@ if not created_now:
     if not is_iceberg_table(target_db, target_tbl):
         raise RuntimeError(f"Target {tgt_fqn} exists but is NOT an Iceberg table.")
     log.info("Merging new data to existing Iceberg table.")
-    # tgt_cols = [f.name for f in spark.table(tgt_fqn).schema.fields]
-    # result.select(*tgt_cols).writeTo(tgt_fqn).append()
-    
+
     spark.sql("""
         CREATE OR REPLACE TEMP VIEW staged_result AS
-        SELECT kpi_id, psp_id, kpi_threshold, perc_kpi, kpi_outcome, `start`, `end`, _ts
+        SELECT kpi_id, psp_id, contract_id, kpi_threshold, perc_kpi, kpi_outcome, `start`, `end`, _ts
         FROM (
         SELECT *,
-                ROW_NUMBER() OVER (PARTITION BY kpi_id, psp_id, `start`, `end`
-                                    ORDER BY _ts DESC) AS rn
+                 ROW_NUMBER() OVER (PARTITION BY kpi_id, psp_id, `start`, `end`
+                                      ORDER BY _ts DESC) AS rn
         FROM result_tmp
         ) t
         WHERE rn = 1
     """)
-    
+
     spark.sql(f"""
         MERGE INTO {tgt_fqn} AS t
         USING staged_result AS s
@@ -287,6 +329,7 @@ if not created_now:
         AND t.`start` = s.`start`
         AND t.`end`   = s.`end`
         WHEN MATCHED THEN UPDATE SET
+        t.contract_id   = s.contract_id, 
         t.kpi_threshold = s.kpi_threshold,
         t.perc_kpi      = s.perc_kpi,
         t.kpi_outcome   = s.kpi_outcome,
