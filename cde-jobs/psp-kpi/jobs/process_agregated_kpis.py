@@ -133,7 +133,6 @@ crm_norm = (
 )
 log.info(f"CRM groups read: {crm_norm.count()}")
 
-# <-- NEW (2)
 # Create a lookup for all individual psp_members to their contract_id
 # This is needed for "singles" that might be in groups of 1 (filtered later)
 psp_to_contract_id_lookup = (
@@ -155,30 +154,43 @@ if not count_groups_of_one:
 crm_norm = crm_norm.withColumn("group_key", array_join(array_sort(col("members_array")), ","))
 log.info(f"CRM afert grouping: {crm_norm.count()}")
 
+
 # Map each member -> single canonical group_key (if member appears in multiple groups, pick the smallest)
 # We also need to carry the contract_id associated with that smallest group_key
+# This contains all possible (group_key, contract_id, psp_member) combinations
 mapping_with_contract = (
     crm_norm
     .select("group_key", "contract_id", explode(col("members_array")).alias("psp_member"))
     .dropDuplicates(["psp_member", "group_key", "contract_id"])
 )
 
-# Find the min group_key for each member
+# For each member, find their min(group_key)
 min_group_mapping = (
     mapping_with_contract
     .groupBy("psp_member")
     .agg(expr("min(group_key)").alias("group_key"))
 )
 
-# Join back to get the contract_id for that specific min group
+# Create a clean 1:1 lookup for group_key -> contract_id
+# If a group_key has multiple contracts (bad data), pick the "min" one to be deterministic
+group_to_contract_lookup = (
+    crm_norm
+    .select("group_key", "contract_id")
+    .dropDuplicates(["group_key", "contract_id"])
+    .groupBy("group_key")
+    .agg(expr("min(contract_id)").alias("contract_id"))
+)
+
+# Join the min_group_mapping with the new group_to_contract_lookup
 mapping = (
     min_group_mapping
     .join(
-        mapping_with_contract.select("group_key", "contract_id").dropDuplicates(),
+        group_to_contract_lookup,
         "group_key",
         "left"
     )
 )
+
 # log.info(f"Aggregation mapping size (distinct members): {mapping.count()}")
 
 # -------------------------------------------------------------------------------
@@ -223,7 +235,7 @@ df_grouped = (
 )
 
 # B) singles PSP - left_anti on mapping (PSPs not belonging to any group)
-singles = src.join(mapping.select("psp_member"), src.psp_id == mapping.psp_member, "left_anti") # <-- MODIFIED (6) (select)
+singles = src.join(mapping.select("psp_member").distinct(), src.psp_id == mapping.psp_member, "left_anti")
 agg_single = (
     singles.groupBy("kpi_id", "start", "end", "psp_id")
     .agg(
@@ -233,7 +245,6 @@ agg_single = (
     )
 )
 
-# <-- NEW (6)
 # Join with the lookup to get contract_id for singles
 agg_single_with_contract = (
     agg_single
