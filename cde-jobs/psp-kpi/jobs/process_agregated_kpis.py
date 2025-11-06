@@ -86,11 +86,16 @@ def previous_month_range(today: Optional[date] = None) -> Tuple[str, str]:
     """Return ('YYYY-MM-01T00:00:00Z', 'YYYY-MM-lastT00:00:00Z') for the previous month."""
     if today is None:
         today = datetime.utcnow().date()
+    # first day of this month
     first_this = date(today.year, today.month, 1)
-    last_prev  = first_this - timedelta(days=1)         # last day of previous month
-    first_prev = date(last_prev.year, last_prev.month, 1) # first day of previous month
+    # first day of next month
+    first_next = (first_this.replace(day=28) + timedelta(days=4)).replace(day=1)
+    # last day of previous month
+    last_prev  = first_this - timedelta(days=1)
+    # first day of previous month
+    first_prev = date(last_prev.year, last_prev.month, 1)
     start = f"{first_prev.strftime('%Y-%m-%d')}T00:00:00Z"
-    end   = f"{last_prev.strftime('%Y-%m-%d')}T00:00:00Z"
+    end   = f"{first_next.strftime('%Y-%m-%d')}T00:00:00Z"
     return start, end
 
 # -----------------------
