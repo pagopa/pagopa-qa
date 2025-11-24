@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-# rtp_analysis_job.py
-
-import logging
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import (
     col,
@@ -10,238 +6,218 @@ from pyspark.sql.functions import (
     countDistinct,
     desc,
     row_number,
-    sum as _sum
+    sum as _sum,
 )
 from pyspark.sql.window import Window
 
-# ==========================================================
-# LOGGING SETUP
-# ==========================================================
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s - %(message)s"
-)
-log = logging.getLogger("rtp-analysis")
 
-# ==========================================================
-# 1. SPARK SESSION (stile CDE già usato)
-# ==========================================================
-log.info("Avvio SparkSession...")
-spark = (
-    SparkSession.builder
-    .appName("rtp-analysis")
-    .getOrCreate()
-)
-spark.sparkContext.setLogLevel("WARN")
-log.info("SparkSession avviata.")
+def main():
+    # ==========================================================
+    # 1. SETUP SESSIONE SPARK
+    # ==========================================================
+    spark = (
+        SparkSession.builder
+        .appName("rtp-analysis")
+        .enableHiveSupport()
+        .getOrCreate()
+    )
 
-# ==========================================================
-# 2. LETTURA TABELLE
-# ==========================================================
-log.info("Lettura tabelle sorgenti...")
+    log4j = spark._jvm.org.apache.log4j
+    logger = log4j.LogManager.getLogger("rtp-analysis")
 
-rpt = spark.table("pagopa_dev.rtp_pt_report")
-po_raw = spark.table("pagopa.silver_gpd_payment_option").select("after.*")
-pp_raw = spark.table("pagopa.silver_gpd_payment_position").select("after.*")
-t_raw  = spark.table("pagopa.silver_gpd_transfer").select("after.*")
+    logger.info("=== JOB rtp-analysis AVVIATO ===")
 
-log.info("Tabelle lette:")
-log.info(f" - rpt_pt_report schema: {rpt.schema.simpleString()}")
-log.info(f" - payment_option schema: {po_raw.schema.simpleString()}")
-log.info(f" - payment_position schema: {pp_raw.schema.simpleString()}")
-log.info(f" - transfer schema: {t_raw.schema.simpleString()}")
+    # ==========================================================
+    # 2. Caricamento tabelle Silver GPD
+    # ==========================================================
+    logger.info("Caricamento tabelle Hive: rpt_pt_report, payment_option, payment_position, transfer")
 
-# ⚠️ I count qui possono essere pesanti, tienili solo se ti servono veramente
-# log.info(f" - rpt_pt_report count: {rpt.count()}")
-# log.info(f" - payment_option count: {po_raw.count()}")
-# log.info(f" - payment_position count: {pp_raw.count()}")
-# log.info(f" - transfer count: {t_raw.count()}")
+    rpt = spark.table("pagopa_dev.rtp_pt_report")
+    po  = spark.table("pagopa.silver_gpd_payment_option").select("after.*")
+    pp  = spark.table("pagopa.silver_gpd_payment_position").select("after.*")
+    t   = spark.table("pagopa.silver_gpd_transfer").select("after.*")
 
-# ==========================================================
-# 3. FILTRI SU PAYMENT POSITION (type + status)
-# ==========================================================
-log.info("Applico filtri su payment_position (type + status)...")
+    logger.info("Tabelle caricate ✔")
 
-pp_f1 = pp_raw.filter(
-    (col("type") == "GPD")
-    | ((col("type") == "ACA") & (~col("iupd").like("ACA_%")))
-)
+    # ==========================================================
+    # 3. FILTRO SUI TRANSFER (categoria 9/.../)
+    # ==========================================================
+    logger.info("Step 3 - filtro TRANSFER: category like '9/.../'")
 
-pp_f2 = pp_f1.filter(col("status").isin("VALID", "PARTIALLY_PAID"))
+    t_f1 = t.filter(
+        col("category").rlike(r"^9/.+/$")
+    )
 
-pp_f2_count = pp_f2.count()
-log.info(f"payment_position dopo filtraggio type/status: {pp_f2_count} record.")
+    logger.info("Step 3 completato (t_f1 creato)")
 
-pp_ids = pp_f2.select("id").distinct()
-log.info("ID payment_position filtrate estratti (distinct).")
+    # ==========================================================
+    # 4. FILTRO PAYMENT_OPTION derivato dai TRANSFER filtrati
+    # ==========================================================
+    logger.info("Step 4 - filtro PAYMENT_OPTION dai TRANSFER filtrati")
 
-# ==========================================================
-# 4. PROPAGAZIONE FILTRO A PAYMENT_OPTION
-# ==========================================================
-log.info("Propago il filtro PP -> PO (join su payment_position_id)...")
+    po_ids_from_t = t_f1.select("payment_option_id").distinct()
 
-po_f1 = po_raw.join(
-    pp_ids.withColumnRenamed("id", "pp_id"),
-    po_raw.payment_position_id == col("pp_id"),
-    "inner"
-).drop("pp_id")
+    po_f1 = po.join(
+        po_ids_from_t,
+        po.id == po_ids_from_t.payment_option_id,
+        "inner"
+    ).drop(po_ids_from_t.payment_option_id)
 
-po_f1 = po_f1.withColumnRenamed("id", "po_id")
+    po_f1 = po_f1.withColumnRenamed("id", "po_id")
 
-po_f1_count = po_f1.count()
-log.info(f"payment_option dopo propagazione da PP: {po_f1_count} record.")
+    logger.info("Step 4 completato (po_f1 creato)")
 
-# ==========================================================
-# 5. FILTRO TRANSFER PER CATEGORY 9/.../ + PROPAGAZIONE
-# ==========================================================
-log.info("Filtro transfer per category nel formato 9/.../ ...")
+    # ==========================================================
+    # 5. FILTRO PAYMENT_POSITION
+    #     (GPD / ACA NO prefix + status VALID/PARTIALLY_PAID)
+    # ==========================================================
+    logger.info("Step 5 - filtro PAYMENT_POSITION per type/status e propagazione da PO")
 
-t_f1 = t_raw.filter(
-    col("category").rlike(r"^9/.+/$")
-)
-t_f1_count = t_f1.count()
-log.info(f"transfer dopo filtro category 9/.../: {t_f1_count} record.")
+    pp_base = pp.filter(
+        (col("type") == "GPD") |
+        ((col("type") == "ACA") & (~col("iupd").like("ACA_%")))
+    ).filter(
+        col("status").isin("VALID", "PARTIALLY_PAID")
+    )
 
-log.info("Propago filtro PO -> transfer (solo transfer collegati a PO filtrate)...")
-po_ids = po_f1.select("po_id").distinct()
+    pp_ids_from_po = po_f1.select("payment_position_id").distinct()
 
-t_f2 = t_f1.join(
-    po_ids,
-    t_f1.payment_option_id == po_ids.po_id,
-    "inner"
-).drop("po_id")
+    pp_f1 = pp_base.join(
+        pp_ids_from_po,
+        pp_base.id == pp_ids_from_po.payment_position_id,
+        "inner"
+    ).drop(pp_ids_from_po.payment_position_id)
 
-t_f2_count = t_f2.count()
-log.info(f"transfer finali dopo propagazione da PO: {t_f2_count} record.")
+    logger.info("Step 5 completato (pp_f1 creato)")
 
-# ==========================================================
-# 6. NORMALIZZAZIONE CHIAVI (segregazione & IUV prefix)
-# ==========================================================
-log.info("Normalizzo chiavi: segregazione -> seg_key, IUV -> iuv_prefix...")
+    # ==========================================================
+    # 6. FILTRO PAYMENT_OPTION basato sulle PP filtrate
+    # ==========================================================
+    logger.info("Step 6 - ulteriore filtro PAYMENT_OPTION basato sulle PP filtrate")
 
-rpt2 = rpt.withColumn(
-    "seg_key",
-    lpad(col("segregazione").cast("string"), 2, "0")
-)
+    po_ids_from_pp = pp_f1.select("id").distinct()
 
-po2 = po_f1.withColumn(
-    "iuv_prefix",
-    substring(col("iuv"), 1, 2)
-)
+    po_f2 = po_f1.join(
+        po_ids_from_pp,
+        po_f1.payment_position_id == po_ids_from_pp.id,
+        "inner"
+    ).drop(po_ids_from_pp.id)
 
-log.info("Normalizzazione chiavi completata.")
+    logger.info("Step 6 completato (po_f2 creato)")
 
-# ==========================================================
-# 7. JOIN rpt -> po -> pp
-# ==========================================================
-log.info("Inizio JOIN 1: rpt <-> payment_option (seg_key <-> iuv_prefix)...")
+    # ==========================================================
+    # 7. FILTRO TRANSFER basato sulle PO filtrate
+    # ==========================================================
+    logger.info("Step 7 - filtro TRANSFER finale basato sulle PO filtrate")
 
-r  = rpt2.alias("r")
-poA = po2.alias("po")
-ppA = pp_f2.alias("pp")
+    po2_ids = po_f2.select("po_id").distinct()
 
-j1 = r.join(
-    poA,
-    col("r.seg_key") == col("po.iuv_prefix"),
-    "inner"
-)
+    t_f2 = t_f1.join(
+        po2_ids,
+        t_f1.payment_option_id == po2_ids.po_id,
+        "inner"
+    )
 
-j1_count = j1.count()
-log.info(f"JOIN 1 completata. Record in j1: {j1_count}")
+    logger.info("Step 7 completato (t_f2 creato)")
 
-log.info("Inizio JOIN 2: payment_option <-> payment_position...")
+    # ==========================================================
+    # 8. NORMALIZZAZIONE CHIAVI
+    # ==========================================================
+    logger.info("Step 8 - normalizzazione chiavi (seg_key, iuv_prefix)")
 
-j2 = j1.join(
-    ppA,
-    col("po.payment_position_id") == col("pp.id"),
-    "inner"
-)
+    rpt2 = rpt.withColumn("seg_key", lpad(col("segregazione").cast("string"), 2, "0"))
 
-j2_count = j2.count()
-log.info(f"JOIN 2 completata. Record in j2: {j2_count}")
+    po_norm = po_f2.withColumn("iuv_prefix", substring(col("iuv"), 1, 2))
 
-# ==========================================================
-# 8. TOP 10 PARTNER TECNOLOGICI (per numero di posizioni)
-# ==========================================================
-log.info("Calcolo TOP 10 partner tecnologici per numero di posizioni...")
+    logger.info("Step 8 completato (rpt2, po_norm creati)")
 
-partner_positions = (
-    j2.groupBy("r.id_intermediario_pa")
-    .agg(countDistinct("pp.iupd").alias("num_posizioni"))
-)
+    # ==========================================================
+    # 9. JOIN
+    # ==========================================================
+    logger.info("Step 9.1 - JOIN rpt → payment_option")
 
-top10_partner = (
-    partner_positions
-    .orderBy(desc("num_posizioni"))
-    .limit(10)
-)
+    j1 = rpt2.alias("r").join(
+        po_norm.alias("po"),
+        col("r.seg_key") == col("po.iuv_prefix"),
+        "inner"
+    )
 
-log.info("Scrivo risultato TOP 10 partner su pagopa_dev.rtp_top10_partner_posizioni...")
-top10_partner.write.mode("overwrite").saveAsTable(
-    "pagopa_dev.rtp_top10_partner_posizioni"
-)
-log.info("Scrittura TOP 10 partner completata.")
+    logger.info("Step 9.1 completato (j1 creato)")
 
-# ==========================================================
-# 9. TOP 2 ENTI PER OGNI PARTNER
-# ==========================================================
-log.info("Calcolo TOP 2 enti per ogni partner...")
+    logger.info("Step 9.2 - JOIN payment_option → payment_position")
 
-partner_enti = (
-    j2.groupBy("r.id_intermediario_pa", "r.id_dominio")
-    .agg(countDistinct("pp.iupd").alias("num_posizioni"))
-)
+    j2 = j1.join(
+        pp_f1.alias("pp"),
+        col("po.payment_position_id") == col("pp.id"),
+        "inner"
+    )
 
-w_enti = Window.partitionBy("id_intermediario_pa").orderBy(desc("num_posizioni"))
+    logger.info("Step 9.2 completato (j2 creato)")
 
-top2_enti = (
-    partner_enti
-    .withColumn("rank", row_number().over(w_enti))
-    .filter(col("rank") <= 2)
-)
+    logger.info("Step 9.3 - JOIN con TRANSFER filtrati")
 
-log.info("Scrivo risultato TOP 2 enti per partner su pagopa_dev.rtp_top2_enti_per_partner...")
-top2_enti.write.mode("overwrite").saveAsTable(
-    "pagopa_dev.rtp_top2_enti_per_partner"
-)
-log.info("Scrittura TOP 2 enti completata.")
+    j_services = j2.join(
+        t_f2.alias("t"),
+        col("po.po_id") == col("t.payment_option_id"),
+        "left"
+    )
 
-# ==========================================================
-# 10. TOP SERVIZI PER PARTNER (via transfer filtrati)
-# ==========================================================
-log.info("JOIN con transfer filtrati per analisi dei servizi...")
+    logger.info("Step 9.3 completato (j_services creato)")
 
-tA = t_f2.alias("t")
+    # ==========================================================
+    # 10. ANALISI
+    # ==========================================================
+    logger.info("Step 10.1 - Top 10 partner tecnologici per numero posizioni")
 
-j_services = j2.join(
-    tA,
-    col("po.po_id") == col("t.payment_option_id"),
-    "left"
-)
+    partner_positions = (
+        j2.groupBy("r.id_intermediario_pa")
+        .agg(countDistinct("pp.iupd").alias("num_posizioni"))
+    )
 
-j_services_count = j_services.count()
-log.info(f"JOIN servizi completata. Record in j_services: {j_services_count}")
+    top10_partner = partner_positions.orderBy(desc("num_posizioni")).limit(10)
 
-log.info("Calcolo TOP servizi (category) per partner...")
+    logger.info("Top 10 partner tecnologici (primi 10):")
+    top10_partner.show(truncate=False)
 
-partner_services = (
-    j_services.groupBy("r.id_intermediario_pa", "t.category")
-    .agg(_sum("t.amount").alias("totale_importi"))
-)
+    logger.info("Step 10.2 - Top 2 enti per partner")
 
-w_serv = Window.partitionBy("id_intermediario_pa").orderBy(desc("totale_importi"))
+    partner_enti = (
+        j2.groupBy("r.id_intermediario_pa", "r.id_dominio")
+        .agg(countDistinct("pp.iupd").alias("num_posizioni"))
+    )
 
-top_services = (
-    partner_services
-    .withColumn("rank", row_number().over(w_serv))
-    .filter(col("rank") <= 3)
-)
+    w = Window.partitionBy("id_intermediario_pa").orderBy(desc("num_posizioni"))
 
-log.info("Scrivo risultato TOP servizi per partner su pagopa_dev.rtp_top_servizi_per_partner...")
-top_services.write.mode("overwrite").saveAsTable(
-    "pagopa_dev.rtp_top_servizi_per_partner"
-)
-log.info("Scrittura TOP servizi completata.")
+    top2_enti = (
+        partner_enti
+        .withColumn("rank", row_number().over(w))
+        .filter(col("rank") <= 2)
+    )
 
-log.info("Job rtp-analysis completato con successo, stop Spark.")
-spark.stop()
+    logger.info("Top 2 enti per ciascun partner:")
+    top2_enti.show(truncate=False)
+
+    logger.info("Step 10.3 - Top servizi (t.category) per partner")
+
+    partner_services = (
+        j_services.groupBy("r.id_intermediario_pa", "t.category")
+        .agg(_sum("t.amount").alias("totale_importi"))
+    )
+
+    w2 = Window.partitionBy("id_intermediario_pa").orderBy(desc("totale_importi"))
+
+    top_services = (
+        partner_services
+        .withColumn("rank", row_number().over(w2))
+        .filter(col("rank") <= 3)
+    )
+
+    logger.info("Top 3 servizi per ciascun partner:")
+    top_services.show(truncate=False)
+
+    logger.info("=== JOB rtp-analysis COMPLETATO CON SUCCESSO ===")
+    spark.stop()
+
+
+if __name__ == "__main__":
+    main()
