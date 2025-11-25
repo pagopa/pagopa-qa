@@ -83,7 +83,7 @@ def main():
         col("status").isin("VALID", "PARTIALLY_PAID")
     )
 
-    logger.info("payment_position totale dopo il filtro F3: %d", pp.base.count())
+    logger.info("payment_position totale dopo il filtro F3: %d", pp_base.count())
 
     # Filtro F4: propagazione da PAYMENT_OPTION alle PAYMENT_POSITION
     logger.info("Propagazione filtro da PAYMENT_OPTION alle PAYMENT_POSITION")
