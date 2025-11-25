@@ -9,6 +9,7 @@ from pyspark.sql.functions import (
     sum as _sum,
 )
 from pyspark.sql.window import Window
+import logging
 
 
 def main():
@@ -22,8 +23,8 @@ def main():
         .getOrCreate()
     )
 
-    log4j = spark._jvm.org.apache.log4j
-    logger = log4j.LogManager.getLogger("rtp-analysis")
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+    logger = logging.getLogger("rtp-analysis-job")
 
     logger.info("=== JOB rtp-analysis AVVIATO ===")
 
@@ -43,7 +44,7 @@ def main():
     # 3. FILTRO SUI TRANSFER (categoria 9/.../)
     # ==========================================================
     logger.info("Step 3 - filtro TRANSFER: category like '9/.../'")
-
+    logger.info("transfer totale prima del filtro: %d", t.count())
     t_f1 = t.filter(
         col("category").rlike(r"^9/.+/$")
     )
@@ -54,7 +55,7 @@ def main():
     # 4. FILTRO PAYMENT_OPTION derivato dai TRANSFER filtrati
     # ==========================================================
     logger.info("Step 4 - filtro PAYMENT_OPTION dai TRANSFER filtrati")
-
+    logger.info("payment_option totale prima del filtro: %d", po.count())
     po_ids_from_t = t_f1.select("payment_option_id").distinct()
 
     po_f1 = po.join(
@@ -72,7 +73,7 @@ def main():
     #     (GPD / ACA NO prefix + status VALID/PARTIALLY_PAID)
     # ==========================================================
     logger.info("Step 5 - filtro PAYMENT_POSITION per type/status e propagazione da PO")
-
+    logger.info("payment_position totale prima del filtro: %d", pp.count())
     pp_base = pp.filter(
         (col("type") == "GPD") |
         ((col("type") == "ACA") & (~col("iupd").like("ACA_%")))
@@ -88,6 +89,7 @@ def main():
         "inner"
     ).drop(pp_ids_from_po.payment_position_id)
 
+    logger.info("payment_position totale dopo applicazione del filtro f5: %d", pp.count())
     logger.info("Step 5 completato (pp_f1 creato)")
 
     # ==========================================================
