@@ -77,8 +77,7 @@ def main():
     logger.info("Step 5 - filtro PAYMENT_POSITION per type/status e propagazione da PO")
     logger.info("payment_position totale prima del filtro F3: %d", pp.count())
     pp_base = pp.filter(
-        (col("type") == "GPD") |
-        ((col("type") == "ACA") & (~col("iupd").like("ACA_%")))
+        ~col("iupd").like("ACA_%")
     ).filter(
         col("status").isin("VALID", "PARTIALLY_PAID")
     )
