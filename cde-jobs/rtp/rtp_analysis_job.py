@@ -41,21 +41,22 @@ def main():
     logger.info("Tabelle caricate ✔")
 
     # ==========================================================
-    # 3. FILTRO SUI TRANSFER (categoria 9/.../)
+    # 3. FILTRO SUI TRANSFER (categoria 9/.../) (F1)
     # ==========================================================
     logger.info("Step 3 - filtro TRANSFER: category like '9/.../'")
-    logger.info("transfer totale prima del filtro: %d", t.count())
+    logger.info("transfer totale prima del filtro F1: %d", t.count())
     t_f1 = t.filter(
         col("category").rlike(r"^9/.+/$")
     )
 
+    logger.info("transfer totale dopo il filtro F1: %d", t_f1.count())
     logger.info("Step 3 completato (t_f1 creato)")
 
     # ==========================================================
-    # 4. FILTRO PAYMENT_OPTION derivato dai TRANSFER filtrati
+    # 4. FILTRO PAYMENT_OPTION derivato dai TRANSFER filtrati (F2)
     # ==========================================================
     logger.info("Step 4 - filtro PAYMENT_OPTION dai TRANSFER filtrati")
-    logger.info("payment_option totale prima del filtro: %d", po.count())
+    logger.info("payment_option totale prima del filtro F2: %d", po.count())
     po_ids_from_t = t_f1.select("payment_option_id").distinct()
 
     po_f1 = po.join(
@@ -66,14 +67,15 @@ def main():
 
     po_f1 = po_f1.withColumnRenamed("id", "po_id")
 
+    logger.info("payment_option totale dopo il filtro F2: %d", po_f1.count())
     logger.info("Step 4 completato (po_f1 creato)")
 
     # ==========================================================
     # 5. FILTRO PAYMENT_POSITION
-    #     (GPD / ACA NO prefix + status VALID/PARTIALLY_PAID)
+    #     (GPD / ACA NO prefix + status VALID/PARTIALLY_PAID) (F3)
     # ==========================================================
     logger.info("Step 5 - filtro PAYMENT_POSITION per type/status e propagazione da PO")
-    logger.info("payment_position totale prima del filtro: %d", pp.count())
+    logger.info("payment_position totale prima del filtro F3: %d", pp.count())
     pp_base = pp.filter(
         (col("type") == "GPD") |
         ((col("type") == "ACA") & (~col("iupd").like("ACA_%")))
@@ -81,19 +83,22 @@ def main():
         col("status").isin("VALID", "PARTIALLY_PAID")
     )
 
-    pp_ids_from_po = po_f1.select("payment_position_id").distinct()
+    logger.info("payment_position totale dopo il filtro F3: %d", pp.base.count())
 
+    # Filtro F4: propagazione da PAYMENT_OPTION alle PAYMENT_POSITION
+    logger.info("Propagazione filtro da PAYMENT_OPTION alle PAYMENT_POSITION")
+    pp_ids_from_po = po_f1.select("payment_position_id").distinct()
     pp_f1 = pp_base.join(
         pp_ids_from_po,
         pp_base.id == pp_ids_from_po.payment_position_id,
         "inner"
     ).drop(pp_ids_from_po.payment_position_id)
 
-    logger.info("payment_position totale dopo applicazione del filtro f5: %d", pp.count())
+    logger.info("payment_position totale dopo il filtro F4: %d", pp_f1.count())
     logger.info("Step 5 completato (pp_f1 creato)")
 
     # ==========================================================
-    # 6. FILTRO PAYMENT_OPTION basato sulle PP filtrate
+    # 6. FILTRO PAYMENT_OPTION basato sulle PP filtrate (F5)
     # ==========================================================
     logger.info("Step 6 - ulteriore filtro PAYMENT_OPTION basato sulle PP filtrate")
 
@@ -105,6 +110,7 @@ def main():
         "inner"
     ).drop(po_ids_from_pp.id)
 
+    logger.info("payment_option totale dopo il filtro F5: %d", po_f2.count())
     logger.info("Step 6 completato (po_f2 creato)")
 
     # ==========================================================
@@ -120,6 +126,7 @@ def main():
         "inner"
     )
 
+    logger.info("transfer totale dopo il filtro F6: %d", t_f2.count())
     logger.info("Step 7 completato (t_f2 creato)")
 
     # ==========================================================
