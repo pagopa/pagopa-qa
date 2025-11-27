@@ -29,10 +29,7 @@ def main():
         SparkSession.builder
         .appName("rtp-analysis")
         .enableHiveSupport()
-        .config("spark.sql.adaptive.enabled", "true")
-        .config("spark.sql.adaptive.coalescePartitions.enabled", "true")
-        # Rimuoviamo il shuffle.partitions fisso a 1000, lasciamo fare ad AQE o usiamo un default sensato
-        .config("spark.sql.shuffle.partitions", "auto")
+        .config("spark.sql.shuffle.partitions", "1000")
         .getOrCreate()
     )
 
