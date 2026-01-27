@@ -20,8 +20,8 @@ EC_CONFIG_TABLE_FILE = os.getenv("EC-CONFIG-TABLE")
 STATISTICAL_CODES_FILE = os.getenv("STATISTICAL-CODES")
 
 # Output CSV file
-CSV_FILE = os.getcwd() + "/python/cup-config-update/output.csv"
-STATISTICAL_CODES_PATH = os.getcwd() + "/python/cup-config-update/" + STATISTICAL_CODES_FILE
+CSV_FILE = os.getcwd() + "/python/cup-config-update/output/output.csv"
+STATISTICAL_CODES_PATH = os.getcwd() + "/python/cup-config-update/input/" + STATISTICAL_CODES_FILE
 EC_CONFIG_TABLE_PATH = os.getcwd() + "/python/cup-config-update/" + EC_CONFIG_TABLE_FILE
 
 # Dictionary to cache statistical codes

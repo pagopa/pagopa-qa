@@ -1,47 +1,149 @@
-# README - CUP Config Updater
+# Aggiornamento tabella `pagopapcanoneunicosaecconfigtable`
 
-## Description
-The purpose of the `cup-config-updater.py` script is to populate the Azure table `pagopapcanoneunicosaecconfigtable` with the necessary data to manage the creation of the debt positions for Canone Unico Patrimoniale (CUP).
-As described in the document below, the data mostly pertains to creditor institutions and their respective Referente Pagamenti.
-**The generated file `output.csv` is ready to be imported into the above-mentioned Azure Table using standard methods, e.g., via Azure Data Explorer.**
+## 📌 Obiettivo
 
-## Functionality
-1. **Loading statistical codes** from a CSV file downloaded by [ISTAT web site](https://www.istat.it/storage/codici-unita-amministrative/Elenco-codici-statistici-e-denominazioni-delle-unità-territoriali.zip)
-2. **Loading EC (Creditor Entities) configuration** from an export of the previous year’s taken from `pagopapcanoneunicosaecconfigtable`, which will only be used if data for some entities is not available on SelfCare or in the NDP configuration database.
-   **NB: This file has not been uploaded as it contains sensitive data.**
-3. **Executing a query on the Nodo configuration database (PostgreSQL)** to retrieve IBAN data associated with creditor institutions along with other additional information.
-4. **Calling two REST APIs exposed by SelfCare** to enrich the data with additional details.
-5. **Saving the data in the final CSV file to be imported into the `pagopapcanoneunicosaecconfigtable` table.**
+Questo script Python automatizza il processo di aggiornamento annuale della tabella:
 
-## Flow Diagram
-Below is the flowchart of the process executed by the script:
+**`pagopapcanoneunicosaecconfigtable`**
 
-![Flowchart](./flowchart.png)
+La tabella contiene le informazioni degli Enti Creditori (EC) utilizzate dalla componente GPD per la generazione delle posizioni debitorie relative al **Canone Unico Patrimoniale (CUP)**.
 
-[Edit Diagram](https://excalidraw.com/#json=9O4qmMPiPx3a131x2h7oF,FSyDlcyHWnAhHg8ySaknyQ)
+---
 
-## Configuration Parameters
-The script uses environment variables to configure connection parameters and file paths. Make sure to correctly set the following parameters:
+## 🗂️ Sorgenti dati utilizzate
 
-| Environment Variable      | Description |
-|--------------------------|-------------|
-| `PG-DB-NAME`            | PostgreSQL database name |
-| `PG-USER-NAME`          | Database username |
-| `PG-USER-PASSWORD`      | Database access password |
-| `PG-HOST`               | Database host |
-| `PG-PORT`               | Database port |
-| `API-INSTITUTION-URL`   | URL to retrieve creditor institution information |
-| `API-USERS-URL`         | URL to retrieve Payment Representative information |
-| `API-KEY`               | API key for authentication |
-| `EC-CONFIG-TABLE`       | CSV file name containing creditor entity configuration |
-| `STATISTICAL-CODES`     | CSV file name containing statistical codes |
+### 1. OpenData IPA (`enti.xlsx`)
+Da questo dataset vengono estratti:
 
-## Output
-The script generates a CSV file in the following path:
+- `RowKey` — Codice fiscale dell’ente  
+- `CompanyName` — Denominazione  
+- `PaIdIstat` — Codice ISTAT  
+- `PaIdCatasto` — Codice catastale  
+- `PaPecEmail` — PEC  
+
+Sono considerate solo le categorie:
+
+- **L5 – Province**
+- **L6 – Comuni**
+
+---
+
+### 2. Database di configurazione Nodo Dei Pagamenti (PostgreSQL)
+
+Lo script esegue una query che recupera:
+
+- IBAN prioritario dell’ente oppure l’ultimo inserito
+- Etichetta dell’IBAN
+- Codice CBILL
+- Nome ente
+
+Filtri applicati:
+- `ID_INTERMEDIARIO_PA` = '15376371009'
+- `ID_STAZIONE` = '15376371009_01'
+- `segregazione` = '47'
+- `p.enabled` = 'Y'
+
+---
+
+### 3. API SelfCare
+
+Utilizzate per recuperare:
+
+- Email referente
+- Nome e cognome referente
+
+Workflow:
+
+1. `/institutions?taxCode=<EC_CF>`
+2. Recupero `institutionId`
+3. `/users/{institutionId}/users`
+4. Recupero referente
+
+Se i dati non sono disponibili → fallback dal CSV storico.
+
+---
+
+### 4. CSV storico EC config table
+
+Utilizzato per recuperare:
+
+- Referente email  
+- Referente nome  
+
+in caso di valori non ottenibili dalle API.
+
+---
+
+## ⚙️ Variabili di ambiente richieste
+
+| Variabile | Descrizione |
+|----------|-------------|
+| `PG-DB-NAME` | Nome database PostgreSQL |
+| `PG-USER-NAME` | Username |
+| `PG-USER-PASSWORD` | Password |
+| `PG-HOST` | Host database |
+| `PG-PORT` | Porta database |
+| `API-INSTITUTION-URL` | Endpoint SelfCare istituzioni |
+| `API-USERS-URL` | Endpoint SelfCare utenti |
+| `API-KEY` | Subscription key |
+| `EC-CONFIG-TABLE` | File CSV storico |
+| `IPA-FILE` | Nome del file IPA (default: `enti.xlsx`) |
+
+Percorsi utilizzati:
+
+- `input/<IPA-FILE>`
+- `input/<EC-CONFIG-TABLE>`
+- `output/pagopaucanoneunicosaecconfigtable.csv`
+
+---
+
+## 🧠 Logica del processo
+
+### **Fase 1 — Preparazione dati**
+
+- Caricamento file IPA
+- Filtraggio su categorie L5/L6
+- Ridenominazione colonne
+- Rimozione record inconsistenti
+- Caricamento CSV storico
+- Caricamento dati da SQL
+
+---
+
+### **Fase 2 — Arricchimento dati per ogni ente**
+
+Per ciascun EC:
+
+1. Recupero referente tramite API SelfCare  
+2. Fallback su CSV storico in caso di valori mancanti  
+3. Recupero IBAN / CBILL da SQL  
+4. Creazione entità nel formato Azure Table Storage:
+
+```json
+{
+  "PartitionKey": "org",
+  "RowKey": "...",
+  "CompanyName": "...",
+  "CompanyName@type": "String",
+  "Iban": "...",
+  "Iban@type": "String",
+  "PaIdCatasto": "...",
+  "PaIdCatasto@type": "String",
+  "PaIdCbill": "...",
+  "PaIdCbill@type": "String",
+  "PaIdIstat": "...",
+  "PaIdIstat@type": "String",
+  "PaPecEmail": "...",
+  "PaPecEmail@type": "String",
+  "PaReferentEmail": "...",
+  "PaReferentEmail@type": "String",
+  "PaReferentName": "...",
+  "PaReferentName@type": "String"
+}
 ```
-python/cup-config-update/output.csv
-```
-The CSV file will contain the following fields:
+---
+## 🧾 Struttura del CSV generarto
+
 - PartitionKey
 - RowKey
 - CompanyName
@@ -60,20 +162,23 @@ The CSV file will contain the following fields:
 - PaReferentEmail@type
 - PaReferentName
 - PaReferentName@type
-
-## Running the Script
-To run the script, ensure you have installed the necessary dependencies:
-
-```bash
-pip install -r requirements.txt
+---
+## ▶️ Installazione ed esecuzione
+Installazione dipendenze
 ```
-
-Then, execute the Python file:
-
-```bash
-python cup-config-updater.py
+pip install azure-data-tables pandas psycopg2 requests openpyxl
+```
+Avvio dello script
+```
+python3 script.py
+```
+Il file risultante verrà salvato in
+```
+output/pagopaucanoneunicosaecconfigtable.csv
 ```
 ---
-
-For further information, contact the `pagopa-qa` team!
-
+## 🔄 Backup
+Prima di sovrascrivere la tabella:
+- Salvare il CSV precedente
+- Registrare eventuali EC mancanti o con dati incompleti
+- Validare la correttezza degli IBAN
