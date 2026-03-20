@@ -1,3 +1,4 @@
+import os
 import sys
 import requests
 
@@ -5,11 +6,11 @@ import requests
 CONFIG = {
     "uat": {
         "base_url": "https://api.uat.platform.pagopa.it",
-        "subscription_key": "***KEY_REMOVED***"
+        "subscription_key": os.getenv("UAT_SUBSCRIPTION_KEY", "your-uat-subscription-key")
     },
     "prod": {
         "base_url": "https://api.platform.pagopa.it",
-        "subscription_key": "***KEY_REMOVED***"
+        "subscription_key": os.getenv("PROD_SUBSCRIPTION_KEY", "your-prod-subscription-key")
     },
     "endpoints": {
         "cbill": "/apiconfig/auth/api/v1/creditorinstitutions/cbill?incremental=true",
