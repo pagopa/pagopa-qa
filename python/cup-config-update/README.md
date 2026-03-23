@@ -170,7 +170,7 @@ pip install azure-data-tables pandas psycopg2 requests openpyxl
 ```
 Avvio dello script
 ```
-python3 script.py
+python3 cup-config-generator.py
 ```
 Il file risultante verrà salvato in
 ```
