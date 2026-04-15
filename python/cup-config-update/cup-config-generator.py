@@ -2,7 +2,6 @@ import csv
 import pandas as pd
 from azure.data.tables import TableServiceClient
 from datetime import datetime, timezone
-import requests
 import os
 import psycopg2
 
@@ -20,48 +19,11 @@ USERS_API_URL = os.getenv("API-USERS-URL")
 HEADERS = {"Ocp-Apim-Subscription-Key": os.getenv("API-KEY")}
 
 # File configuration
-EC_CONFIG_TABLE_FILE = os.getenv("EC-CONFIG-TABLE")
 IPA_FILE = os.getenv("IPA-FILE", "enti.xlsx")
-CSV_FILE_PATH = os.getcwd() + "/python/cup-config-update/output/pagopaucanoneunicosaecconfigtable.csv"
-EC_CONFIG_TABLE_PATH = os.getcwd() + "/python/cup-config-update/input/" + EC_CONFIG_TABLE_FILE
+REFERENT_DATA_FILE = os.getenv("REFERENT-DATA-FILE", "referent-data.csv")
 IPA_FILE_PATH = os.getcwd() + "/python/cup-config-update/input/" + IPA_FILE
-
-# Table storage
-STORAGE_CONN_STRING = "DefaultEndpointsProtocol=..."
-STAGING_TABLE = "organizations_staging"
-
-# Dictionary for ec config table
-ec_config_table = {}
-
-def get_pa_referent_data (ec_fiscal_code):
-    api_url = INSTITUTIONS_API_URL.format(ec_fiscal_code=ec_fiscal_code)
-    institution_resp = requests.get(api_url, headers=HEADERS)
-    pa_referent_email, pa_referent_name = "", ""
-
-    if institution_resp.status_code == 200:
-        # read response body
-        institutions_data = institution_resp.json()
-        institutions_list = institutions_data.get("institutions", [])
-
-        # get institution id
-        institution_id = institutions_list[0].get("id", "") if institutions_list else ""
-        if institution_id != "":
-            api_url = USERS_API_URL.format(institution_id=institution_id)
-            users_resp = requests.get(api_url, headers=HEADERS)
-            if users_resp.status_code == 200:
-                users_data = users_resp.json()
-                pa_referent_email = users_data[0].get("email", "") if users_data else ""
-                pa_referent_name = f"{users_data[0].get('name', '')} {users_data[0].get('surname', '')}" if users_data else ""
-
-        if pa_referent_email == "" or pa_referent_name == "":
-            print("trying to retrieve referent email and referent name from ec config table")
-            pa_referent_email = ec_config_table[ec_fiscal_code][14] if ec_fiscal_code in ec_config_table else ""
-            pa_referent_name = ec_config_table[ec_fiscal_code][16] if ec_fiscal_code in ec_config_table else ""
-        if pa_referent_email is None:
-            pa_referent_email = ""
-        if pa_referent_name is None:
-            pa_referent_name = ""
-    return pa_referent_email, pa_referent_name
+CSV_FILE_PATH = os.getcwd() + "/python/cup-config-update/output/pagopaucanoneunicosaecconfigtable.csv"
+REFERENT_DATA_FILE_PATH = os.getcwd() + "/python/cup-config-update/input/" + REFERENT_DATA_FILE
 
 def fetch_sql_data():
     query = """
@@ -114,21 +76,13 @@ def fetch_sql_data():
     
     print(f"fetch_sql_data - query execution ok")
     
-    # TRASFORMAZIONE DEI DATI
-    # Creo un dizionario vuoto
+    # Map results to a dictionary for easier access
     data_map = {}
     
-    for row in records:
-        # Mappo le colonne in base all'ordine della SELECT:
-        # 0: RowKey (ID_DOMINIO)
-        # 1: CompanyName
-        # 2: PaIdCbill
-        # 3: Iban
-        # 4: Label
-        
+    for row in records:        
         row_key = row[0]
         
-        # Popolo il dizionario usando row_key come chiave
+        # Populate the data map with the index fields
         data_map[row_key] = {
             "company_name": row[1],
             "cbill": row[2],
@@ -151,54 +105,25 @@ def write_to_csv(entities_list: list):
     if entities_list:
         df_output = pd.DataFrame(entities_list)
         
-        # [IMPORTANTE] Forzo l'ordine delle colonne per farlo coincidere con il tuo header
-        # Questo scarta eventuali colonne extra e ordina quelle presenti
         df_output = df_output[header]
-        
-        # Scrittura su file (senza indice)
         df_output.to_csv(CSV_FILE_PATH, index=False, sep=';', encoding='utf-8')
         
-        print(f"File salvato con {len(df_output)} righe.")
+        print(f"File saved with {len(df_output)} rows.")
     else:
-        print("Nessun dato da scrivere.")
-        
-def write_to_table_storage(entities_list: list):
-    service = TableServiceClient.from_connection_string(STORAGE_CONN_STRING)
-    table = service.get_table_client(STAGING_TABLE)
-    
-    for entity in entities_list:
-        table.upsert_entity(entity=entity)
-    
-    print(f"Entità caricate in STAGING: {len(entities_list)}")
+        print("No data to write to CSV.")
 
-def load_ec_config_table():
-    ec_config_table = {}
-    try:
-        with open(EC_CONFIG_TABLE_PATH, newline='', encoding='utf-8') as csvfile:
-            reader = csv.reader(csvfile, delimiter=';')
-            next(reader)
-            for row in reader:
-                if len(row) >= 15:
-                    #ec_config_table[row[1]] = [row[14], row[15]] 
-                    ec_config_table[row[1]] = row
-        return ec_config_table
-    except FileNotFoundError:
-        print("ec config table codes file not found.")    
 
 def main():
     
     # === LOAD IPA DATA ===
     print(f"Loading IPA data from: {IPA_FILE_PATH}")
-    df = pd.read_excel(IPA_FILE_PATH, dtype=str)
-
-    # === LOAD EC CONFIG TABLE ===
-    print("Loading EC config table...")
-    ec_config_table = load_ec_config_table()
+    df = pd.read_excel(IPA_FILE_PATH, dtype=str)    
 
     # === FILTER BY CATEGORY ===
     # Only L5 = Province, L6 = Comuni
     print(f"Number of records before filtering: {len(df)}")
-    df = df[df["Codice_Categoria"].isin(["L5", "L6"])]
+    # df = df[df["Codice_Categoria"].isin(["L5", "L6", "L45"])]
+    df = df[df["Codice_Categoria"].isin(["L45"])]
     print(f"Number of records after filtering: {len(df)}")
 
     # === RENAME COLUMNS ===
@@ -219,10 +144,12 @@ def main():
     print("Trimming spaces...")
     df["RowKey"] = df["RowKey"].str.strip()
     df["PaPecEmail"] = df["PaPecEmail"].str.strip()
-
-    # === CONNECT TO TABLE STORAGE ===
-    # service = TableServiceClient.from_connection_string(STORAGE_CONN_STRING)
-    # table = service.get_table_client(STAGING_TABLE)
+    
+    # === LOAD REFERENT DATA ===
+    print("Loading Referent Data file...")
+    referent_data_df = pd.read_csv(REFERENT_DATA_FILE_PATH, sep=';', dtype=str)
+    referent_data_df.fillna("", inplace=True)
+    referent_data_map = referent_data_df.set_index("ec_fiscal_code")[["referent_email", "referent_name"]].to_dict("index")
 
     # get current timestamp
     now = datetime.now(timezone.utc)
@@ -235,9 +162,11 @@ def main():
     inserted = 0
     entities_list = []
     for _, row in df.iterrows():
-        pa_referent_email, pa_referent_name = get_pa_referent_data(row["RowKey"])
-        iban_val = pa_data.get(row["RowKey"], {}).get("iban", "")
-        cbill_val = pa_data.get(row["RowKey"], {}).get("cbill", "")
+        referent = referent_data_map.get(row["RowKey"], {})
+        pa_referent_email = referent.get("referent_email") or ""
+        pa_referent_name = referent.get("referent_name") or ""
+        iban_val = pa_data.get(row["RowKey"], {}).get("iban", "n.a.")
+        cbill_val = pa_data.get(row["RowKey"], {}).get("cbill", "n.a.")
         
         entity = {
             "PartitionKey": "org",
@@ -270,6 +199,9 @@ def main():
         
         entities_list.append(entity)
         inserted += 1
+        
+        if inserted % 100 == 0:
+            print(f"{inserted} entities processed...")  
 
     print(f"Number of entity loaded: {inserted}")
     
