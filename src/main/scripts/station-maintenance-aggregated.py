@@ -26,13 +26,19 @@ betterstack_headers = {
 
 # Funzione per ottenere le manutenzioni esistenti su BetterStack
 def get_existing_betterstack_maintenances():
-   
-    response = requests.get(betterstack_url, headers=betterstack_headers)
-    if response.status_code == 200:
-        return response.json()['data']
-    else:
-        print(f"Errore nel recuperare manutenzioni esistenti: {response.status_code}")
-        return None
+    all_reports = []
+    url = betterstack_url
+
+    while url:
+        response = requests.get(url, headers=betterstack_headers)
+        if response.status_code != 200:
+            print(f"Errore nel recuperare manutenzioni esistenti: {response.status_code}")
+            return None
+        data = response.json()
+        all_reports.extend(data['data'])
+        url = data['pagination']['next']
+
+    return all_reports
 
 # Funzione per recuperare le manutenzioni programmate
 def get_scheduled_maintenances():
