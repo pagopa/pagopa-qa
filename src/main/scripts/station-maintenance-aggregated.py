@@ -187,7 +187,7 @@ def process_maintenance():
          # Verifica se la manutenzione esiste già
         if is_maintenance_existing(new_maintenance, existing_maintenances):
                 print(f"Manutenzione già esistente")
-                return
+                continue
         
         response = requests.post(betterstack_url, headers=betterstack_headers, data=json.dumps(new_maintenance))
         if response.status_code == 201:
