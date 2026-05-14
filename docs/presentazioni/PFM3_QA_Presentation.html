@@ -1,0 +1,3303 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PFM-3 — Centro di Competenza QA</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Space+Mono:wght@400;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e17;
+  --bg2: #111827;
+  --surface: #1a2236;
+  --surface2: #232d45;
+  --teal: #00d4aa;
+  --teal-dim: #00856b;
+  --cyan: #06b6d4;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --pink: #ec4899;
+  --text: #e8edf5;
+  --text-dim: #8899b4;
+  --text-muted: #4a5a78;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --svg-text: #e8edf5;
+  --svg-muted: #8899b4;
+  --svg-dc-bg: rgba(255,255,255,0.05);
+  --svg-dc-border: rgba(255,255,255,0.18);
+}
+
+[data-theme="light"] {
+  --bg: #f4f6fa;
+  --bg2: #e9ecf2;
+  --surface: #ffffff;
+  --surface2: #edf0f7;
+  --teal: #008c6e;
+  --teal-dim: #006b54;
+  --cyan: #0891b2;
+  --amber: #d97706;
+  --red: #dc2626;
+  --pink: #db2777;
+  --text: #1a1f2e;
+  --text-dim: #4b5563;
+  --text-muted: #9ca3af;
+  --svg-text: #1a1f2e;
+  --svg-muted: #6b7280;
+  --svg-dc-bg: rgba(0,0,0,0.03);
+  --svg-dc-border: rgba(0,0,0,0.18);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  transition: background-color 0.4s, color 0.4s;
+}
+
+/* SLIDE SYSTEM */
+.deck { width: 100%; height: 100vh; position: relative; }
+
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding: 60px 80px;
+  opacity: 0;
+  transform: translateY(40px);
+  pointer-events: none;
+  transition: opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.4,0,.2,1);
+  overflow-y: auto;
+}
+.slide.active {
+  opacity: 1; transform: translateY(0);
+  pointer-events: all;
+}
+.slide.exit-up {
+  opacity: 0; transform: translateY(-40px);
+}
+.slide.exit-down {
+  opacity: 0; transform: translateY(40px);
+}
+.slide.no-transition {
+  transition: none !important;
+}
+
+/* NOISE TEXTURE OVERLAY */
+.deck::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999;
+}
+
+/* PROGRESS BAR */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: linear-gradient(90deg, var(--teal), var(--cyan));
+  z-index: 1000;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+}
+
+/* NAV INDICATORS */
+.nav-dots {
+  position: fixed; right: 30px; top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 10px;
+  z-index: 1000;
+}
+.nav-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+.nav-dot.active {
+  background: var(--teal);
+  box-shadow: 0 0 12px var(--teal);
+  transform: scale(1.3);
+}
+.nav-dot:hover { background: var(--text-dim); }
+
+/* SLIDE COUNTER */
+.slide-counter {
+  position: fixed; bottom: 30px; right: 30px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  z-index: 1000;
+}
+
+/* TYPOGRAPHY */
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(42px, 5vw, 72px);
+  line-height: 1.05;
+  margin-bottom: 24px;
+}
+h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(32px, 3.5vw, 52px);
+  line-height: 1.1;
+  margin-bottom: 20px;
+}
+h3 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.subtitle {
+  font-size: 20px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  max-width: 680px;
+}
+.accent { color: var(--teal); }
+.accent-amber { color: var(--amber); }
+.accent-pink { color: var(--pink); }
+
+/* GRID LAYOUTS */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+.five-col { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 28px;
+  transition: transform 0.3s, border-color 0.3s;
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0,212,170,0.2);
+}
+.card-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+.card p { color: var(--text-dim); font-size: 14px; line-height: 1.6; }
+
+/* MATURITY GAUGE */
+.gauge-row {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 12px;
+}
+.gauge-label {
+  width: 80px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: right;
+  flex-shrink: 0;
+}
+.gauge-track {
+  flex: 1; height: 10px;
+  background: var(--surface2);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+.gauge-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 1.2s cubic-bezier(.4,0,.2,1);
+  width: 0;
+}
+.gauge-value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+  width: 36px;
+  text-align: right;
+}
+
+/* TAG / BADGE */
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.tag-teal { background: rgba(0,212,170,0.15); color: var(--teal); }
+.tag-amber { background: rgba(245,158,11,0.15); color: var(--amber); }
+.tag-red { background: rgba(239,68,68,0.15); color: var(--red); }
+.tag-pink { background: rgba(236,72,153,0.15); color: var(--pink); }
+.tag-cyan { background: rgba(6,182,212,0.15); color: var(--cyan); }
+
+/* BIG NUMBER */
+.big-num {
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--teal), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 40px; }
+.timeline::before {
+  content: '';
+  position: absolute; left: 15px; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--teal), var(--cyan), var(--teal-dim));
+}
+.tl-item { position: relative; margin-bottom: 28px; }
+.tl-item::before {
+  content: '';
+  position: absolute; left: -33px; top: 6px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 10px var(--teal);
+}
+.tl-item.dim::before { background: var(--text-muted); box-shadow: none; }
+.tl-item h4 { font-size: 15px; margin-bottom: 4px; }
+.tl-item p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+.tl-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--teal);
+  margin-bottom: 4px;
+}
+
+/* COMPARISON TABLE */
+.comp-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+.comp-table th {
+  padding: 14px 18px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: var(--bg2);
+}
+.comp-table td {
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-dim);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.comp-table tr:hover td { background: rgba(0,212,170,0.03); }
+
+/* PILL GRID */
+.pill-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.pill {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text-dim);
+}
+.pill.done { border-color: var(--teal); color: var(--teal); }
+.pill.wip { border-color: var(--amber); color: var(--amber); }
+
+/* STATUS LEGEND */
+.status-legend {
+  display: flex; align-items: center; gap: 20px;
+  font-size: 12px; color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-bottom: 16px;
+}
+.status-legend span {
+  display: flex; align-items: center; gap: 6px;
+}
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  display: inline-block;
+}
+.status-dot.done { background: var(--teal); }
+.status-dot.wip { background: var(--amber); }
+
+/* COVER SPECIFIC */
+.cover-meta {
+  display: flex; gap: 40px; margin-top: 32px;
+  font-family: var(--font-mono); font-size: 13px; color: var(--text-dim);
+}
+.cover-meta span { display: flex; align-items: center; gap: 8px; }
+
+/* GLOW EFFECTS */
+.glow-teal { text-shadow: 0 0 40px rgba(0,212,170,0.3); }
+.glow-line {
+  width: 60px; height: 3px;
+  background: linear-gradient(90deg, var(--teal), transparent);
+  margin-bottom: 20px;
+  border-radius: 2px;
+}
+
+/* SCROLL HINT */
+.scroll-hint {
+  position: fixed; bottom: 80px; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  z-index: 1000;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+/* PILLAR BOX */
+.pillar {
+  padding: 36px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  overflow: hidden;
+}
+.pillar::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.pillar-testing { background: linear-gradient(180deg, rgba(0,212,170,0.08), var(--surface)); }
+.pillar-testing::before { background: linear-gradient(90deg, var(--teal), var(--cyan)); }
+.pillar-data { background: linear-gradient(180deg, rgba(245,158,11,0.08), var(--surface)); }
+.pillar-data::before { background: linear-gradient(90deg, var(--amber), var(--pink)); }
+
+/* ACHIEVEMENT COUNTER */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin: 30px 0;
+}
+.ach-item {
+  text-align: center;
+  padding: 24px 12px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.ach-num {
+  font-family: var(--font-display);
+  font-size: 42px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--teal), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.ach-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
+/* FADE-IN CHILDREN */
+.slide.active .fade-in { animation: fadeInUp 0.6s ease both; }
+.fade-in:nth-child(1) { animation-delay: 0.1s; }
+.fade-in:nth-child(2) { animation-delay: 0.2s; }
+.fade-in:nth-child(3) { animation-delay: 0.3s; }
+.fade-in:nth-child(4) { animation-delay: 0.4s; }
+.fade-in:nth-child(5) { animation-delay: 0.5s; }
+.fade-in:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* GAUGE ANIMATION */
+.slide.active .gauge-fill { width: var(--w) !important; }
+
+/* SCROLLABLE CONTENT IN SLIDE */
+.slide-scroll {
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+  padding-right: 20px;
+}
+.slide-scroll::-webkit-scrollbar { width: 4px; }
+.slide-scroll::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .slide { padding: 30px 24px; }
+  .two-col, .three-col, .five-col { grid-template-columns: 1fr; }
+  .achievements-grid { grid-template-columns: repeat(2, 1fr); }
+  .nav-dots { display: none; }
+  h1 { font-size: 36px; }
+  h2 { font-size: 28px; }
+}
+
+/* LIGHT THEME OVERRIDES */
+[data-theme="light"] .deck::before { opacity: 0; }
+[data-theme="light"] .glow-teal { text-shadow: none; }
+[data-theme="light"] .nav-dot.active { box-shadow: 0 0 8px rgba(0,140,110,0.4); }
+[data-theme="light"] .tl-item::before { box-shadow: 0 0 6px rgba(0,140,110,0.3); }
+[data-theme="light"] .card {
+  border-color: rgba(0,0,0,0.08);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .card:hover { border-color: rgba(0,140,110,0.25); }
+[data-theme="light"] .comp-table th {
+  background: var(--bg2);
+  border-bottom-color: rgba(0,0,0,0.1);
+}
+[data-theme="light"] .comp-table td { border-bottom-color: rgba(0,0,0,0.06); }
+[data-theme="light"] .comp-table tr:hover td { background: rgba(0,140,110,0.04); }
+[data-theme="light"] .pill { border-color: rgba(0,0,0,0.1); background: var(--bg2); }
+[data-theme="light"] .pillar-testing { background: linear-gradient(180deg, rgba(0,140,110,0.06), var(--surface)); }
+[data-theme="light"] .pillar-data { background: linear-gradient(180deg, rgba(217,119,6,0.06), var(--surface)); }
+[data-theme="light"] .pillar { border-color: rgba(0,0,0,0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+[data-theme="light"] .ach-item { box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.06); }
+[data-theme="light"] .flow-step { border-color: rgba(0,0,0,0.1); background: var(--bg2); }
+[data-theme="light"] .progress-bar { box-shadow: none; }
+[data-theme="light"] .slide-scroll::-webkit-scrollbar-thumb { background: #c4c9d4; }
+[data-theme="light"] .big-num,
+[data-theme="light"] .ach-num {
+  background: linear-gradient(135deg, var(--teal), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* MATURITY BAR */
+.maturity-bar {
+  margin: 20px 0 28px;
+}
+.mb-track {
+  position: relative;
+  display: flex;
+  gap: 3px;
+  height: 56px;
+}
+.mb-seg {
+  flex: 1;
+  position: relative;
+  border-radius: 8px;
+  overflow: visible;
+  cursor: default;
+}
+.mb-fill {
+  width: 100%; height: 14px;
+  border-radius: 6px;
+  opacity: 0.22;
+}
+.mb-seg-1 .mb-fill { background: var(--red); }
+.mb-seg-2 .mb-fill { background: var(--amber); }
+.mb-seg-3 .mb-fill { background: var(--cyan); }
+.mb-seg-4 .mb-fill { background: var(--teal); }
+
+.mb-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  margin-top: 8px;
+  white-space: nowrap;
+}
+.mb-range {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Marker */
+.mb-marker {
+  position: absolute;
+  /* 15% into track = end of "Ad Hoc" segment area */
+  left: 13%;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s 0.6s;
+}
+.slide.active .mb-marker { opacity: 1; }
+
+.mb-marker-line {
+  width: 2px;
+  height: 14px;
+  background: var(--amber);
+  border-radius: 2px;
+  position: relative;
+}
+.mb-marker-line::before {
+  content: '';
+  position: absolute;
+  top: -5px; left: 50%;
+  transform: translateX(-50%);
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 10px rgba(245,158,11,0.6);
+  animation: markerPulse 2s ease-in-out infinite;
+}
+@keyframes markerPulse {
+  0%,100% { box-shadow: 0 0 6px 2px rgba(245,158,11,0.4); }
+  50%      { box-shadow: 0 0 14px 5px rgba(245,158,11,0.2); }
+}
+.mb-marker-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--amber);
+  margin-top: 24px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  background: var(--bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(245,158,11,0.3);
+}
+
+/* Highlight active segment */
+.mb-seg-1 .mb-fill {
+  opacity: 0.6;
+  background: linear-gradient(90deg, var(--red), var(--amber));
+}
+
+.fw-tile-amber {
+  border-color: rgba(245,158,11,0.15);
+}
+.fw-tile-amber:hover {
+  border-color: var(--amber);
+  background: rgba(245,158,11,0.05);
+  box-shadow: 0 8px 24px rgba(245,158,11,0.1);
+}
+[data-theme="light"] .fw-tile-amber:hover { box-shadow: 0 8px 24px rgba(217,119,6,0.1); }
+.fw-tile-amber-featured {
+  border-color: rgba(245,158,11,0.3);
+  background: rgba(245,158,11,0.06);
+}
+.fw-tile-amber-featured:hover {
+  border-color: var(--amber);
+  box-shadow: 0 8px 28px rgba(245,158,11,0.18);
+}
+
+/* SINERGIA NEW LAYOUT */
+.syn-layout {
+  display: grid;
+  grid-template-columns: 1fr 160px 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 0 12px;
+  align-items: stretch;
+}
+/* Headers span top row */
+.syn-header {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 12px 16px; border-radius: 12px 12px 0 0;
+  gap: 6px; text-align: center;
+}
+.syn-header-left  { background: rgba(0,212,170,0.08); border: 1px solid rgba(0,212,170,0.2); border-bottom: none; }
+.syn-header-right { background: rgba(99,115,180,0.08); border: 1px solid rgba(99,115,180,0.2); border-bottom: none; }
+[data-theme="light"] .syn-header-left  { background: rgba(0,140,110,0.06); }
+[data-theme="light"] .syn-header-right { background: rgba(99,115,180,0.06); }
+
+.syn-team-badge {
+  width: 42px; height: 42px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-weight: 700; font-size: 13px;
+}
+.syn-team-us   { background: rgba(0,212,170,0.2); color: var(--teal); }
+.syn-team-them { background: rgba(99,115,180,0.2); color: #8899cc; }
+.syn-team-name { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.4; }
+
+/* Dims column (center) */
+.syn-dims {
+  display: flex; flex-direction: column;
+  justify-content: stretch;
+  grid-column: 2; grid-row: 2;
+  border-left: 1px solid rgba(255,255,255,0.06);
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+[data-theme="light"] .syn-dims { border-color: rgba(0,0,0,0.08); }
+.syn-dim {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  font-family: var(--font-mono); font-size: 9px;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 0 8px;
+  min-height: 36px;
+}
+[data-theme="light"] .syn-dim { border-bottom-color: rgba(0,0,0,0.06); }
+.syn-dim:last-child { border-bottom: none; }
+.syn-dim-highlight {
+  color: var(--teal);
+  background: rgba(0,212,170,0.06);
+  font-weight: 700;
+}
+[data-theme="light"] .syn-dim-highlight { background: rgba(0,140,110,0.05); }
+
+/* Value columns */
+.syn-col {
+  display: flex; flex-direction: column;
+  grid-row: 2;
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+}
+.syn-col-left  {
+  border: 1px solid rgba(0,212,170,0.2); border-top: none;
+  background: rgba(0,212,170,0.03);
+}
+.syn-col-right {
+  border: 1px solid rgba(99,115,180,0.2); border-top: none;
+  background: rgba(99,115,180,0.03);
+}
+[data-theme="light"] .syn-col-left  { background: rgba(0,140,110,0.02); }
+[data-theme="light"] .syn-col-right { background: rgba(99,115,180,0.02); }
+
+.syn-cell {
+  flex: 1; display: flex; align-items: center;
+  padding: 0 16px;
+  font-size: 12px; color: var(--text-dim);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  min-height: 36px; line-height: 1.35; gap: 6px;
+}
+[data-theme="light"] .syn-cell { border-bottom-color: rgba(0,0,0,0.06); }
+.syn-cell:last-child { border-bottom: none; }
+.syn-cell-highlight {
+  background: rgba(0,212,170,0.06);
+  color: var(--text);
+}
+.syn-weaker { color: var(--text-muted) !important; }
+
+/* SINERGIA SLIDE */
+.sinergia-wrap { display: flex; flex-direction: column; gap: 14px; }
+.sinergia-table td, .sinergia-table th { padding: 8px 14px; font-size: 13px; }
+.sinergia-table th { padding: 10px 14px; font-size: 10px; }
+.ct-dim { color: var(--text) !important; font-weight: 600; font-size: 12px !important; }
+.ct-row-highlight td { background: rgba(0,212,170,0.04); }
+[data-theme="light"] .ct-row-highlight td { background: rgba(0,140,110,0.04); }
+
+.exchange-badge {
+  display: inline-block;
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 10px; font-family: var(--font-mono);
+  font-weight: 700; letter-spacing: 0.5px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.exchange-origin {
+  background: rgba(0,212,170,0.15);
+  color: var(--teal);
+  border: 1px solid rgba(0,212,170,0.3);
+}
+.exchange-received {
+  background: rgba(99,115,180,0.15);
+  color: #8899cc;
+  border: 1px solid rgba(99,115,180,0.25);
+}
+
+.sinergia-footer {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 18px;
+  background: rgba(0,212,170,0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(0,212,170,0.12);
+  font-size: 13px; color: var(--text-dim);
+  flex-wrap: wrap;
+}
+[data-theme="light"] .sinergia-footer { border-color: rgba(0,140,110,0.12); background: rgba(0,140,110,0.04); }
+
+/* FRAMEWORK TILE GRID */
+.fw-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 4px;
+}
+.fw-tile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 22px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+}
+.fw-tile:hover {
+  border-color: var(--teal);
+  background: rgba(0,212,170,0.05);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,212,170,0.1);
+}
+.fw-tile-featured {
+  border-color: rgba(0,212,170,0.25);
+  background: rgba(0,212,170,0.06);
+}
+.fw-tile-featured:hover {
+  border-color: var(--teal);
+  box-shadow: 0 8px 28px rgba(0,212,170,0.18);
+}
+[data-theme="light"] .fw-tile { border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .fw-tile:hover { background: rgba(0,140,110,0.04); border-color: var(--teal); box-shadow: 0 8px 24px rgba(0,140,110,0.1); }
+[data-theme="light"] .fw-tile-featured { border-color: rgba(0,140,110,0.25); background: rgba(0,140,110,0.04); }
+
+.fw-tile-icon { font-size: 28px; flex-shrink: 0; line-height: 1; }
+.fw-tile-body { flex: 1; min-width: 0; }
+.fw-tile-title {
+  font-size: 15px; font-weight: 700;
+  color: var(--text); margin-bottom: 4px;
+}
+.fw-tile-sub {
+  font-size: 12px; color: var(--text-muted);
+  line-height: 1.4; font-family: var(--font-mono);
+}
+.fw-tile-arrow {
+  font-size: 16px; color: var(--text-muted);
+  transition: color 0.2s, transform 0.2s;
+  flex-shrink: 0;
+}
+.fw-tile:hover .fw-tile-arrow { color: var(--teal); transform: translate(2px, -2px); }
+
+/* FLOW TRIGGER BUTTON */
+.flow-trigger {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: var(--surface2);
+  border: 1px solid rgba(0,212,170,0.2);
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 8px;
+}
+.flow-trigger:hover {
+  background: rgba(0,212,170,0.06);
+  border-color: var(--teal);
+  box-shadow: 0 4px 20px rgba(0,212,170,0.12);
+  transform: translateY(-2px);
+}
+[data-theme="light"] .flow-trigger { border-color: rgba(0,140,110,0.25); }
+[data-theme="light"] .flow-trigger:hover { background: rgba(0,140,110,0.04); border-color: var(--teal); }
+.flow-trigger-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(0,212,170,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--teal); flex-shrink: 0;
+}
+.flow-trigger-body {
+  flex: 1;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.flow-trigger-body strong { font-size: 15px; }
+.flow-trigger-body span { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); }
+.flow-trigger-hint {
+  font-size: 11px; color: var(--text-muted);
+  font-family: var(--font-mono); flex-shrink: 0;
+}
+
+/* FLOW DIAGRAM MODAL */
+.flow-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 2500;
+  display: flex; align-items: center; justify-content: center;
+  padding: 30px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.flow-modal-overlay.open { opacity: 1; pointer-events: all; }
+.flow-modal-box {
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 36px 40px 28px;
+  width: 100%; max-width: 940px;
+  max-height: 90vh; overflow-y: auto;
+  position: relative;
+  transform: translateY(24px) scale(0.97);
+  transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+}
+[data-theme="light"] .flow-modal-box {
+  border-color: rgba(0,0,0,0.1);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.15);
+}
+.flow-modal-overlay.open .flow-modal-box { transform: translateY(0) scale(1); }
+
+/* Step description bar */
+.fm-step-desc {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 28px;
+  min-height: 44px;
+}
+.fm-step-num {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--teal); letter-spacing: 2px;
+  flex-shrink: 0;
+}
+.fm-step-label {
+  font-size: 16px; font-weight: 600; color: var(--text);
+  transition: opacity 0.3s;
+}
+
+/* Diagram wrap */
+.fd-wrap { display: flex; flex-direction: column; gap: 10px; }
+
+.fd-mc-row, .fd-header-row, .fd-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.fd-lbl-gap { width: 80px; flex-shrink: 0; }
+.fd-harrow-gap { width: 32px; flex-shrink: 0; }
+
+.fd-mc-bar {
+  flex: 1; text-align: center;
+  padding: 5px 12px; border-radius: 6px;
+  border: 1px dashed rgba(6,182,212,0.35);
+  color: var(--cyan); font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 1.5px;
+  overflow: hidden; white-space: nowrap;
+}
+
+.fd-ph {
+  flex: 1; text-align: center;
+  padding: 8px 6px; border-radius: 8px;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 2px; font-weight: 700;
+}
+.fd-init  { background: rgba(99,115,180,0.18); color: #8899cc; }
+.fd-plan  { background: rgba(6,182,212,0.14); color: var(--cyan); }
+.fd-exec  { background: rgba(0,212,170,0.14); color: var(--teal); }
+.fd-close { background: rgba(245,158,11,0.14); color: var(--amber); }
+
+.fd-track-lbl {
+  width: 80px; flex-shrink: 0;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-muted); text-align: right;
+  line-height: 1.5; padding-right: 4px;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.fd-qa-lbl { color: var(--teal); }
+
+.fd-col {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 5px;
+}
+.fd-col-empty { flex: 1; }
+
+.fd-harrow {
+  width: 32px; flex-shrink: 0;
+  text-align: center; font-size: 22px;
+  color: var(--text-muted);
+}
+
+.fd-node {
+  width: 100%; padding: 10px 12px;
+  border-radius: 10px; font-size: 12px;
+  text-align: center; line-height: 1.45;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text);
+}
+[data-theme="light"] .fd-node { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); }
+
+.fd-node small { display: block; font-size: 10px; opacity: 0.65; margin-top: 2px; }
+.fd-sprint  { background: rgba(6,182,212,0.1) !important; border-color: rgba(6,182,212,0.25) !important; }
+.fd-qa      { background: rgba(0,212,170,0.08) !important; border-color: rgba(0,212,170,0.2) !important; }
+.fd-gate    {
+  background: rgba(245,158,11,0.1) !important;
+  border-color: rgba(245,158,11,0.35) !important;
+  color: var(--amber) !important; font-weight: 700;
+  font-size: 13px !important;
+}
+.fd-qa-gate {
+  background: rgba(0,212,170,0.1) !important;
+  border-color: rgba(0,212,170,0.35) !important;
+  color: var(--teal) !important; font-weight: 700;
+  font-size: 18px !important; padding: 16px !important;
+}
+
+.fd-down { color: var(--text-muted); font-size: 16px; }
+.fd-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 4px 0; }
+[data-theme="light"] .fd-divider { background: rgba(0,0,0,0.08); }
+
+/* Flow item visibility */
+.flow-item {
+  opacity: 0;
+  transform: scale(0.85) translateY(6px);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(.34,1.4,.64,1);
+}
+.flow-item.fi-visible { opacity: 1 !important; transform: scale(1) translateY(0) !important; }
+
+/* Gate pulse when visible */
+.fd-gate.fi-visible  { animation: gatePulseAmber 2.5s ease-in-out infinite 0.5s; }
+.fd-qa-gate.fi-visible { animation: gatePulseTeal 2.5s ease-in-out infinite 0.7s; }
+@keyframes gatePulseAmber {
+  0%,100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+  50%      { box-shadow: 0 0 18px 4px rgba(245,158,11,0.25); }
+}
+@keyframes gatePulseTeal {
+  0%,100% { box-shadow: 0 0 0 0 rgba(0,212,170,0); }
+  50%      { box-shadow: 0 0 18px 4px rgba(0,212,170,0.25); }
+}
+
+/* Navigation */
+.fm-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 28px; padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+[data-theme="light"] .fm-nav { border-top-color: rgba(0,0,0,0.08); }
+.fm-btn {
+  padding: 10px 24px; border-radius: 10px;
+  border: 1px solid rgba(128,128,128,0.2);
+  font-family: var(--font-body); font-size: 14px;
+  font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.fm-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.fm-btn-sec { background: transparent; color: var(--text-dim); }
+.fm-btn-sec:not(:disabled):hover { border-color: var(--text-dim); color: var(--text); }
+.fm-btn-pri { background: var(--teal); color: #000; border-color: var(--teal); }
+.fm-btn-pri:not(:disabled):hover { opacity: 0.85; }
+
+.fm-steps-track { display: flex; gap: 8px; align-items: center; }
+.fm-step-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--text-muted); transition: all 0.3s;
+}
+.fm-step-dot.active {
+  background: var(--teal); width: 24px; border-radius: 4px;
+  box-shadow: 0 0 8px rgba(0,212,170,0.4);
+}
+
+/* CONTROLLI MODAL */
+.ctrl-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.ctrl-card {
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--surface);
+  display: flex; flex-direction: column; gap: 12px;
+}
+[data-theme="light"] .ctrl-card { border-color: rgba(0,0,0,0.08); }
+.ctrl-puntuale { border-color: rgba(0,212,170,0.2); background: rgba(0,212,170,0.03); }
+.ctrl-intra    { border-color: rgba(6,182,212,0.2); background: rgba(6,182,212,0.03); }
+.ctrl-cross    { border-color: rgba(236,72,153,0.2); background: rgba(236,72,153,0.03); }
+
+.ctrl-card-header { display: flex; justify-content: space-between; align-items: center; }
+.ctrl-badge {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px;
+  text-transform: uppercase; padding: 3px 10px; border-radius: 6px;
+  border: 1px solid; font-weight: 700;
+}
+.ctrl-icon { font-size: 22px; }
+.ctrl-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+.ctrl-desc strong { color: var(--text); }
+
+.ctrl-examples { display: flex; flex-direction: column; gap: 8px; }
+.ctrl-example {
+  background: var(--bg2); border-radius: 8px; padding: 9px 11px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+[data-theme="light"] .ctrl-example { background: var(--bg); border-color: rgba(0,0,0,0.07); }
+
+.ctrl-ex-anim {
+  opacity: 0; transform: translateY(6px);
+  animation: ctrlFadeIn 0.4s ease forwards;
+}
+@keyframes ctrlFadeIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ctrl-ex-header {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 5px; flex-wrap: wrap;
+}
+.ctrl-entity {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  padding: 2px 6px; border-radius: 4px;
+  background: rgba(255,255,255,0.07); color: var(--text);
+}
+[data-theme="light"] .ctrl-entity { background: rgba(0,0,0,0.06); }
+.ctrl-field {
+  font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+  flex: 1;
+}
+.ctrl-result {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 5px; flex-shrink: 0;
+}
+.ctrl-pass { background: rgba(0,212,170,0.15); color: var(--teal); }
+.ctrl-warn { background: rgba(245,158,11,0.15); color: var(--amber); }
+.ctrl-fail { background: rgba(239,68,68,0.15); color: var(--red); }
+
+.ctrl-ex-rule {
+  font-family: var(--font-mono); font-size: 10px; color: var(--cyan);
+  margin-bottom: 3px;
+}
+.ctrl-ex-val { font-size: 11px; color: var(--text-muted); }
+.ctrl-ex-val code {
+  font-family: var(--font-mono); font-size: 10px;
+  background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--text);
+}
+[data-theme="light"] .ctrl-ex-val code { background: rgba(0,0,0,0.06); }
+
+.ctrl-legend {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 10px 14px; border-radius: 10px;
+  background: var(--surface2); font-size: 12px;
+}
+
+/* ARCHITECTURE DIAGRAM */
+.arch-diagram { display: flex; flex-direction: column; gap: 10px; padding: 4px 0; }
+
+.arch-item {
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(.34,1.4,.64,1);
+}
+.arch-item.arch-visible { opacity: 1; transform: translateY(0); }
+
+.arch-row { display: flex; align-items: center; gap: 10px; }
+.arch-team-lbl { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); white-space: nowrap; }
+.arch-sources { display: flex; gap: 6px; }
+.arch-source {
+  padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600;
+}
+.arch-gpd { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: var(--amber); }
+.arch-gec { background: rgba(40,167,69,0.12); border: 1px solid rgba(40,167,69,0.3); color: #4ade80; }
+.arch-fdr { background: rgba(74,144,217,0.15); border: 1px solid rgba(74,144,217,0.3); color: var(--cyan); }
+
+.arch-arr { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+
+.arch-kafka {
+  padding: 10px 16px; border-radius: 10px;
+  background: rgba(99,115,180,0.12); border: 1px solid rgba(99,115,180,0.25);
+  text-align: center;
+}
+.arch-kafka-label { font-size: 13px; font-weight: 600; color: #8899cc; }
+.arch-kafka-sub { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); }
+
+.arch-dc-badge {
+  margin-left: auto;
+  padding: 6px 12px; border-radius: 8px;
+  background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.15);
+  font-size: 11px; color: var(--text-muted); white-space: nowrap;
+}
+[data-theme="light"] .arch-dc-badge { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.12); }
+
+.arch-down-arr { text-align: center; font-size: 20px; color: var(--text-muted); padding: 0 0 0 80px; }
+
+.arch-lake-wrap {
+  border: 1px solid rgba(124,77,210,0.3); border-radius: 12px;
+  padding: 14px 16px; background: rgba(124,77,210,0.05);
+}
+.arch-lake-title { font-size: 11px; font-family: var(--font-mono); color: #9f7aea; letter-spacing: 1px; margin-bottom: 12px; }
+.arch-lake-row { display: flex; align-items: center; gap: 8px; }
+.arch-layer {
+  flex: 1; padding: 14px 12px; border-radius: 10px; text-align: center;
+}
+.arch-bronze { background: rgba(205,127,50,0.12); border: 1px solid rgba(205,127,50,0.3); }
+.arch-silver { background: rgba(160,160,180,0.12); border: 1px solid rgba(160,160,180,0.3); }
+.arch-gold   { background: rgba(249,168,37,0.12); border: 1px solid rgba(249,168,37,0.3); }
+.arch-layer-label { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.arch-bronze .arch-layer-label { color: #cd7f32; }
+.arch-silver .arch-layer-label { color: #a0a0b0; }
+.arch-gold   .arch-layer-label { color: #f9a825; }
+.arch-layer-sub { font-size: 10px; color: var(--text-muted); line-height: 1.4; font-family: var(--font-mono); }
+.arch-lake-arr { font-size: 20px; color: var(--text-muted); flex-shrink: 0; }
+
+.arch-dq-row { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.arch-dq-box {
+  flex: 1; border: 1px solid rgba(198,40,40,0.3); border-radius: 12px;
+  padding: 14px 16px; background: rgba(198,40,40,0.06);
+}
+.arch-dq-label { font-size: 11px; font-family: var(--font-mono); letter-spacing: 1px; margin-bottom: 10px; }
+.arch-dq-box .arch-dq-label { color: #ef9a9a; }
+.arch-soda-box .arch-dq-label { color: #90caf9; }
+.arch-dq-inner { display: flex; align-items: center; gap: 8px; }
+.arch-dq-mod {
+  flex: 1; padding: 10px 12px; border-radius: 8px; font-size: 12px;
+  font-weight: 600; text-align: center; line-height: 1.4;
+}
+.arch-dq-quality { background: rgba(198,40,40,0.15); border: 1px solid rgba(198,40,40,0.3); color: #ef9a9a; }
+.arch-dq-obs     { background: rgba(171,71,188,0.15); border: 1px solid rgba(171,71,188,0.3); color: #ce93d8; }
+.arch-dq-rarr { font-size: 18px; color: var(--text-muted); }
+.arch-dq-rarr-big { font-size: 24px; color: var(--text-muted); flex-shrink: 0; }
+.arch-soda-box {
+  flex: 0.8; border: 1px solid rgba(21,101,192,0.3); border-radius: 12px;
+  padding: 14px 16px; background: rgba(21,101,192,0.06);
+}
+.arch-soda-inner { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+
+.arch-ownership-row { display: flex; gap: 8px; margin-top: 4px; }
+.arch-own { flex: 1; padding: 7px 12px; border-radius: 8px; font-size: 11px; font-family: var(--font-mono); }
+.arch-own-dl { background: rgba(6,182,212,0.08); color: var(--cyan); border: 1px solid rgba(6,182,212,0.2); }
+.arch-own-qa { background: rgba(0,212,170,0.08); color: var(--teal); border: 1px solid rgba(0,212,170,0.2); }
+
+.dq-modules-row {
+  display: flex; align-items: stretch; gap: 8px; width: 100%;
+}
+.dq-modules-row .dq-module { flex: 1; }
+.dq-horiz-arr {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; color: var(--text-muted); flex-shrink: 0; padding: 0 4px;
+}
+.dq-bottom-row {
+  display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 4px;
+}
+.dq-bottom-row .dq-orch { flex: 1; margin-top: 0; }
+.dq-horiz-conn {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);
+  width: 100%;
+}
+.dq-conn-line { flex: 1; height: 1px; background: rgba(198,40,40,0.2); }
+
+/* DQ FRAMEWORK DIAGRAM */
+.dq-diagram {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; padding: 4px 20px; position: relative;
+}
+.dq-item {
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(.34,1.4,.64,1);
+  width: 100%;
+}
+.dq-item.dq-visible { opacity: 1; transform: translateY(0); }
+
+.dq-node {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 20px; border-radius: 12px;
+}
+.dq-contract {
+  background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2);
+}
+[data-theme="light"] .dq-contract { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.15); }
+.dq-soda {
+  background: rgba(21,101,192,0.1); border: 1px solid rgba(21,101,192,0.3);
+  animation: sodaPulse 2.5s ease-in-out infinite;
+}
+@keyframes sodaPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(21,101,192,0); }
+  50%      { box-shadow: 0 0 16px 4px rgba(21,101,192,0.2); }
+}
+.dq-node-icon { font-size: 28px; flex-shrink: 0; }
+.dq-node-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.dq-node-desc  { font-size: 12px; color: var(--text-muted); }
+
+.dq-conn { text-align: center; font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); padding: 2px 0; }
+
+.dq-module {
+  width: 100%; border-radius: 12px; padding: 14px 16px;
+}
+.dq-mod-quality { background: rgba(198,40,40,0.07); border: 1px solid rgba(198,40,40,0.25); }
+.dq-mod-obs     { background: rgba(171,71,188,0.07); border: 1px solid rgba(171,71,188,0.25); }
+.dq-mod-title {
+  font-size: 13px; font-weight: 700; margin-bottom: 12px;
+}
+.dq-mod-quality .dq-mod-title { color: #ef9a9a; }
+.dq-mod-obs .dq-mod-title { color: #ce93d8; }
+.dq-mod-steps { display: flex; flex-direction: column; gap: 0; }
+
+.dq-step {
+  display: flex; align-items: flex-start; gap: 12px; padding: 8px 0;
+}
+.dq-step-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 11px; flex-shrink: 0; margin-top: 2px;
+}
+[data-theme="light"] .dq-step-num { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); }
+.dq-step-body { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+.dq-step-body strong { color: var(--text); }
+.dq-step-arr { text-align: center; font-size: 14px; color: var(--text-muted); padding: 0 0 0 10px; }
+
+.dq-orch {
+  width: 100%; padding: 10px 16px; border-radius: 8px; margin-top: 4px;
+  background: rgba(6,182,212,0.07); border: 1px solid rgba(6,182,212,0.2);
+  font-size: 12px; color: var(--text-dim); text-align: center;
+}
+.dq-orch strong { color: var(--cyan); }
+
+/* BRANCHING DIAGRAM */
+.bm-diagram {
+  display: flex; flex-direction: column;
+  gap: 0; padding: 8px 0 16px;
+  overflow-x: auto;
+}
+.bm-row { display: flex; align-items: center; height: 40px; }
+.bm-track-lbl {
+  width: 72px; flex-shrink: 0;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-muted); text-align: right;
+  padding-right: 12px; line-height: 1.4;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.bm-fb-lbl { color: var(--amber); }
+.bm-line-wrap { display: flex; align-items: center; flex: 1; }
+.bm-seg { height: 4px; flex: 1; opacity: 0; transition: opacity 0.35s; }
+.bm-seg-main { background: var(--cyan); }
+.bm-seg-fb   { background: var(--amber); }
+.bm-node {
+  width: 14px; height: 14px; border-radius: 50%;
+  flex-shrink: 0; position: relative; z-index: 2;
+  opacity: 0; transform: scale(0);
+  transition: opacity 0.3s, transform 0.35s cubic-bezier(.34,1.56,.64,1);
+}
+.bm-merge-point {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 3px solid var(--teal); background: var(--bg2);
+  flex-shrink: 0; opacity: 0; transform: scale(0);
+  transition: opacity 0.3s, transform 0.35s cubic-bezier(.34,1.56,.64,1); z-index: 2;
+}
+.bm-spacer-2 { width: 110px; flex-shrink: 0; }
+.bm-node-main    { background: var(--cyan); box-shadow: 0 0 8px rgba(6,182,212,0.5); }
+.bm-node-fb      { background: var(--amber); box-shadow: 0 0 8px rgba(245,158,11,0.5); }
+.bm-node-mock    { background: var(--text-muted); width: 10px; height: 10px; }
+.bm-node-dev     { background: var(--cyan); width: 16px; height: 16px; box-shadow: 0 0 10px rgba(6,182,212,0.6); }
+.bm-node-uat     { background: var(--amber); width: 16px; height: 16px; box-shadow: 0 0 10px rgba(245,158,11,0.6); }
+.bm-node-rc      { background: var(--teal); width: 12px; height: 12px; box-shadow: 0 0 8px rgba(0,212,170,0.5); }
+.bm-node-release {
+  background: var(--teal); width: 18px; height: 18px;
+  box-shadow: 0 0 14px rgba(0,212,170,0.7);
+}
+.bm-node-release::after {
+  content: '🎉'; position: absolute;
+  top: -22px; left: 50%; transform: translateX(-50%); font-size: 14px;
+}
+.bm-item.bm-visible { opacity: 1 !important; }
+.bm-item.bm-visible.bm-node,
+.bm-item.bm-visible.bm-merge-point { opacity: 1; transform: scale(1); }
+
+.bm-labels-row {
+  display: flex; align-items: center;
+  padding-left: 72px; height: 22px;
+  opacity: 0; transition: opacity 0.4s;
+}
+.bm-item.bm-visible.bm-labels-row { opacity: 1; }
+.bm-label-spacer { flex: 7; }
+.bm-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1px; text-align: center; flex: 1.2; }
+.bm-label-merge,.bm-label-rc,.bm-label-rel { color: var(--teal); }
+
+.bm-connectors { position: relative; height: 0; padding-left: 72px; pointer-events: none; }
+.bm-fork, .bm-join {
+  position: absolute; border-left: 2px dashed rgba(245,158,11,0.5);
+  height: 40px; width: 1px; opacity: 0; transition: opacity 0.4s; z-index: 1;
+}
+.bm-fork { left: 186px; top: -40px; }
+.bm-join { left: calc(72px + 385px); top: -40px; border-color: rgba(0,212,170,0.5); }
+
+.bm-sync-row {
+  display: flex; align-items: flex-start;
+  padding-left: 72px; margin-top: 6px;
+}
+.bm-sync-spacer { width: 110px; flex-shrink: 0; }
+.bm-sync {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  opacity: 0; transition: opacity 0.4s;
+}
+.bm-item.bm-visible.bm-sync { opacity: 1; }
+.bm-sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); margin-top: 2px; }
+.bm-sync-label {
+  font-size: 10px; color: var(--text-dim); text-align: center;
+  line-height: 1.4; font-family: var(--font-mono);
+}
+.bm-sync-label code {
+  font-size: 9px; color: var(--text-muted); background: var(--surface2);
+  padding: 1px 4px; border-radius: 3px; display: block; margin-top: 2px;
+}
+.bm-gate-banner {
+  margin: 16px 0 0; padding: 12px 18px; border-radius: 10px;
+  background: rgba(0,212,170,0.08); border: 1px solid rgba(0,212,170,0.25);
+  font-size: 13px; color: var(--text);
+  opacity: 0; transition: opacity 0.5s;
+}
+.bm-item.bm-visible.bm-gate-banner { opacity: 1; }
+[data-theme="light"] .bm-gate-banner { background: rgba(0,140,110,0.06); border-color: rgba(0,140,110,0.2); }
+
+/* MODAL CARDS GRID */
+.modal-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.modal-card {
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  transition: border-color 0.25s, transform 0.25s;
+}
+[data-theme="light"] .modal-card { border-color: rgba(0,0,0,0.08); background: var(--bg); }
+.modal-card:hover {
+  border-color: var(--teal);
+  transform: translateY(-3px);
+}
+.mc-icon {
+  font-size: 32px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.mc-over {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.mc-vs {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--teal);
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(0,212,170,0.1);
+}
+.mc-under {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-decoration: line-through;
+  line-height: 1.3;
+}
+.mc-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+[data-theme="light"] .mc-desc { border-top-color: rgba(0,0,0,0.07); }
+
+/* MODAL SYSTEM */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 780px; width: 90%; max-height: 80vh;
+  overflow-y: auto;
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  position: relative;
+}
+[data-theme="light"] .modal-box {
+  border-color: rgba(0,0,0,0.1);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.15);
+}
+.modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid rgba(128,128,128,0.2);
+  background: var(--bg); color: var(--text-dim);
+  font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.modal-close:hover { border-color: var(--teal); color: var(--teal); }
+.modal-box h3 { font-family: var(--font-display); font-size: 24px; margin-bottom: 20px; }
+.modal-item {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(128,128,128,0.1);
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.modal-item:last-child { border-bottom: none; }
+.modal-item-num {
+  font-family: var(--font-mono); font-size: 13px;
+  color: var(--teal); width: 24px; flex-shrink: 0; padding-top: 2px;
+}
+.modal-item-body h4 { font-size: 15px; margin-bottom: 4px; }
+.modal-item-body p { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+/* CLICKABLE ACHIEVEMENT */
+.ach-item.clickable {
+  cursor: pointer; position: relative;
+  transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+.ach-item.clickable:hover {
+  transform: translateY(-4px);
+  border-color: var(--teal);
+  box-shadow: 0 4px 20px rgba(0,212,170,0.12);
+}
+[data-theme="light"] .ach-item.clickable:hover {
+  box-shadow: 0 4px 20px rgba(0,140,110,0.1);
+}
+.ach-item.clickable::after {
+  content: '↗'; position: absolute;
+  top: 10px; right: 12px; font-size: 12px;
+  color: var(--text-muted); transition: color 0.2s;
+}
+.ach-item.clickable:hover::after { color: var(--teal); }
+
+/* THEME TOGGLE */
+.theme-toggle {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  background: var(--surface);
+  border: 1px solid rgba(128,128,128,0.2);
+  border-radius: 40px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+.theme-toggle:hover { border-color: var(--teal); }
+.theme-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+  color: var(--text-muted);
+}
+.theme-btn.active {
+  background: var(--teal);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(0,212,170,0.3);
+}
+[data-theme="light"] .theme-btn.active {
+  box-shadow: 0 0 10px rgba(0,140,110,0.3);
+}
+
+/* FLOW DIAGRAM */
+.flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+.flow-step {
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.flow-arrow { color: var(--teal); font-size: 18px; }
+
+/* WATERMARK */
+.watermark {
+  position: fixed; bottom: 30px; left: 40px;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-muted); letter-spacing: 2px;
+  text-transform: uppercase; z-index: 1000;
+  display: flex; align-items: center;
+}
+.watermark svg { vertical-align: middle; }
+.logo-light { display: none; }
+.logo-dark { display: inline; }
+[data-theme="light"] .logo-light { display: inline; }
+[data-theme="light"] .logo-dark { display: none; }
+
+/* COVER LOGO */
+.cover-logo { margin-bottom: 24px; }
+.cover-logo svg { opacity: 0.7; }
+[data-theme="light"] .cover-logo .logo-light { display: block; }
+[data-theme="light"] .cover-logo .logo-dark { display: none; }
+.cover-logo .logo-light { display: none; }
+.cover-logo .logo-dark { display: block; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="nav-dots" id="navDots"></div>
+
+<div class="slide-counter" id="slideCounter"></div>
+
+<div class="scroll-hint" id="scrollHint">↓&ensp;Frecce o scroll per navigare</div>
+
+<div class="watermark">
+  <span class="logo-dark"><svg viewBox="0 0 35 23" width="52" height="34" xmlns="http://www.w3.org/2000/svg"><path fill="#FFFFFF" d="M24.4,6.9v2.9h-2.1V0h2.1h0.2h1.5C27.4,0,28,0.3,28,1v4.8c0,0.7-0.6,1-1.8,1L24.4,6.9z M26,1.1h-1.6v4.5H26V1.1z"/><path fill="#FFFFFF" d="M1.8,9.8v2.9H0V2.9h1.8H2h1.3c1.1,0,1.6,0.3,1.6,1v4.8c0,0.7-0.5,1-1.5,1L1.8,9.8z M3.1,4H1.8v4.5h1.3V4z"/><path fill="#FFFFFF" d="M10.4,9.7H7c-1,0-1.5-0.3-1.5-1v-2c0-0.7,0.5-1,1.5-1h1.6V4H7.3v0.9H5.5v-1c0-0.7,0.5-1,1.6-1h1.7c1,0,1.5,0.3,1.5,1L10.4,9.7z M7.3,8.6h1.3V6.8H7.3V8.6z"/><path fill="#FFFFFF" d="M14.2,9.7h-1.6c-1,0-1.5-0.3-1.5-1V3.9c0-0.7,0.5-1,1.6-1H14h0.2H16v8.8c0,0.7-0.5,1-1.6,1h-1.8c-1,0-1.6-0.3-1.6-1v-1h1.8v0.9h1.3L14.2,9.7z M12.9,8.6h1.3V4h-1.3V8.6z"/><path fill="#FFFFFF" d="M21.5,8.7c0,0.7-0.5,1-1.6,1h-1.7c-1,0-1.6-0.3-1.6-1V3.9c0-0.7,0.5-1,1.6-1H20c1,0,1.5,0.3,1.5,1V8.7z M19.8,4h-1.3v4.5h1.3V4z"/><path fill="#FFFFFF" d="M34.7,1.1c0-0.7-0.6-1-1.8-1h-2.1c-1.2,0-1.9,0.3-1.9,1v8.7H31v-3h1.6v2.5c0,6.4-5.2,11.6-11.6,11.6c-3.7,0-7-1.8-9.1-4.5l1.1-0.8l-4.3-2.9l0.2,6l1.4-1.1C12.7,20.9,16.6,23,21,23c7.6,0,13.7-6.1,13.7-13.7V1.1z M32.6,5.7H31V1.2h1.6V5.7z"/></svg></span>
+  <span class="logo-light"><svg viewBox="0 0 35 23" width="52" height="34" xmlns="http://www.w3.org/2000/svg"><path fill="#1D1D1B" d="M24.4,6.9v2.9h-2.1V0h2.1h0.2h1.5c1.3,0,1.9,0.3,1.9,1v4.8c0,0.7-0.6,1-1.8,1L24.4,6.9z M26,1.1h-1.6v4.5H26V1.1z"/><path fill="#1D1D1B" d="M1.8,9.8v2.9H0V2.9h1.8H2h1.3c1.1,0,1.6,0.3,1.6,1v4.8c0,0.7-0.5,1-1.5,1L1.8,9.8z M3.1,4H1.8v4.5h1.3V4z"/><path fill="#1D1D1B" d="M10.4,9.7H7c-1,0-1.5-0.3-1.5-1v-2c0-0.7,0.5-1,1.5-1h1.6V4H7.3v0.9H5.5v-1c0-0.7,0.5-1,1.6-1h1.7c1,0,1.5,0.3,1.5,1V9.7z M7.3,8.6h1.3V6.8H7.3V8.6z"/><path fill="#1D1D1B" d="M14.2,9.7h-1.6c-1,0-1.5-0.3-1.5-1V3.9c0-0.7,0.5-1,1.6-1H14h0.2H16v8.8c0,0.7-0.5,1-1.6,1h-1.8c-1,0-1.6-0.3-1.6-1v-1h1.8v0.9h1.3L14.2,9.7z M12.9,8.6h1.3V4h-1.3V8.6z"/><path fill="#1D1D1B" d="M21.5,8.7c0,0.7-0.5,1-1.6,1h-1.7c-1,0-1.6-0.3-1.6-1V3.9c0-0.7,0.5-1,1.6-1H20c1,0,1.5,0.3,1.5,1V8.7z M19.8,4h-1.3v4.5h1.3V4z"/><path fill="#1D1D1B" d="M34.7,1.1c0-0.7-0.6-1-1.8-1h-2.1c-1.2,0-1.9,0.3-1.9,1v8.7H31v-3h1.6v2.5c0,6.4-5.2,11.6-11.6,11.6c-3.7,0-7-1.8-9.1-4.5l1.1-0.8l-4.3-2.9l0.2,6l1.4-1.1C12.7,20.9,16.6,23,21,23c7.6,0,13.7-6.1,13.7-13.7V1.1z M32.6,5.7H31V1.2h1.6V5.7z"/></svg></span>
+  <span style="margin-left:10px;">Dipartimento Pagamenti</span>
+</div>
+
+<div class="theme-toggle" id="themeToggle" title="Cambia tema">
+  <button class="theme-btn active" data-theme-val="dark" onclick="setTheme('dark')">🌙</button>
+  <button class="theme-btn" data-theme-val="light" onclick="setTheme('light')">☀️</button>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- ==================== SLIDE 0: COVER ==================== -->
+<div class="slide active" data-idx="0">
+  <div class="fade-in cover-logo">
+    <span class="logo-dark"><svg viewBox="0 0 35 23" width="90" height="58" xmlns="http://www.w3.org/2000/svg"><path fill="#FFFFFF" d="M24.4,6.9v2.9h-2.1V0h2.1h0.2h1.5C27.4,0,28,0.3,28,1v4.8c0,0.7-0.6,1-1.8,1L24.4,6.9z M26,1.1h-1.6v4.5H26V1.1z"/><path fill="#FFFFFF" d="M1.8,9.8v2.9H0V2.9h1.8H2h1.3c1.1,0,1.6,0.3,1.6,1v4.8c0,0.7-0.5,1-1.5,1L1.8,9.8z M3.1,4H1.8v4.5h1.3V4z"/><path fill="#FFFFFF" d="M10.4,9.7H7c-1,0-1.5-0.3-1.5-1v-2c0-0.7,0.5-1,1.5-1h1.6V4H7.3v0.9H5.5v-1c0-0.7,0.5-1,1.6-1h1.7c1,0,1.5,0.3,1.5,1L10.4,9.7z M7.3,8.6h1.3V6.8H7.3V8.6z"/><path fill="#FFFFFF" d="M14.2,9.7h-1.6c-1,0-1.5-0.3-1.5-1V3.9c0-0.7,0.5-1,1.6-1H14h0.2H16v8.8c0,0.7-0.5,1-1.6,1h-1.8c-1,0-1.6-0.3-1.6-1v-1h1.8v0.9h1.3L14.2,9.7z M12.9,8.6h1.3V4h-1.3V8.6z"/><path fill="#FFFFFF" d="M21.5,8.7c0,0.7-0.5,1-1.6,1h-1.7c-1,0-1.6-0.3-1.6-1V3.9c0-0.7,0.5-1,1.6-1H20c1,0,1.5,0.3,1.5,1V8.7z M19.8,4h-1.3v4.5h1.3V4z"/><path fill="#FFFFFF" d="M34.7,1.1c0-0.7-0.6-1-1.8-1h-2.1c-1.2,0-1.9,0.3-1.9,1v8.7H31v-3h1.6v2.5c0,6.4-5.2,11.6-11.6,11.6c-3.7,0-7-1.8-9.1-4.5l1.1-0.8l-4.3-2.9l0.2,6l1.4-1.1C12.7,20.9,16.6,23,21,23c7.6,0,13.7-6.1,13.7-13.7V1.1z M32.6,5.7H31V1.2h1.6V5.7z"/></svg></span>
+    <span class="logo-light"><svg viewBox="0 0 35 23" width="90" height="58" xmlns="http://www.w3.org/2000/svg"><path fill="#1D1D1B" d="M24.4,6.9v2.9h-2.1V0h2.1h0.2h1.5c1.3,0,1.9,0.3,1.9,1v4.8c0,0.7-0.6,1-1.8,1L24.4,6.9z M26,1.1h-1.6v4.5H26V1.1z"/><path fill="#1D1D1B" d="M1.8,9.8v2.9H0V2.9h1.8H2h1.3c1.1,0,1.6,0.3,1.6,1v4.8c0,0.7-0.5,1-1.5,1L1.8,9.8z M3.1,4H1.8v4.5h1.3V4z"/><path fill="#1D1D1B" d="M10.4,9.7H7c-1,0-1.5-0.3-1.5-1v-2c0-0.7,0.5-1,1.5-1h1.6V4H7.3v0.9H5.5v-1c0-0.7,0.5-1,1.6-1h1.7c1,0,1.5,0.3,1.5,1V9.7z M7.3,8.6h1.3V6.8H7.3V8.6z"/><path fill="#1D1D1B" d="M14.2,9.7h-1.6c-1,0-1.5-0.3-1.5-1V3.9c0-0.7,0.5-1,1.6-1H14h0.2H16v8.8c0,0.7-0.5,1-1.6,1h-1.8c-1,0-1.6-0.3-1.6-1v-1h1.8v0.9h1.3L14.2,9.7z M12.9,8.6h1.3V4h-1.3V8.6z"/><path fill="#1D1D1B" d="M21.5,8.7c0,0.7-0.5,1-1.6,1h-1.7c-1,0-1.6-0.3-1.6-1V3.9c0-0.7,0.5-1,1.6-1H20c1,0,1.5,0.3,1.5,1V8.7z M19.8,4h-1.3v4.5h1.3V4z"/><path fill="#1D1D1B" d="M34.7,1.1c0-0.7-0.6-1-1.8-1h-2.1c-1.2,0-1.9,0.3-1.9,1v8.7H31v-3h1.6v2.5c0,6.4-5.2,11.6-11.6,11.6c-3.7,0-7-1.8-9.1-4.5l1.1-0.8l-4.3-2.9l0.2,6l1.4-1.1C12.7,20.9,16.6,23,21,23c7.6,0,13.7-6.1,13.7-13.7V1.1z M32.6,5.7H31V1.2h1.6V5.7z"/></svg></span>
+  </div>
+  <div class="fade-in">
+    <div class="kicker">PFM-3 · Stato Avanzamento Progetto</div>
+  </div>
+  <h1 class="fade-in glow-teal">Centro di Competenza<br><span class="accent">Quality Assurance</span></h1>
+  <div class="fade-in">
+    <p class="subtitle">Creare un ecosistema di QA centralizzato che trasformi i risultati dell'assessment in standard operativi condivisi, elevando la qualità del software a pilastro misurabile del dipartimento.</p>
+  </div>
+  <div class="cover-meta fade-in">
+    <span>📅 Feb 2026 → Giu 2027</span>
+    <span>🏢 Dipartimento Pagamenti</span>
+    <span>🤝 In sinergia con SL QA&OPS</span>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 1: PUNTO DI PARTENZA ==================== -->
+<div class="slide" data-idx="1">
+  <div class="slide-scroll">
+    <div class="fade-in kicker">Assessment 2025 · Il Punto di Partenza</div>
+    <h2 class="fade-in">Maturità AS-IS:<br><span class="accent-amber">Ad Hoc</span> + picco di efficienza nella stima</h2>
+
+    <!-- MATURITY BAR -->
+    <div class="maturity-bar fade-in">
+      <div class="mb-track">
+        <div class="mb-seg mb-seg-1">
+          <div class="mb-fill"></div>
+          <div class="mb-label">Ad Hoc</div>
+          <div class="mb-range">0 – 2</div>
+        </div>
+        <div class="mb-seg mb-seg-2">
+          <div class="mb-fill"></div>
+          <div class="mb-label">Controlled</div>
+          <div class="mb-range">3 – 5</div>
+        </div>
+        <div class="mb-seg mb-seg-3">
+          <div class="mb-fill"></div>
+          <div class="mb-label">Efficient</div>
+          <div class="mb-range">6 – 10</div>
+        </div>
+        <div class="mb-seg mb-seg-4">
+          <div class="mb-fill"></div>
+          <div class="mb-label">Optimizing</div>
+          <div class="mb-range">11 – 13</div>
+        </div>
+        <!-- Marker -->
+        <div class="mb-marker">
+          <div class="mb-marker-line"></div>
+          <div class="mb-marker-label">Siamo qui</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col fade-in">
+      <div>
+        <h3 style="color:var(--teal); margin-bottom:16px;">✦ Punti di Forza</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="pill done">Importanza del testing riconosciuta</div>
+          <div class="pill done">Collaborazione efficace tra gruppi</div>
+          <div class="pill done">Processo base di Defect Mgmt su Jira</div>
+          <div class="pill done">Automazione parziale (WISP, FdR)</div>
+          <div class="pill done">Miglioramento processi in corso</div>
+        </div>
+      </div>
+      <div>
+        <h3 style="color:var(--red); margin-bottom:16px;">✦ Punti di Debolezza</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="pill" style="border-color:var(--red);color:var(--red);">Assenza team di test dedicato</div>
+          <div class="pill" style="border-color:var(--red);color:var(--red);">Nessun tool di Test Management integrato</div>
+          <div class="pill" style="border-color:var(--red);color:var(--red);">Metriche e quality gate assenti</div>
+          <div class="pill" style="border-color:var(--red);color:var(--red);">Strategia di test non formalizzata</div>
+          <div class="pill" style="border-color:var(--red);color:var(--red);">Checklist non differenziate per rischio</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 2: TOP 5 GAPS ==================== -->
+<div class="slide" data-idx="2">
+  <div class="slide-scroll">
+    <div class="fade-in kicker">Assessment 2025 · I Gap da Colmare</div>
+    <h2 class="fade-in">TOP 5 Gaps Strategici</h2>
+    <p class="subtitle fade-in" style="margin-bottom:36px;">Dalla Test Strategy al Reporting: le 5 aree prioritarie identificate dall'assessment come fondamentali per l'evoluzione del dipartimento.</p>
+
+    <div class="five-col fade-in">
+      <div class="card" style="text-align:center;">
+        <div class="card-icon" style="background:rgba(0,212,170,0.12);margin:0 auto 16px;">🧭</div>
+        <h3 style="font-size:14px;">TEST STRATEGY</h3>
+        <p style="font-size:12px;">Pilastro fondante: visione globale a 360°, policies e linee guida</p>
+        <div class="tag tag-teal" style="margin-top:12px;">Priorità 1</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon" style="background:rgba(6,182,212,0.12);margin:0 auto 16px;">📋</div>
+        <h3 style="font-size:14px;">TEST DESIGN</h3>
+        <p style="font-size:12px;">Scrittura e tracciamento dei casi di test in modo standard</p>
+        <div class="tag tag-teal" style="margin-top:12px;">Priorità 1</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon" style="background:rgba(236,72,153,0.12);margin:0 auto 16px;">🐛</div>
+        <h3 style="font-size:14px;">DEFECT MGMT</h3>
+        <p style="font-size:12px;">Gestione strutturata anomalie e Root Cause Analysis</p>
+        <div class="tag tag-teal" style="margin-top:12px;">Priorità 1</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon" style="background:rgba(245,158,11,0.12);margin:0 auto 16px;">📊</div>
+        <h3 style="font-size:14px;">METRICHE</h3>
+        <p style="font-size:12px;">Analisi basata su dati oggettivi da strumenti configurati</p>
+        <div class="tag tag-amber" style="margin-top:12px;">Priorità 2</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div class="card-icon" style="background:rgba(239,68,68,0.12);margin:0 auto 16px;">📈</div>
+        <h3 style="font-size:14px;">REPORTING</h3>
+        <p style="font-size:12px;">Visibilità avanzamenti per i decision makers</p>
+        <div class="tag tag-amber" style="margin-top:12px;">Priorità 2</div>
+      </div>
+    </div>
+
+    <div class="fade-in" style="margin-top:32px;">
+      <p style="font-size:13px;color:var(--text-muted);text-align:center;">Approccio strutturato in 3 fasi per ciascun gap: <span class="accent">Analisi</span> → <span class="accent">Setup</span> → <span class="accent">Run</span> su progetto pilota (Area Pagamenti)</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 3: DUE PILASTRI ==================== -->
+<div class="slide" data-idx="3">
+  <div class="slide-scroll">
+    <div class="fade-in kicker">La Nostra Risposta</div>
+    <h2 class="fade-in">Due Pilastri,<br>un unico <span class="accent">Centro di Competenza</span></h2>
+
+    <div class="status-legend fade-in">
+      <span><i class="status-dot done"></i> Completato</span>
+      <span><i class="status-dot wip"></i> In corso</span>
+    </div>
+
+    <div class="two-col fade-in" style="margin-top:36px;">
+      <div class="pillar pillar-testing">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+          <span style="font-size:32px;">🧪</span>
+          <div>
+            <h3 style="font-size:22px;margin:0;">Testing</h3>
+            <span class="tag tag-teal" style="margin-top:4px;">Pilastro 1</span>
+          </div>
+        </div>
+        <p style="color:var(--text-dim);font-size:14px;line-height:1.7;margin-bottom:16px;">Processo di Quality Assurance integrato nell'SDLC, dall'INIT al Quality Gate. Team dedicato con ruoli strutturati, automazione CI/CD, metriche e dashboarding.</p>
+        <div class="pill-grid">
+          <div class="pill done">QA Manifesto</div>
+          <div class="pill done">Processo QA</div>
+          <div class="pill done">RACI</div>
+          <div class="pill done">Jira Strutturato</div>
+          <div class="pill done">Branching Model</div>
+          <div class="pill done">Cerimonie</div>
+          <div class="pill done">Dashboard KPI</div>
+          <div class="pill done">Gherkin Guidelines</div>
+          <div class="pill wip">Progetti Pilota</div>
+          <div class="pill wip">CI/CD Integration</div>
+        </div>
+      </div>
+
+      <div class="pillar pillar-data">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+          <span style="font-size:32px;">🗄️</span>
+          <div>
+            <h3 style="font-size:22px;margin:0;">Data Quality</h3>
+            <span class="tag tag-amber" style="margin-top:4px;">Pilastro 2</span>
+          </div>
+        </div>
+        <p style="color:var(--text-dim);font-size:14px;line-height:1.7;margin-bottom:16px;">Governance e qualità del dato all'interno del Data Lake. Framework strutturato con Data Contract, moduli di Quality e Observability su piattaforma Cloudera + SODA Cloud.</p>
+        <div class="pill-grid">
+          <div class="pill done">Solution Blueprint</div>
+          <div class="pill done">DQ Framework</div>
+          <div class="pill done">Observability Platform</div>
+          <div class="pill done">Modello Operativo</div>
+          <div class="pill done">Catalogo Controlli</div>
+          <div class="pill done">Data Contracts</div>
+          <div class="pill wip">Implementazione</div>
+          <div class="pill wip">Sync Inter-team</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 4: NUMERI & ACHIEVEMENT ==================== -->
+<div class="slide" data-idx="4">
+  <div class="slide-scroll">
+    <div class="fade-in kicker">Risultati · Overview</div>
+    <h2 class="fade-in">Cosa Abbiamo <span class="accent">Costruito</span></h2>
+
+    <div class="status-legend fade-in">
+      <span><i class="status-dot done"></i> Completato</span>
+      <span><i class="status-dot wip"></i> In corso</span>
+    </div>
+
+    <div class="achievements-grid fade-in">
+      <div class="ach-item clickable" onclick="openModal('confluence')">
+        <div class="ach-num">70+</div>
+        <div class="ach-label">Pagine Confluence<br>documentazione QA</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('manifesto')">
+        <div class="ach-num">6</div>
+        <div class="ach-label">Principi nel<br>Quality Manifesto</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('jira')">
+        <div class="ach-num">3</div>
+        <div class="ach-label">Board Jira<br>strutturate</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('hiring')">
+        <div class="ach-num">5</div>
+        <div class="ach-label">Nuove persone<br>in hiring</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('cerimonie')">
+        <div class="ach-num">6</div>
+        <div class="ach-label">Cerimonie QA<br>definite</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('pilota')">
+        <div class="ach-num">3</div>
+        <div class="ach-label">Progetti Pilota<br>identificati</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('adr')">
+        <div class="ach-num">5</div>
+        <div class="ach-label">ADR/GDR<br>documentati</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('streams')">
+        <div class="ach-num">3</div>
+        <div class="ach-label">Stream Data<br>operativi</div>
+      </div>
+    </div>
+
+    <div class="fade-in" style="margin-top:20px;">
+      <h3 style="color:var(--teal);margin-bottom:12px;">Percorso di costruzione</h3>
+      <div class="flow">
+        <div class="flow-step" style="border-color:var(--teal);color:var(--teal);">Assessment ALTEN</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Studio Framework SL QA&OPS</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Tailorizzazione</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">QA Manifesto</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Confluence Space</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Strutture & Processi</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step" style="border-color:var(--amber);color:var(--amber);">Hiring</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step" style="border-color:var(--amber);color:var(--amber);">Pilota</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 5: FRAMEWORK QA - TESTING ==================== -->
+<div class="slide" data-idx="5">
+  <div class="fade-in kicker">Pilastro 1 · Testing</div>
+  <h2 class="fade-in">Il Framework QA <span class="accent">in Dettaglio</span></h2>
+  <p class="subtitle fade-in" style="margin-bottom:28px;font-size:16px;">Clicca su ogni area per approfondire. Tutto il framework è operativo e documentato su Confluence.</p>
+
+  <div class="fw-grid fade-in">
+
+    <div class="fw-tile" onclick="openModal('raci')">
+      <div class="fw-tile-icon">🏛️</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Struttura & RACI</div>
+        <div class="fw-tile-sub">4 ruoli · 9 attività · matrice R/A/C/I</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+    <div class="fw-tile fw-tile-featured" onclick="openFlowModal()">
+      <div class="fw-tile-icon">⚙️</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Processo QA & SDLC</div>
+        <div class="fw-tile-sub">INIT → PLANNING → EXECUTION → QA Gate</div>
+      </div>
+      <div class="fw-tile-arrow">▶</div>
+    </div>
+
+    <div class="fw-tile" onclick="openBranchingModal()">
+      <div class="fw-tile-icon">🔀</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Branching Model</div>
+        <div class="fw-tile-sub">Dual-track · 3 sync points · naming convention</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+    <div class="fw-tile" onclick="openModal('jira')">
+      <div class="fw-tile-icon">📋</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Organizzazione Jira</div>
+        <div class="fw-tile-sub">3 board · 6 categorie epic · task type dedicati</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+    <div class="fw-tile" onclick="openModal('cerimonie')">
+      <div class="fw-tile-icon">🔄</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Le 6 Cadence QA</div>
+        <div class="fw-tile-sub">Da trimestrale a giornaliero · strategia + esecuzione</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+    <div class="fw-tile" onclick="openModal('dashboard')">
+      <div class="fw-tile-icon">📊</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Dashboard One</div>
+        <div class="fw-tile-sub">Operativo · Qualità & Bug · Insights & Trend</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== SLIDE 6: DATA QUALITY ==================== -->
+<div class="slide" data-idx="6">
+  <div class="fade-in kicker">Pilastro 2 · Data Quality & Strategy</div>
+  <h2 class="fade-in">Governance del Dato nel <span class="accent-amber">Data Lake</span></h2>
+  <p class="subtitle fade-in" style="margin-bottom:28px;font-size:16px;">Clicca su ogni area per approfondire. Framework attivo su Cloudera con SODA Cloud come Observability Platform.</p>
+
+  <div class="fw-grid fade-in">
+
+    <div class="fw-tile fw-tile-amber" onclick="openArchModal()">
+      <div class="fw-tile-icon">🏗️</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Architettura Data Lake</div>
+        <div class="fw-tile-sub">Sorgenti → Kafka → Bronze → Silver → Gold</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+    <div class="fw-tile fw-tile-amber" onclick="openModal('datacontract')">
+      <div class="fw-tile-icon">📄</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Data Contract</div>
+        <div class="fw-tile-sub">Interfaccia produttore/consumatore · artefatto attivo</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+    <div class="fw-tile fw-tile-amber-featured" onclick="openDQModal()">
+      <div class="fw-tile-icon">⚙️</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">DQ Framework</div>
+        <div class="fw-tile-sub">Modulo Quality + Observability · SODA + Impala · Airflow</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+    <div class="fw-tile fw-tile-amber" onclick="openControlliModal()">
+      <div class="fw-tile-icon">🔍</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Catalogo Controlli</div>
+        <div class="fw-tile-sub">Puntuali · Intra-entità · Cross-entità</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+    <div class="fw-tile fw-tile-amber" onclick="openModal('streams')">
+      <div class="fw-tile-icon">🔀</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Modello Operativo</div>
+        <div class="fw-tile-sub">3 stream · Platform · Governance · Prodotto</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+    <div class="fw-tile fw-tile-amber" onclick="openModal('coordinamento')">
+      <div class="fw-tile-icon">🤝</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Coordinamento Inter-team</div>
+        <div class="fw-tile-sub">3 cerimonie · Data Lake · DQ Committee</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== SLIDE 7: SINERGIA ==================== -->
+<div class="slide" data-idx="7">
+  <div class="fade-in kicker">Sinergia tra Dipartimenti</div>
+  <h2 class="fade-in" style="margin-bottom:6px;">Pagamenti <span class="accent">⇄</span> SEND & Interop</h2>
+  <p class="fade-in" style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Confronto strutturato tra i due team · ora in espansione anche a IO-Wallet-Multicanalità</p>
+
+  <div class="fade-in sinergia-wrap">
+    <table class="comp-table sinergia-table">
+      <thead>
+        <tr>
+          <th style="width:24%;">Dimensione</th>
+          <th style="width:38%;">Pagamenti (TS300)</th>
+          <th style="width:38%;">SEND & Interop (SL QA&OPS)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="ct-dim">Team</td>
+          <td>3 interni + 3 ALTEN + hiring in corso</td>
+          <td>Team più ampio e consolidato</td>
+        </tr>
+        <tr>
+          <td class="ct-dim">Approccio prodotto</td>
+          <td><span class="tag tag-teal" style="font-size:9px;">LIGHT</span> integrazione graduale</td>
+          <td>Integrazione più strutturata</td>
+        </tr>
+        <tr>
+          <td class="ct-dim">Ambiente di test</td>
+          <td style="color:var(--text-muted);">Condiviso con sviluppo — no env dedicato</td>
+          <td><span class="tag tag-teal" style="font-size:9px;">DEDICATO</span> ambiente separato</td>
+        </tr>
+        <tr>
+          <td class="ct-dim">Data Quality</td>
+          <td><span class="tag tag-amber" style="font-size:9px;">PILASTRO</span> DQ Framework dedicato</td>
+          <td style="color:var(--text-muted);">Non presente</td>
+        </tr>
+        <tr>
+          <td class="ct-dim">Orientamento</td>
+          <td><span class="tag tag-cyan" style="font-size:9px;">CI/CD</span> automazione spinta</td>
+          <td><span class="tag tag-pink" style="font-size:9px;">RELEASE MGMT</span> finestre di rilascio</td>
+        </tr>
+        <tr>
+          <td class="ct-dim">Scope</td>
+          <td>QA pura (Testing + Data Quality)</td>
+          <td>QA + Operations</td>
+        </tr>
+        <tr class="ct-row-highlight">
+          <td class="ct-dim">Quality Manifesto</td>
+          <td><span class="exchange-badge exchange-origin">✦ nato qui</span> Definito dal Team Pagamenti</td>
+          <td><span class="exchange-badge exchange-received">↙ ereditato</span> Adottato da SL QA&OPS</td>
+        </tr>
+        <tr>
+          <td class="ct-dim">Dashboard KPI</td>
+          <td>Dashboard One su Jira nativo</td>
+          <td>Dashboard su Confluence</td>
+        </tr>
+        <tr>
+          <td class="ct-dim">Modello valutazione</td>
+          <td>QAdro <span style="color:var(--text-muted);font-size:11px;">(ereditato da SL)</span></td>
+          <td>QAdro <span style="color:var(--text-muted);font-size:11px;">(originale)</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sinergia-footer fade-in">
+      <span>🤝 <strong style="color:var(--teal);">Credits</strong> — tutte le pagine ereditate riportano i credits al Team SL QA&OPS</span>
+      <span style="color:var(--text-muted);">·</span>
+      <span>🔄 Sync regolari attivi con entrambi i dipartimenti</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 8: COSA STIAMO FACENDO ==================== -->
+<div class="slide" data-idx="8">
+  <div class="slide-scroll">
+    <div class="fade-in kicker">Stato Corrente</div>
+    <h2 class="fade-in">Cosa Stiamo <span class="accent">Facendo Ora</span></h2>
+
+    <div class="two-col fade-in" style="margin-top:28px;">
+      <div>
+        <h3 style="color:var(--teal);margin-bottom:20px;">🔬 In Esecuzione</h3>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-date">In corso</div>
+            <h4>Implementazione Framework sui Progetti Pilota</h4>
+            <p>Canone Unico Patrimoniale · Checkout · FdR — applicazione dei processi definiti su iniziative reali</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">In corso</div>
+            <h4>Automatismi CI/CD</h4>
+            <p>Integrazione delle pipeline di test automatico nel flusso di sviluppo dei team prodotto</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">In corso</div>
+            <h4>Implementazione Data Quality Framework</h4>
+            <p>Messa a terra dell'architettura definita: moduli Quality + Observability su Cloudera</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">In corso</div>
+            <h4>Adeguamento Portale NRT</h4>
+            <p>Evoluzione del portale Non-Regression Test per il nuovo framework</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="color:var(--amber);margin-bottom:20px;">🤝 Coordinamento & Evoluzione</h3>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-date">Continuo</div>
+            <h4>Sync con SL QA&OPS</h4>
+            <p>Allineamento costante con Dipartimento SEND & Interop. Recente ingresso anche del dipartimento IO-Wallet-Multicanalità</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">In corso</div>
+            <h4>Biblioteca Standard Documentali</h4>
+            <p>Definizione di template: SRS, Use Case, Traceability Matrix e altri artefatti standard</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">In corso</div>
+            <h4>Hiring in completamento</h4>
+            <p>4 figure Testing (1 QA Analyst + 3 QA Engineer) + 1 figura Data Support</p>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;padding:20px;background:var(--surface);border-radius:12px;">
+          <h3 style="font-size:14px;color:var(--teal);margin-bottom:10px;">🎯 Progetti Pilota</h3>
+          <div class="pill-grid">
+            <div class="pill wip" style="font-size:14px;padding:8px 18px;">Canone Unico Patrimoniale</div>
+            <div class="pill wip" style="font-size:14px;padding:8px 18px;">Checkout</div>
+            <div class="pill wip" style="font-size:14px;padding:8px 18px;">FdR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 9: TIMELINE ==================== -->
+<div class="slide" data-idx="9">
+  <div class="slide-scroll">
+    <div class="fade-in kicker">Roadmap</div>
+    <h2 class="fade-in">Da Oggi al <span class="accent">Giugno 2027</span></h2>
+
+    <div class="fade-in" style="margin-top:32px;position:relative;">
+      <!-- TIMELINE HORIZONTAL -->
+      <div style="display:flex;gap:0;margin-bottom:40px;position:relative;">
+        <div style="position:absolute;top:18px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--cyan),var(--amber),var(--pink));border-radius:2px;"></div>
+
+        <div style="flex:1;text-align:center;position:relative;padding-top:40px;">
+          <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:16px;height:16px;border-radius:50%;background:var(--teal);box-shadow:0 0 12px var(--teal);"></div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--teal);margin-bottom:6px;">FEB 2026</div>
+          <div style="font-size:13px;font-weight:700;">Kick-off</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Assessment → Studio<br>→ Manifesto → Framework</div>
+        </div>
+        <div style="flex:1;text-align:center;position:relative;padding-top:40px;">
+          <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:16px;height:16px;border-radius:50%;background:var(--teal);box-shadow:0 0 12px var(--teal);"></div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--teal);margin-bottom:6px;">MAG 2026</div>
+          <div style="font-size:13px;font-weight:700;">Siamo Qui</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Pilota in corso<br>CI/CD + DQ Framework</div>
+        </div>
+        <div style="flex:1;text-align:center;position:relative;padding-top:40px;">
+          <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:16px;height:16px;border-radius:50%;background:var(--amber);border:2px solid var(--amber);"></div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber);margin-bottom:6px;">SET 2026</div>
+          <div style="font-size:13px;font-weight:700;">Consolidamento</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Pilota completato<br>Metriche attive</div>
+        </div>
+        <div style="flex:1;text-align:center;position:relative;padding-top:40px;">
+          <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:16px;height:16px;border-radius:50%;background:var(--pink);border:2px solid var(--pink);"></div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--pink);margin-bottom:6px;">GEN 2027</div>
+          <div style="font-size:13px;font-weight:700;">Scale-up</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Estensione ad<br>altri team / iniziative</div>
+        </div>
+        <div style="flex:1;text-align:center;position:relative;padding-top:40px;">
+          <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:16px;height:16px;border-radius:50%;background:var(--pink);border:2px solid var(--pink);"></div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--pink);margin-bottom:6px;">GIU 2027</div>
+          <div style="font-size:13px;font-weight:700;">Target</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">QA Center of<br>Excellence operativo</div>
+        </div>
+      </div>
+
+      <!-- GOAL RECAP -->
+      <div class="three-col" style="margin-top:20px;">
+        <div class="card" style="border-top:3px solid var(--teal);">
+          <h3 style="font-size:14px;color:var(--teal);">✅ Completato</h3>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;font-size:13px;color:var(--text-dim);">
+            <span>QA Manifesto & Best Practices</span>
+            <span>Framework completo su Confluence</span>
+            <span>Struttura org. con RACI</span>
+            <span>Processo QA integrato SDLC</span>
+            <span>Jira strutturato (3 board)</span>
+            <span>Solution Blueprint Data Quality</span>
+            <span>ADR/GDR documentati</span>
+          </div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--amber);">
+          <h3 style="font-size:14px;color:var(--amber);">🔄 In Corso</h3>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;font-size:13px;color:var(--text-dim);">
+            <span>Progetti Pilota (CUP, Checkout, FdR)</span>
+            <span>Integrazione CI/CD</span>
+            <span>Data Quality Framework impl.</span>
+            <span>Portale NRT</span>
+            <span>Hiring (4 Testing + 1 Data)</span>
+            <span>Biblioteca standard documentali</span>
+          </div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--pink);">
+          <h3 style="font-size:14px;color:var(--pink);">🎯 Prossimi</h3>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;font-size:13px;color:var(--text-dim);">
+            <span>Estensione ad altri team Core & TP</span>
+            <span>Dashboard One a regime</span>
+            <span>Observability Platform attiva</span>
+            <span>Sinergia 3 dipartimenti</span>
+            <span>Assessment TO-BE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fade-in" style="margin-top:28px;text-align:center;">
+      <p style="font-family:var(--font-display);font-size:24px;color:var(--teal);font-weight:700;font-style:italic;">"Build Quality Together!"</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- MODAL OVERLAY -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- FLOW DIAGRAM MODAL -->
+<div class="flow-modal-overlay" id="flowModalOverlay" onclick="if(event.target===this)closeFlowModal()">
+  <div class="flow-modal-box">
+    <button class="modal-close" onclick="closeFlowModal()">✕</button>
+
+    <!-- Step description -->
+    <div class="fm-step-desc" id="fmStepDesc">
+      <span class="fm-step-num" id="fmStepNum">0 / 5</span>
+      <span class="fm-step-label" id="fmStepLabel">Clicca "Avanti" per iniziare</span>
+    </div>
+
+    <!-- Diagram -->
+    <div class="fd-wrap" id="flowDiagram">
+
+      <!-- Monitoring & Control bar -->
+      <div class="fd-mc-row">
+        <div class="fd-lbl-gap"></div>
+        <div class="fd-mc-bar flow-item" data-fstep="1">← MONITORING &amp; CONTROL ────────────────────────────────────────────────────────→</div>
+      </div>
+
+      <!-- Phase headers -->
+      <div class="fd-header-row">
+        <div class="fd-lbl-gap"></div>
+        <div class="fd-ph fd-init  flow-item" data-fstep="1">INIT</div>
+        <div class="fd-harrow-gap"></div>
+        <div class="fd-ph fd-plan  flow-item" data-fstep="1">PLANNING</div>
+        <div class="fd-harrow-gap"></div>
+        <div class="fd-ph fd-exec  flow-item" data-fstep="1">EXECUTION</div>
+        <div class="fd-harrow-gap"></div>
+        <div class="fd-ph fd-close flow-item" data-fstep="1">CLOSING</div>
+      </div>
+
+      <!-- Product track -->
+      <div class="fd-row">
+        <div class="fd-track-lbl">Product<br>Team</div>
+        <div class="fd-col">
+          <div class="fd-node flow-item" data-fstep="2">Pre-KickOff</div>
+          <div class="fd-down flow-item" data-fstep="2">↓</div>
+          <div class="fd-node flow-item" data-fstep="2">KickOff</div>
+          <div class="fd-down flow-item" data-fstep="2">↓</div>
+          <div class="fd-node flow-item" data-fstep="2">Focus Group</div>
+          <div class="fd-down flow-item" data-fstep="2">↓</div>
+          <div class="fd-node flow-item" data-fstep="2">BRD / SRS</div>
+        </div>
+        <div class="fd-harrow flow-item" data-fstep="3">→</div>
+        <div class="fd-col">
+          <div class="fd-node flow-item" data-fstep="3">Jira Backlog<br><small>Epic / Story</small></div>
+        </div>
+        <div class="fd-harrow flow-item" data-fstep="4">→</div>
+        <div class="fd-col">
+          <div class="fd-node fd-sprint flow-item" data-fstep="4">Sprint<br><small>2 settimane<br>Daily Scrum</small></div>
+          <div class="fd-down flow-item" data-fstep="4">↓</div>
+          <div class="fd-node flow-item" data-fstep="4">Shippable<br>Product</div>
+        </div>
+        <div class="fd-harrow flow-item" data-fstep="5">→</div>
+        <div class="fd-col">
+          <div class="fd-node fd-gate flow-item" data-fstep="5">🏁 Quality<br>Assurance<br>Gate</div>
+        </div>
+      </div>
+
+      <div class="fd-divider"></div>
+
+      <!-- QA track -->
+      <div class="fd-row">
+        <div class="fd-track-lbl fd-qa-lbl">QA<br>Team</div>
+        <div class="fd-col fd-col-empty"></div>
+        <div class="fd-harrow" style="visibility:hidden;">→</div>
+        <div class="fd-col">
+          <div class="fd-node fd-qa flow-item" data-fstep="3">Comprensione<br>Requisiti</div>
+          <div class="fd-down flow-item" data-fstep="3">↓</div>
+          <div class="fd-node fd-qa flow-item" data-fstep="3">QA Feature<br>Backlog</div>
+        </div>
+        <div class="fd-harrow flow-item" data-fstep="4">→</div>
+        <div class="fd-col">
+          <div class="fd-node fd-qa flow-item" data-fstep="4">Impl. Suite TA</div>
+          <div class="fd-down flow-item" data-fstep="4">↓</div>
+          <div class="fd-node fd-qa flow-item" data-fstep="4">Run Suite<br>Automatiche</div>
+        </div>
+        <div class="fd-harrow flow-item" data-fstep="5">→</div>
+        <div class="fd-col">
+          <div class="fd-node fd-qa-gate flow-item" data-fstep="5">✓ / ✗</div>
+        </div>
+      </div>
+
+    </div><!-- /fd-wrap -->
+
+    <!-- Navigation -->
+    <div class="fm-nav">
+      <button class="fm-btn fm-btn-sec" id="fmBtnPrev" onclick="flowStep(-1)" disabled>← Indietro</button>
+      <div class="fm-steps-track" id="fmStepsTrack">
+        <div class="fm-step-dot" data-dot="0"></div>
+        <div class="fm-step-dot" data-dot="1"></div>
+        <div class="fm-step-dot" data-dot="2"></div>
+        <div class="fm-step-dot" data-dot="3"></div>
+        <div class="fm-step-dot" data-dot="4"></div>
+        <div class="fm-step-dot" data-dot="5"></div>
+      </div>
+      <button class="fm-btn fm-btn-pri" id="fmBtnNext" onclick="flowStep(1)">Avanti →</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ARCHITECTURE DATA LAKE MODAL -->
+<div class="flow-modal-overlay" id="archModalOverlay" onclick="if(event.target===this)closeArchModal()">
+  <div class="flow-modal-box" style="max-width:900px;">
+    <button class="modal-close" onclick="closeArchModal()">✕</button>
+    <div class="fm-step-desc">
+      <span class="fm-step-num" id="archStepNum">0 / 5</span>
+      <span class="fm-step-label" id="archStepLabel">Clicca "Avanti" per iniziare</span>
+    </div>
+
+    <div class="arch-diagram" id="archDiagram">
+
+      <!-- ROW 1: Sources -->
+      <div class="arch-row">
+        <div class="arch-team-lbl arch-item" data-astep="1">👥 Team Core &amp; Touchpoints</div>
+        <div class="arch-sources arch-item" data-astep="1">
+          <div class="arch-source arch-gpd">🗄️ GPD</div>
+          <div class="arch-source arch-gec">🗄️ GEC</div>
+          <div class="arch-source arch-fdr">🗄️ FDR</div>
+        </div>
+        <div class="arch-arr arch-item" data-astep="1">CDC →</div>
+        <div class="arch-kafka arch-item" data-astep="1">
+          <div class="arch-kafka-label">☁️ Kafka Topics</div>
+          <div class="arch-kafka-sub">Azure Event Hubs</div>
+        </div>
+        <div class="arch-dc-badge arch-item" data-astep="2">📄 Data Contract</div>
+      </div>
+
+      <div class="arch-down-arr arch-item" data-astep="2">↓</div>
+
+      <!-- ROW 2: Data Lake layers -->
+      <div class="arch-lake-wrap arch-item" data-astep="2">
+        <div class="arch-lake-title">🏊 Data Lake — Cloudera CDP</div>
+        <div class="arch-lake-row">
+          <div class="arch-layer arch-bronze arch-item" data-astep="2">
+            <div class="arch-layer-label">🥉 Bronze</div>
+            <div class="arch-layer-sub">Dato grezzo<br>Team Data Lake</div>
+          </div>
+          <div class="arch-lake-arr arch-item" data-astep="3">→</div>
+          <div class="arch-layer arch-silver arch-item" data-astep="3">
+            <div class="arch-layer-label">🥈 Silver</div>
+            <div class="arch-layer-sub">Source-aligned<br>dedup + consolidato</div>
+          </div>
+          <div class="arch-lake-arr arch-item" data-astep="4">→</div>
+          <div class="arch-layer arch-gold arch-item" data-astep="4">
+            <div class="arch-layer-label">🥇 Gold</div>
+            <div class="arch-layer-sub">Consumer-aligned<br>Data Product</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 3: DQ Framework + SODA Cloud -->
+      <div class="arch-dq-row arch-item" data-astep="5">
+        <div class="arch-dq-box">
+          <div class="arch-dq-label">⚙️ Data Quality Framework</div>
+          <div class="arch-dq-inner">
+            <div class="arch-dq-mod arch-dq-quality">Modulo Quality<br><small>SODA + Impala</small></div>
+            <div class="arch-dq-rarr">→</div>
+            <div class="arch-dq-mod arch-dq-obs">Modulo Observability<br><small>KPI + Publisher</small></div>
+          </div>
+        </div>
+        <div class="arch-dq-rarr-big">→</div>
+        <div class="arch-soda-box">
+          <div class="arch-dq-label">☁️ SODA Cloud</div>
+          <div class="arch-soda-inner">Dashboard · Alerting · Governance</div>
+        </div>
+      </div>
+
+      <!-- Ownership labels -->
+      <div class="arch-ownership-row arch-item" data-astep="3">
+        <div class="arch-own arch-own-dl">Team Data Lake — ingestion pipeline</div>
+        <div class="arch-own arch-own-qa">Team QA — controlli qualità + Data Product</div>
+      </div>
+
+    </div>
+
+    <div class="fm-nav">
+      <button class="fm-btn fm-btn-sec" id="archBtnPrev" onclick="archStep(-1)" disabled>← Indietro</button>
+      <div class="fm-steps-track">
+        <div class="fm-step-dot" data-adot="0"></div>
+        <div class="fm-step-dot" data-adot="1"></div>
+        <div class="fm-step-dot" data-adot="2"></div>
+        <div class="fm-step-dot" data-adot="3"></div>
+        <div class="fm-step-dot" data-adot="4"></div>
+        <div class="fm-step-dot" data-adot="5"></div>
+      </div>
+      <button class="fm-btn fm-btn-pri" id="archBtnNext" onclick="archStep(1)">Avanti →</button>
+    </div>
+  </div>
+</div>
+
+<!-- DQ FRAMEWORK MODAL -->
+<div class="flow-modal-overlay" id="dqModalOverlay" onclick="if(event.target===this)closeDQModal()">
+  <div class="flow-modal-box" style="max-width:860px; max-height:92vh; overflow:hidden; display:flex; flex-direction:column;">
+    <button class="modal-close" onclick="closeDQModal()">✕</button>
+    <div class="fm-step-desc" style="flex-shrink:0;">
+      <span class="fm-step-num" id="dqStepNum">0 / 5</span>
+      <span class="fm-step-label" id="dqStepLabel">Clicca "Avanti" per iniziare</span>
+    </div>
+
+    <!-- Fixed SVG diagram — no scroll -->
+    <div style="flex:1; display:flex; align-items:center; justify-content:center; min-height:0;">
+      <svg id="dqSvg" viewBox="0 0 800 340" style="width:100%; height:100%; max-height:340px;" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- ===== DATA CONTRACT ===== -->
+        <g id="dq-dc" style="opacity:0; transition: opacity 0.4s;">
+          <rect x="270" y="8" width="260" height="50" rx="10" fill="var(--svg-dc-bg)" stroke="var(--svg-dc-border)" stroke-width="1" stroke-dasharray="5,3"/>
+          <text x="300" y="28" fill="var(--svg-text)" font-family="sans-serif" font-size="13" font-weight="700">📄 Data Contract</text>
+          <text x="300" y="46" fill="var(--svg-muted)" font-family="sans-serif" font-size="10">Fonte unica di verità per la configurazione dei check</text>
+          <!-- arrows down to both modules -->
+          <line x1="330" y1="58" x2="220" y2="100" stroke="rgba(198,40,40,0.5)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-red)"/>
+          <line x1="470" y1="58" x2="580" y2="100" stroke="rgba(171,71,188,0.5)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-purple)"/>
+        </g>
+
+        <!-- ===== MODULO QUALITY ===== -->
+        <g id="dq-quality" style="opacity:0; transition: opacity 0.4s 0.1s;">
+          <rect x="30" y="100" width="240" height="180" rx="10" fill="rgba(198,40,40,0.07)" stroke="rgba(198,40,40,0.3)" stroke-width="1.5"/>
+          <text x="46" y="122" fill="#ef9a9a" font-family="sans-serif" font-size="12" font-weight="700">⚙️ Modulo di Quality</text>
+          <!-- step 1 -->
+          <rect x="46" y="132" width="208" height="36" rx="6" fill="rgba(198,40,40,0.1)" stroke="rgba(198,40,40,0.2)" stroke-width="1"/>
+          <circle cx="60" cy="150" r="8" fill="rgba(198,40,40,0.3)"/><text x="56" y="154" fill="#ef9a9a" font-family="sans-serif" font-size="9" font-weight="700">1</text>
+          <text x="74" y="146" fill="var(--svg-text)" font-family="sans-serif" font-size="10" font-weight="600">Contract Validator &amp; Parser</text>
+          <text x="74" y="160" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">valida e traduce le regole</text>
+          <text x="144" y="178" fill="var(--svg-muted)" font-family="sans-serif" font-size="11">↓</text>
+          <!-- step 2 -->
+          <rect x="46" y="183" width="208" height="36" rx="6" fill="rgba(198,40,40,0.1)" stroke="rgba(198,40,40,0.2)" stroke-width="1"/>
+          <circle cx="60" cy="201" r="8" fill="rgba(198,40,40,0.3)"/><text x="56" y="205" fill="#ef9a9a" font-family="sans-serif" font-size="9" font-weight="700">2</text>
+          <text x="74" y="197" fill="var(--svg-text)" font-family="sans-serif" font-size="10" font-weight="600">Quality Engine</text>
+          <text x="74" y="211" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">SODA + Impala / CDE</text>
+        </g>
+
+        <!-- ===== RESULTS WRITER (step 3) ===== -->
+        <g id="dq-writer" style="opacity:0; transition: opacity 0.4s;">
+          <text x="144" y="232" fill="var(--svg-muted)" font-family="sans-serif" font-size="11">↓</text>
+          <rect x="46" y="237" width="208" height="36" rx="6" fill="rgba(198,40,40,0.1)" stroke="rgba(198,40,40,0.2)" stroke-width="1"/>
+          <circle cx="60" cy="255" r="8" fill="rgba(198,40,40,0.3)"/><text x="56" y="259" fill="#ef9a9a" font-family="sans-serif" font-size="9" font-weight="700">3</text>
+          <text x="74" y="251" fill="var(--svg-text)" font-family="sans-serif" font-size="10" font-weight="600">Results Writer</text>
+          <text x="74" y="265" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">esiti grezzi → Data Lake</text>
+          <!-- arrow to observability -->
+          <line x1="270" y1="210" x2="530" y2="210" stroke="rgba(171,71,188,0.6)" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+          <text x="370" y="205" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">risultati grezzi</text>
+        </g>
+
+        <!-- ===== MODULO OBSERVABILITY ===== -->
+        <g id="dq-obs" style="opacity:0; transition: opacity 0.4s 0.1s;">
+          <rect x="530" y="100" width="240" height="180" rx="10" fill="rgba(171,71,188,0.07)" stroke="rgba(171,71,188,0.3)" stroke-width="1.5"/>
+          <text x="546" y="122" fill="#ce93d8" font-family="sans-serif" font-size="12" font-weight="700">📡 Modulo di Observability</text>
+          <rect x="546" y="132" width="208" height="36" rx="6" fill="rgba(171,71,188,0.1)" stroke="rgba(171,71,188,0.2)" stroke-width="1"/>
+          <circle cx="560" cy="150" r="8" fill="rgba(171,71,188,0.3)"/><text x="556" y="154" fill="#ce93d8" font-family="sans-serif" font-size="9" font-weight="700">4</text>
+          <text x="574" y="146" fill="var(--svg-text)" font-family="sans-serif" font-size="10" font-weight="600">Results Reader</text>
+          <text x="574" y="160" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">legge risultati grezzi</text>
+          <text x="644" y="178" fill="var(--svg-muted)" font-family="sans-serif" font-size="11">↓</text>
+          <rect x="546" y="183" width="208" height="36" rx="6" fill="rgba(171,71,188,0.1)" stroke="rgba(171,71,188,0.2)" stroke-width="1"/>
+          <circle cx="560" cy="201" r="8" fill="rgba(171,71,188,0.3)"/><text x="556" y="205" fill="#ce93d8" font-family="sans-serif" font-size="9" font-weight="700">5</text>
+          <text x="574" y="197" fill="var(--svg-text)" font-family="sans-serif" font-size="10" font-weight="600">Transformer</text>
+          <text x="574" y="211" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">KPI · pass rate · trend</text>
+          <text x="644" y="232" fill="var(--svg-muted)" font-family="sans-serif" font-size="11">↓</text>
+          <rect x="546" y="237" width="208" height="36" rx="6" fill="rgba(171,71,188,0.1)" stroke="rgba(171,71,188,0.2)" stroke-width="1"/>
+          <circle cx="560" cy="255" r="8" fill="rgba(171,71,188,0.3)"/><text x="556" y="259" fill="#ce93d8" font-family="sans-serif" font-size="9" font-weight="700">6</text>
+          <text x="574" y="251" fill="var(--svg-text)" font-family="sans-serif" font-size="10" font-weight="600">Publisher + Alert</text>
+          <text x="574" y="265" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">tabelle refined · Slack / email</text>
+        </g>
+
+        <!-- ===== SODA CLOUD ===== -->
+        <g id="dq-soda-node" style="opacity:0; transition: opacity 0.4s;">
+          <line x1="650" y1="280" x2="650" y2="300" stroke="rgba(21,101,192,0.5)" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <rect x="530" y="300" width="240" height="36" rx="10" fill="rgba(21,101,192,0.12)" stroke="rgba(21,101,192,0.4)" stroke-width="1.5"/>
+          <text x="555" y="316" fill="#90caf9" font-family="sans-serif" font-size="12" font-weight="700">☁️ SODA Cloud</text>
+          <text x="555" y="330" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">Dashboard · Alerting · Governance federata</text>
+        </g>
+
+        <!-- ===== ORCHESTRATOR ===== -->
+        <g id="dq-orch-node" style="opacity:0; transition: opacity 0.4s 0.2s;">
+          <rect x="30" y="300" width="240" height="36" rx="10" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.25)" stroke-width="1"/>
+          <text x="50" y="316" fill="#06b6d4" font-family="sans-serif" font-size="11" font-weight="700">🔁 Quality Orchestrator</text>
+          <text x="50" y="330" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">DAG Airflow dedicato · separato dalle pipeline</text>
+        </g>
+
+        <!-- Arrow markers -->
+        <defs>
+          <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="rgba(198,40,40,0.6)"/>
+          </marker>
+          <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="rgba(171,71,188,0.7)"/>
+          </marker>
+          <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="rgba(21,101,192,0.7)"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="fm-nav" style="flex-shrink:0;">
+      <button class="fm-btn fm-btn-sec" id="dqBtnPrev" onclick="dqStep(-1)" disabled>← Indietro</button>
+      <div class="fm-steps-track">
+        <div class="fm-step-dot" data-ddot="0"></div>
+        <div class="fm-step-dot" data-ddot="1"></div>
+        <div class="fm-step-dot" data-ddot="2"></div>
+        <div class="fm-step-dot" data-ddot="3"></div>
+        <div class="fm-step-dot" data-ddot="4"></div>
+        <div class="fm-step-dot" data-ddot="5"></div>
+      </div>
+      <button class="fm-btn fm-btn-pri" id="dqBtnNext" onclick="dqStep(1)">Avanti →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTROLLI MODAL -->
+<div class="flow-modal-overlay" id="controlliModalOverlay" onclick="if(event.target===this)closeControlliModal()">
+  <div class="flow-modal-box" style="max-width:860px;">
+    <button class="modal-close" onclick="closeControlliModal()">✕</button>
+
+    <div class="fm-step-desc" style="margin-bottom:20px;">
+      <span class="fm-step-num">🔍</span>
+      <span class="fm-step-label">Catalogo Controlli di Qualità — 3 categorie</span>
+    </div>
+
+    <div class="ctrl-grid">
+
+      <!-- CARD 1: PUNTUALI -->
+      <div class="ctrl-card ctrl-puntuale" id="ctrlCard1">
+        <div class="ctrl-card-header">
+          <div class="ctrl-badge" style="background:rgba(0,212,170,0.15);color:var(--teal);border-color:rgba(0,212,170,0.3);">Puntuali</div>
+          <div class="ctrl-icon">🎯</div>
+        </div>
+        <div class="ctrl-desc">Agiscono sul <strong>singolo campo</strong> di un'entità. Verificano formato, tipo, vincoli e obbligatorietà.</div>
+        <div class="ctrl-examples">
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.1s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">GPD</span>
+              <span class="ctrl-field">payment_date</span>
+              <span class="ctrl-result ctrl-pass">✓ PASS</span>
+            </div>
+            <div class="ctrl-ex-rule">not_null · is_not_empty</div>
+            <div class="ctrl-ex-val">valore: <code>2026-05-14</code></div>
+          </div>
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.25s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">FDR</span>
+              <span class="ctrl-field">amount</span>
+              <span class="ctrl-result ctrl-fail">✗ FAIL</span>
+            </div>
+            <div class="ctrl-ex-rule">is_positive · max_value(9999999)</div>
+            <div class="ctrl-ex-val">valore: <code>-150.00</code> ← negativo</div>
+          </div>
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.4s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">GEC</span>
+              <span class="ctrl-field">status_code</span>
+              <span class="ctrl-result ctrl-warn">⚠ WARN</span>
+            </div>
+            <div class="ctrl-ex-rule">is_in_set(['OK','KO','PENDING'])</div>
+            <div class="ctrl-ex-val">valore: <code>null</code> → soglia warn 5%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2: INTRA-ENTITÀ -->
+      <div class="ctrl-card ctrl-intra" id="ctrlCard2">
+        <div class="ctrl-card-header">
+          <div class="ctrl-badge" style="background:rgba(6,182,212,0.15);color:var(--cyan);border-color:rgba(6,182,212,0.3);">Intra-entità</div>
+          <div class="ctrl-icon">🔗</div>
+        </div>
+        <div class="ctrl-desc">Valutano la <strong>coerenza interna</strong> tra attributi della stessa entità o tabella.</div>
+        <div class="ctrl-examples">
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.15s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">GPD</span>
+              <span class="ctrl-field">date range</span>
+              <span class="ctrl-result ctrl-pass">✓ PASS</span>
+            </div>
+            <div class="ctrl-ex-rule">end_date &gt; start_date</div>
+            <div class="ctrl-ex-val"><code>2026-06-01</code> &gt; <code>2026-01-15</code> ✓</div>
+          </div>
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.3s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">FDR</span>
+              <span class="ctrl-field">totale</span>
+              <span class="ctrl-result ctrl-fail">✗ FAIL</span>
+            </div>
+            <div class="ctrl-ex-rule">total = sum(line_items)</div>
+            <div class="ctrl-ex-val">atteso: <code>1500.00</code> — trovato: <code>1480.00</code></div>
+          </div>
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.45s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">GEC</span>
+              <span class="ctrl-field">stato</span>
+              <span class="ctrl-result ctrl-pass">✓ PASS</span>
+            </div>
+            <div class="ctrl-ex-rule">if status=CLOSED → closed_at not null</div>
+            <div class="ctrl-ex-val">closed_at: <code>2026-04-30</code> ✓</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3: CROSS-ENTITÀ -->
+      <div class="ctrl-card ctrl-cross" id="ctrlCard3">
+        <div class="ctrl-card-header">
+          <div class="ctrl-badge" style="background:rgba(236,72,153,0.15);color:var(--pink);border-color:rgba(236,72,153,0.3);">Cross-entità</div>
+          <div class="ctrl-icon">🔀</div>
+        </div>
+        <div class="ctrl-desc">Confrontano dati tra <strong>tabelle o domini diversi</strong>. I più complessi, i più preziosi.</div>
+        <div class="ctrl-examples">
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.2s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">GPD × FDR</span>
+              <span class="ctrl-field">riconciliazione</span>
+              <span class="ctrl-result ctrl-pass">✓ PASS</span>
+            </div>
+            <div class="ctrl-ex-rule">gpd.debt_id must exist in fdr.debt_id</div>
+            <div class="ctrl-ex-val">referential integrity: <code>100%</code> match</div>
+          </div>
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.35s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">GPD × GEC</span>
+              <span class="ctrl-field">importo</span>
+              <span class="ctrl-result ctrl-fail">✗ FAIL</span>
+            </div>
+            <div class="ctrl-ex-rule">gpd.amount = gec.notified_amount</div>
+            <div class="ctrl-ex-val">disallineamento su <code>23</code> record</div>
+          </div>
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.5s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">Silver × Bronze</span>
+              <span class="ctrl-field">completezza</span>
+              <span class="ctrl-result ctrl-warn">⚠ WARN</span>
+            </div>
+            <div class="ctrl-ex-rule">row_count(silver) = row_count(bronze)</div>
+            <div class="ctrl-ex-val">silver: <code>99.7%</code> — soglia: <code>99.9%</code></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /ctrl-grid -->
+
+    <!-- Legend -->
+    <div class="ctrl-legend">
+      <span class="ctrl-result ctrl-pass" style="padding:4px 10px;border-radius:6px;">✓ PASS</span>
+      <span style="font-size:12px;color:var(--text-muted);">check superato</span>
+      <span class="ctrl-result ctrl-warn" style="padding:4px 10px;border-radius:6px;margin-left:16px;">⚠ WARN</span>
+      <span style="font-size:12px;color:var(--text-muted);">soglia warning superata</span>
+      <span class="ctrl-result ctrl-fail" style="padding:4px 10px;border-radius:6px;margin-left:16px;">✗ FAIL</span>
+      <span style="font-size:12px;color:var(--text-muted);">check fallito — alert inviato</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- BRANCHING MODEL MODAL -->
+<div class="flow-modal-overlay" id="branchModalOverlay" onclick="if(event.target===this)closeBranchingModal()">
+  <div class="flow-modal-box" style="max-width:860px;">
+    <button class="modal-close" onclick="closeBranchingModal()">✕</button>
+
+    <div class="fm-step-desc" id="bmStepDesc">
+      <span class="fm-step-num" id="bmStepNum">0 / 6</span>
+      <span class="fm-step-label" id="bmStepLabel">Clicca "Avanti" per iniziare</span>
+    </div>
+
+    <!-- Git diagram -->
+    <div class="bm-diagram" id="bmDiagram">
+
+      <!-- MAIN branch -->
+      <div class="bm-row bm-row-main">
+        <div class="bm-track-lbl">main</div>
+        <div class="bm-line-wrap">
+          <div class="bm-node bm-node-main bm-item" data-bstep="1" title="baseline stabile"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="1"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="1"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="1"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="1"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="1"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="1"></div>
+          <div class="bm-merge-point bm-item" data-bstep="5"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="5"></div>
+          <div class="bm-node bm-node-rc bm-item" data-bstep="5" title="rc tag"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="6"></div>
+          <div class="bm-node bm-node-release bm-item" data-bstep="6" title="Release 🎉"></div>
+        </div>
+      </div>
+
+      <!-- Labels above main -->
+      <div class="bm-labels-row bm-item" data-bstep="5">
+        <div class="bm-label-spacer"></div>
+        <div class="bm-label bm-label-merge">merge PR</div>
+        <div class="bm-label bm-label-rc">rc tag</div>
+        <div class="bm-label bm-label-rel">Release</div>
+      </div>
+
+      <!-- Connector lines (branch off / merge) -->
+      <div class="bm-connectors">
+        <div class="bm-fork bm-item" data-bstep="2"></div>
+        <div class="bm-join bm-item" data-bstep="5"></div>
+      </div>
+
+      <!-- FEATURE BRANCH -->
+      <div class="bm-row bm-row-fb">
+        <div class="bm-track-lbl bm-fb-lbl">feature<br>branch</div>
+        <div class="bm-line-wrap">
+          <div class="bm-spacer-2"></div>
+          <div class="bm-node bm-node-fb bm-item" data-bstep="2" title="FB creato"></div>
+          <div class="bm-seg bm-seg-fb bm-item" data-bstep="2"></div>
+          <!-- mock commits -->
+          <div class="bm-node bm-node-mock bm-item" data-bstep="3" title="test con mock"></div>
+          <div class="bm-seg bm-seg-fb bm-item" data-bstep="3"></div>
+          <div class="bm-node bm-node-mock bm-item" data-bstep="3" title="test con mock"></div>
+          <div class="bm-seg bm-seg-fb bm-item" data-bstep="3"></div>
+          <!-- DEV sync -->
+          <div class="bm-node bm-node-dev bm-item" data-bstep="4" title="test in DEV (no mock)"></div>
+          <div class="bm-seg bm-seg-fb bm-item" data-bstep="4"></div>
+          <!-- UAT sync -->
+          <div class="bm-node bm-node-uat bm-item" data-bstep="5" title="test in UAT → stabilizzazione"></div>
+        </div>
+      </div>
+
+      <!-- Sync point labels below FB -->
+      <div class="bm-sync-row">
+        <div class="bm-sync-spacer"></div>
+        <div class="bm-sync bm-item" data-bstep="2">
+          <div class="bm-sync-dot"></div>
+          <div class="bm-sync-label">FB creato<br><code>PQ-001-fdr_ta-impl</code></div>
+        </div>
+        <div class="bm-sync bm-item" data-bstep="3">
+          <div class="bm-sync-dot" style="background:var(--text-muted)"></div>
+          <div class="bm-sync-label">Suite TA<br>+ mock run</div>
+        </div>
+        <div class="bm-sync bm-item" data-bstep="4">
+          <div class="bm-sync-dot" style="background:var(--cyan)"></div>
+          <div class="bm-sync-label">Sync Point 1<br><strong style="color:var(--cyan)">DEV</strong> (no mock)</div>
+        </div>
+        <div class="bm-sync bm-item" data-bstep="5">
+          <div class="bm-sync-dot" style="background:var(--amber)"></div>
+          <div class="bm-sync-label">Sync Point 2<br><strong style="color:var(--amber)">UAT</strong> stabil.</div>
+        </div>
+        <div class="bm-sync bm-item" data-bstep="6">
+          <div class="bm-sync-dot" style="background:var(--teal)"></div>
+          <div class="bm-sync-label">Sync Point 3<br><strong style="color:var(--teal)">Quality Gate</strong></div>
+        </div>
+      </div>
+
+      <!-- Quality gate banner -->
+      <div class="bm-gate-banner bm-item" data-bstep="6">
+        🏁 Quality Gate — QA Lead + Resp. SL → <strong>go / no-go</strong> prima dell'esposizione in produzione
+      </div>
+
+    </div><!-- /bm-diagram -->
+
+    <div class="fm-nav">
+      <button class="fm-btn fm-btn-sec" id="bmBtnPrev" onclick="branchStep(-1)" disabled>← Indietro</button>
+      <div class="fm-steps-track" id="bmStepsTrack">
+        <div class="fm-step-dot" data-bdot="0"></div>
+        <div class="fm-step-dot" data-bdot="1"></div>
+        <div class="fm-step-dot" data-bdot="2"></div>
+        <div class="fm-step-dot" data-bdot="3"></div>
+        <div class="fm-step-dot" data-bdot="4"></div>
+        <div class="fm-step-dot" data-bdot="5"></div>
+        <div class="fm-step-dot" data-bdot="6"></div>
+      </div>
+      <button class="fm-btn fm-btn-pri" id="bmBtnNext" onclick="branchStep(1)">Avanti →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openImgModal() {}
+function closeImgModal() {}
+
+// CONTROLLI MODAL
+function openControlliModal() {
+  document.getElementById('controlliModalOverlay').classList.add('open');
+  // Re-trigger animations
+  document.querySelectorAll('.ctrl-ex-anim').forEach(el => {
+    el.style.animation = 'none';
+    void el.offsetHeight;
+    el.style.animation = '';
+  });
+}
+function closeControlliModal() {
+  document.getElementById('controlliModalOverlay').classList.remove('open');
+}
+
+// ARCHITECTURE MODAL
+const ARCH_LABELS = [
+  'Clicca "Avanti" per iniziare',
+  '🗄️ Le sorgenti — GPD, GEC, FDR estraggono i dati via CDC e pubblicano su topic Kafka',
+  '📥 Ingestion nel Data Lake — il Team Data Lake scrive ogni evento nelle tabelle Bronze',
+  '🥈 Consolidamento in Silver — deduplication e normalizzazione · ownership QA per la qualità',
+  '🥇 Gold — Data Product consumer-aligned per gli use-case di business',
+  '⚙️ Data Quality Framework + SODA Cloud — controlli trasversali su Silver e Gold'
+];
+const ARCH_MAX = 5;
+let currentArchStep = 0;
+
+function openArchModal() {
+  currentArchStep = 0;
+  document.getElementById('archModalOverlay').classList.add('open');
+  renderArchDiagram();
+}
+function closeArchModal() { document.getElementById('archModalOverlay').classList.remove('open'); }
+function archStep(dir) {
+  const next = currentArchStep + dir;
+  if (next < 0 || next > ARCH_MAX) return;
+  currentArchStep = next;
+  renderArchDiagram();
+}
+function renderArchDiagram() {
+  let delay = 0;
+  document.querySelectorAll('#archDiagram .arch-item').forEach(el => {
+    const s = parseInt(el.dataset.astep || '99');
+    if (s <= currentArchStep) {
+      if (!el.classList.contains('arch-visible')) {
+        el.style.transitionDelay = delay + 'ms';
+        delay += 50;
+        el.classList.add('arch-visible');
+      }
+    } else {
+      el.style.transitionDelay = '0ms';
+      el.classList.remove('arch-visible');
+    }
+  });
+  document.getElementById('archStepNum').textContent = currentArchStep + ' / ' + ARCH_MAX;
+  document.getElementById('archStepLabel').textContent = ARCH_LABELS[currentArchStep];
+  document.getElementById('archBtnPrev').disabled = currentArchStep === 0;
+  document.getElementById('archBtnNext').disabled = currentArchStep === ARCH_MAX;
+  document.querySelectorAll('#archModalOverlay .fm-step-dot').forEach(dot => {
+    dot.classList.toggle('active', parseInt(dot.dataset.adot) === currentArchStep);
+  });
+}
+
+// DQ FRAMEWORK MODAL
+const DQ_LABELS = [
+  'Clicca "Avanti" per iniziare',
+  '📄 Il Data Contract è la fonte unica di verità — definisce le regole di qualità a runtime',
+  '⚙️ Il Modulo di Quality legge le regole, esegue i check con SODA + Impala, scrive i risultati',
+  '💾 Il Results Writer persiste gli esiti grezzi nel Data Lake (pass / warning / fail per check)',
+  '📡 Il Modulo di Observability aggrega i risultati, calcola KPI e pubblica alert verso i team',
+  '☁️ SODA Cloud centralizza dashboard, alerting e governance · Orchestrator Airflow coordina tutto'
+];
+const DQ_SVG_STEPS = {
+  1: ['dq-dc'],
+  2: ['dq-quality'],
+  3: ['dq-writer'],
+  4: ['dq-obs'],
+  5: ['dq-soda-node', 'dq-orch-node']
+};
+const DQ_MAX = 5;
+let currentDQStep = 0;
+
+function openDQModal() {
+  currentDQStep = 0;
+  document.getElementById('dqModalOverlay').classList.add('open');
+  renderDQDiagram();
+}
+function closeDQModal() { document.getElementById('dqModalOverlay').classList.remove('open'); }
+function dqStep(dir) {
+  const next = currentDQStep + dir;
+  if (next < 0 || next > DQ_MAX) return;
+  currentDQStep = next;
+  renderDQDiagram();
+}
+function renderDQDiagram() {
+  // Show/hide SVG groups based on step
+  for (let s = 1; s <= DQ_MAX; s++) {
+    const ids = DQ_SVG_STEPS[s] || [];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.opacity = s <= currentDQStep ? '1' : '0';
+    });
+  }
+  // Light mode: fix text colors
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  document.getElementById('dqStepNum').textContent = currentDQStep + ' / ' + DQ_MAX;
+  document.getElementById('dqStepLabel').textContent = DQ_LABELS[currentDQStep];
+  document.getElementById('dqBtnPrev').disabled = currentDQStep === 0;
+  document.getElementById('dqBtnNext').disabled = currentDQStep === DQ_MAX;
+  document.querySelectorAll('#dqModalOverlay .fm-step-dot').forEach(dot => {
+    dot.classList.toggle('active', parseInt(dot.dataset.ddot) === currentDQStep);
+  });
+}
+
+// BRANCHING MODAL
+const BM_STEPS_LABELS = [
+  'Clicca "Avanti" per iniziare',
+  '🌿 Il branch main contiene la baseline stabile delle suite automatiche',
+  '🔀 Si crea un feature branch (FB) dal main — naming: <ISSUE_ID>-<SUITE_NAME>-<DESC>',
+  '🤖 Implementazione suite TA sul FB — i run usano mock che simulano il Test Object',
+  '🔵 Sync Point 1 — il TO è deployato in DEV: si eseguono i test reali (no mock)',
+  '🟡 Sync Point 2 — TO in UAT: stabilizzazione suite, merge PR su main, tag release candidate',
+  '🏁 Sync Point 3 — Quality Gate: go/no-go definitivo → tag release finale'
+];
+const BM_MAX = 6;
+let currentBMStep = 0;
+
+function openBranchingModal() {
+  currentBMStep = 0;
+  document.getElementById('branchModalOverlay').classList.add('open');
+  renderBranchDiagram();
+}
+function closeBranchingModal() {
+  document.getElementById('branchModalOverlay').classList.remove('open');
+}
+function branchStep(dir) {
+  const next = currentBMStep + dir;
+  if (next < 0 || next > BM_MAX) return;
+  currentBMStep = next;
+  renderBranchDiagram();
+}
+function renderBranchDiagram() {
+  let delay = 0;
+  document.querySelectorAll('#bmDiagram .bm-item').forEach(el => {
+    const s = parseInt(el.dataset.bstep || '99');
+    if (s <= currentBMStep) {
+      if (!el.classList.contains('bm-visible')) {
+        el.style.transitionDelay = delay + 'ms';
+        delay += 40;
+        el.classList.add('bm-visible');
+      }
+    } else {
+      el.style.transitionDelay = '0ms';
+      el.classList.remove('bm-visible');
+    }
+  });
+  document.getElementById('bmStepNum').textContent = currentBMStep + ' / ' + BM_MAX;
+  document.getElementById('bmStepLabel').textContent = BM_STEPS_LABELS[currentBMStep];
+  document.getElementById('bmBtnPrev').disabled = currentBMStep === 0;
+  document.getElementById('bmBtnNext').disabled = currentBMStep === BM_MAX;
+  document.querySelectorAll('#bmStepsTrack .fm-step-dot').forEach(dot => {
+    dot.classList.toggle('active', parseInt(dot.dataset.bdot) === currentBMStep);
+  });
+}
+
+// FLOW MODAL
+const FLOW_STEPS_LABELS = [
+  'Clicca "Avanti" per iniziare',
+  '📐 Le fasi del progetto e il Monitoring & Control trasversale',
+  '🚀 INIT — Allineamento stakeholder, kickoff e definizione requisiti',
+  '📋 PLANNING — QA entra in gioco fin dalla scrittura degli artifact Jira',
+  '⚙️ EXECUTION — Sprint iterativi con QA in parallelo: suite TA e run automatici',
+  '🏁 CLOSING — Quality Assurance Gate: go / no-go prima del rilascio'
+];
+let currentFlowStep = 0;
+const FLOW_MAX = 5;
+
+function openFlowModal() {
+  currentFlowStep = 0;
+  document.getElementById('flowModalOverlay').classList.add('open');
+  renderFlowDiagram();
+}
+function closeFlowModal() {
+  document.getElementById('flowModalOverlay').classList.remove('open');
+}
+function flowStep(dir) {
+  const next = currentFlowStep + dir;
+  if (next < 0 || next > FLOW_MAX) return;
+  currentFlowStep = next;
+  renderFlowDiagram();
+}
+function renderFlowDiagram() {
+  const items = document.querySelectorAll('#flowDiagram .flow-item');
+  let delay = 0;
+  items.forEach(el => {
+    const s = parseInt(el.dataset.fstep || '99');
+    if (s <= currentFlowStep) {
+      if (!el.classList.contains('fi-visible')) {
+        el.style.transitionDelay = delay + 'ms';
+        delay += 55;
+        el.classList.add('fi-visible');
+      }
+    } else {
+      el.style.transitionDelay = '0ms';
+      el.classList.remove('fi-visible');
+    }
+  });
+  document.getElementById('fmStepNum').textContent = currentFlowStep + ' / ' + FLOW_MAX;
+  document.getElementById('fmStepLabel').textContent = FLOW_STEPS_LABELS[currentFlowStep];
+  document.getElementById('fmBtnPrev').disabled = currentFlowStep === 0;
+  document.getElementById('fmBtnNext').disabled = currentFlowStep === FLOW_MAX;
+  document.querySelectorAll('.fm-step-dot').forEach(dot => {
+    dot.classList.toggle('active', parseInt(dot.dataset.dot) === currentFlowStep);
+  });
+}
+
+// Theme switcher
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-theme-val') === theme);
+  });
+}
+
+// Modal system
+const modalData = {
+  manifesto: {
+    title: '🏛️ Quality Manifesto — I 6 Principi',
+    type: 'cards',
+    items: [
+      { icon: '📣', over: 'Quality Advocacy', under: 'Quality Assurance', desc: 'Diffondere la consapevolezza della qualità in tutta l\'organizzazione, dall\'ideazione fino all\'uso del prodotto.' },
+      { icon: '❤️', over: 'Customer Needs', under: 'Requirement Specifications', desc: 'Le esigenze del cliente sempre in primo piano: "Il prodotto sta offrendo valore reale?"' },
+      { icon: '🤝', over: 'Team Responsibility for Quality', under: 'Tester\'s Responsibility', desc: 'L\'intero team è responsabile della qualità. Cultura della retrospettiva, non della colpa.' },
+      { icon: '🔭', over: 'Exploratory Testing', under: 'Scripted Testing', desc: 'Il valore del QA è nella mente creativa: investigare, esplorare, scoprire l\'ignoto e i casi limite.' },
+      { icon: '🧱', over: 'Bake Quality In', under: 'Breaking It', desc: 'Integrare la qualità fin dall\'inizio. Coinvolgimento precoce, testing continuo, feedback rapidi.' },
+      { icon: '🤖', over: 'Automated Checking', under: 'Manual Testing', desc: 'L\'automazione libera tempo per scoprire ciò che le macchine non possono vedere.' }
+    ]
+  },
+  raci: {
+    title: '🏛️ Struttura Organizzativa & RACI',
+    items: [
+      { num: 'MGR', title: 'QA Manager', desc: 'Supervisione strategica, escalation decisioni critiche, validazione Go/No-Go su rilasci ad alto rischio, interfaccia con il senior management.' },
+      { num: 'LDR', title: 'QA Lead', desc: 'Responsabile operativo del team. Guida la board Kanban, coordina i QA Analyst e Engineer, è Accountable per quasi tutte le attività di testing.' },
+      { num: 'ANL', title: 'QA Analyst', desc: 'Comprensione requisiti, progettazione scenari e casi di test, scrittura test manuali, esecuzione e analisi reportistica.' },
+      { num: 'ENG', title: 'QA Engineer', desc: 'Sviluppo e manutenzione suite automatiche, esecuzione test automatici, analisi reportistica automatizzata, manutenzione codebase.' },
+      { num: 'RACI', title: 'Matrice di Responsabilità', desc: '9 attività coperte: comprensione requisiti, test manuali/automatici, esecuzione, analisi, Go/No-Go, checklist di rilascio. Responsabilità condivise con Product Team e SL Product Manager.' }
+    ]
+  },
+  branching: {
+    title: '🔀 Branching Model & Dual-Track',
+    items: [
+      { num: '01', title: 'Feature Branch Workflow', desc: 'Ogni nuova suite o modifica parte da un feature branch su main. Naming: <ISSUE_ID>-<SUITE_NAME>-<FEATURE_DESC>. La PR viene aperta alla prima push.' },
+      { num: '02', title: 'Parallelismo Dual-Track', desc: 'QA Automation e sviluppo applicativo partono in contemporanea. Il team QA sviluppa le suite con mock che simulano il comportamento del Test Object.' },
+      { num: '03', title: 'Sync Point 1 — DEV', desc: 'Shift Left: appena il Test Object è deployato in DEV, il QA esegue la suite reale. Bug trovati prima che il TO arrivi su main.' },
+      { num: '04', title: 'Sync Point 2 — UAT', desc: 'Stabilizzazione della suite con TO ufficiale. Il team QA effettua il merge su main solo dopo verifica della stabilità in UAT.' },
+      { num: '05', title: 'Sync Point 3 — Quality Gate', desc: 'QA Lead e Responsabile SL determinano il go/no-go per la produzione. Tag di release candidate con naming <SUITE>/v<VERSION>-rc<N>.' }
+    ]
+  },
+  dashboard: {
+    title: '📊 Dashboard One — KPI di Qualità',
+    items: [
+      { num: '01', title: 'Monitoraggio Operativo', desc: 'Lead Time per tipo di attività, throughput del team, Work In Progress per swim lane, velocity sprint-over-sprint. Tutto live su Jira.' },
+      { num: '02', title: 'Qualità & Bug Detection', desc: 'Defect Rate per sprint, bug trovati in QA vs trovati in prod, severity distribution, reopen rate. Tendenza al miglioramento misurabile.' },
+      { num: '03', title: 'Insights & Trend', desc: 'Analisi storica dei trend qualità, copertura test per progetto, pass rate delle suite automatiche, tempo medio di risoluzione anomalie.' }
+    ]
+  },
+  architettura: {
+    title: '🏗️ Architettura Data Lake',
+    items: [
+      { num: '01', title: 'Data Extraction — Sorgenti', desc: 'GPD, GEC, FDR espongono i propri dati tramite Change Data Capture (CDC). Gli eventi vengono pubblicati su topic Kafka (Azure Event Hubs), uno per entità.' },
+      { num: '02', title: 'Bronze — Dato grezzo', desc: 'Il Team Data Lake gestisce l\'ingestion dai topic Kafka e scrive ogni evento nelle tabelle Bronze. Nessuna trasformazione: dato fedele alla sorgente.' },
+      { num: '03', title: 'Silver — Source-aligned', desc: 'Deduplication e consolidamento del dato. Le tabelle Silver sono la base per i controlli di qualità del Team QA-pagoPA.' },
+      { num: '04', title: 'Gold — Consumer-aligned', desc: 'Data Product costruiti per use-case specifici di business. Entità derivate da più sorgenti (es. GPD+GEC+FDR). Ownership al team che gestisce lo use-case.' },
+      { num: '05', title: 'Data Quality Framework', desc: 'Componente trasversale che agisce sul layer Silver e Gold. Legge le regole dai Data Contract ed esegue i controlli tramite SODA su Impala/Cloudera.' }
+    ]
+  },
+  datacontract: {
+    title: '📄 Data Contract',
+    items: [
+      { num: '01', title: 'Cos\'è', desc: 'Interfaccia formale tra chi produce e chi consuma i dati. Descrive struttura, semantica degli eventi e configurazione dei controlli di qualità. Non solo documentazione: artefatto attivo.' },
+      { num: '02', title: 'Data Contract sui Topic Kafka', desc: 'Il Team Core & Touchpoint redige un contratto per ogni entità estratta dalla sorgente. Definisce campi, tipi e semantica degli eventi pubblicati sul topic.' },
+      { num: '03', title: 'Data Contract sulle tabelle Silver', desc: 'Eredita la struttura dal topic e aggiunge la sezione di quality: qui vengono dichiarati i controlli da eseguire sul dato atterrato nel lake.' },
+      { num: '04', title: 'Data Contract sui Data Product', desc: 'Ogni Data Product consumer-aligned ha il proprio contratto che descrive le entità esposte e i controlli di qualità applicati a quel livello.' },
+      { num: '05', title: 'Artefatto attivo', desc: 'Il Data Quality Framework legge la configurazione dei controlli direttamente dal Data Contract a runtime. Qualità e contratto sono sempre allineati (contract-driven quality).' }
+    ]
+  },
+  dqframework: {
+    title: '⚙️ Data Quality Framework',
+    items: [
+      { num: '01', title: 'Modulo di Quality', desc: 'Contract Validator & Parser legge le regole dal Data Contract. Il Quality Engine (SODA + Impala) esegue i check. Il Quality Results Writer scrive gli esiti su tabelle dedicate nel Data Lake.' },
+      { num: '02', title: 'Modulo di Observability', desc: 'Quality Results Reader legge gli esiti grezzi. Il Transformer calcola KPI aggregati (pass rate, score, trend). Il Publisher propaga i risultati verso SODA Cloud e scrive tabelle refined.' },
+      { num: '03', title: 'Orchestrazione', desc: 'DAG Airflow dedicato (Quality Orchestrator) che schedula i due moduli in sequenza. Separato dai DAG delle pipeline dati principali: disaccoppiamento totale.' },
+      { num: '04', title: 'Observability Platform — SODA Cloud', desc: 'Dashboard centralizzata per monitorare la qualità di tutti i domini. Alerting configurabile per canale (Slack, email) verso i team owner dei dati.' },
+      { num: '05', title: 'Principi guida', desc: 'Contract-driven quality · Centralizzazione a livello di piattaforma · Disaccoppiamento dalla pipeline principale · Standardizzazione degli output.' }
+    ]
+  },
+  controlli: {
+    title: '🔍 Catalogo Controlli di Qualità',
+    items: [
+      { num: '01', title: 'Controlli Puntuali', desc: 'Agiscono sui singoli campi di un\'entità. Verificano formato, tipo di dato, rispetto di vincoli specifici (es. campo non nullo, range di valori, pattern regex).' },
+      { num: '02', title: 'Controlli Intra-entità', desc: 'Valutano la coerenza tra attributi della stessa entità o dello stesso data asset (es. data fine deve essere successiva a data inizio).' },
+      { num: '03', title: 'Controlli Cross-entità', desc: 'Richiedono il confronto tra più tabelle o tra entità provenienti da domini diversi (es. verifica di integrità referenziale tra GPD e GEC).' },
+      { num: '04', title: 'Entità coperte', desc: 'Catalogo attivo su GPD (General Purpose Debt), GEC, FDR (Flussi di Rendicontazione) e altre entità principali del dominio pagamenti.' },
+      { num: '05', title: 'Output dei controlli', desc: 'Per ogni check: timestamp, nome e descrizione controllo, soglia definita, valore misurato, esito (pass/warning/fail). Storicizzati per analisi di trend.' }
+    ]
+  },
+  coordinamento: {
+    title: '🤝 Coordinamento Inter-team',
+    items: [
+      { num: '01', title: 'QA Internal Sync — Settimanale', desc: 'Review avanzamento Data Quality e Data Strategy all\'interno del Team QA pagoPA. Discussione evolutive, prioritizzazione portfolio, decisioni via ADR/GDR.' },
+      { num: '02', title: 'Data Lake Sync — Sett. → Bisettimanale', desc: 'Tavolo tra Team Data Lake, Team QA pagoPA e Team Strategic Coordination. Nuovi requisiti di business, issue su servizi di piattaforma, policy e standard globali.' },
+      { num: '03', title: 'Federated DQ Committee — Bisettimanale', desc: 'Organo di coordinamento dedicato alla Data Quality. Definisce i controlli da implementare, raccoglie requisiti di qualità dai team a valle, raccorda con il Data Lake.' }
+    ]
+  },
+  confluence: {
+    title: '📚 Spazio Confluence QA TS300',
+    items: [
+      { num: '01', title: 'Visione e Strategia (Il "Perché")', desc: 'Manifesto della Qualità, QAdro (modello valutazione pratiche QA), checklist di readiness per adozione qualità.' },
+      { num: '02', title: 'Governance e Organizzazione (Il "Chi")', desc: 'Struttura organizzativa con RACI, responsabilità QA/QE Lead, modalità di ingaggio, elenco team, stakeholder Data Quality.' },
+      { num: '03', title: 'Processo e Operatività (Il "Come")', desc: 'Checklist governance, processo QA, cadence Kanban, organizzazione Jira, branching model, linee guida release, CI/CD, ISO 9001.' },
+      { num: '04', title: 'Metriche, Report e Data Quality (I "Risultati")', desc: 'Dashboard dimensioni e metriche, Dashboard One, catalogo controlli Data Quality, Solution Blueprint.' },
+      { num: '05', title: 'Standard, Template e Checklist', desc: 'Release QA CheckList template, template analisi RUN, documentazione valorizzazione card Jira.' }
+    ]
+  },
+  jira: {
+    title: '📋 Board Jira Strutturate',
+    items: [
+      { num: '01', title: 'Testing Board (Kanban)', desc: 'Board principale per tutte le attività di testing: epic per evolutive, bug fixing, NRT, manutenzione codebase. 6 categorie di epic con task type dedicati.' },
+      { num: '02', title: 'Internal Task Board', desc: 'Board per i progetti interni di sviluppo dell\'ecosistema QA: analisi, progettazione e implementazione deliverable, knowledge transfer.' },
+      { num: '03', title: 'Data Quality Board', desc: 'Board dedicata alle attività di Data Quality: controlli di qualità, Data Contract, Data Product, monitoraggio e governance del dato.' }
+    ]
+  },
+  hiring: {
+    title: '👥 Piano di Hiring',
+    items: [
+      { num: '01', title: 'QA Analyst (1 risorsa)', desc: 'Comprensione requisiti, progettazione scenari e casi di test, analisi risultati, reportistica manuale.' },
+      { num: '02', title: 'QA Engineer — Automazione (2 risorse)', desc: 'Implementazione suite di test automatici, sviluppo e manutenzione codebase di testing, integrazione CI/CD.' },
+      { num: '03', title: 'QA Engineer — Framework (1 risorsa)', desc: 'Supporto allo sviluppo dell\'ecosistema QA, tooling, automazione operativa, template e blueprint.' },
+      { num: '04', title: 'Data Quality Support (1 risorsa)', desc: 'Supporto all\'implementazione del Data Quality Framework, sviluppo controlli, gestione Data Contract su Cloudera.' }
+    ]
+  },
+  cerimonie: {
+    title: '🔄 Le 6 Cadence per la Qualità',
+    items: [
+      { num: '01', title: 'Release Strategy Review — Trimestrale', desc: 'Definisce i cambiamenti strategici per l\'evoluzione del team, dell\'architettura e degli strumenti.' },
+      { num: '02', title: 'Release Operations Review — Mensile', desc: 'Analizza il flusso per identificare problemi sistemici e colli di bottiglia da risolvere.' },
+      { num: '03', title: 'Release Service Delivery Review — Bisettimanale', desc: 'Monitora le metriche di performance del team QA (es. Lead Time, Defect Rate).' },
+      { num: '04', title: 'Release Replenishment Meeting — Settimanale', desc: 'Pianifica il lavoro della settimana, allineando la capacità del team con le roadmap di prodotto.' },
+      { num: '05', title: 'Kanban Delivery Meeting — 2-4x settimana', desc: 'Valida la solidità tecnica del lavoro in corso tramite revisioni e critiche costruttive.' },
+      { num: '06', title: 'Daily QA — Giornaliero', desc: 'Allineamento tattico per gestire il flusso, rimuovere blocchi e pianificare la giornata.' }
+    ]
+  },
+  pilota: {
+    title: '🎯 Progetti Pilota',
+    items: [
+      { num: '01', title: 'Canone Unico Patrimoniale (CUP-2027)', desc: 'Nuovo servizio di pagamento. Primo progetto su cui calare l\'intero framework QA dalla comprensione requisiti al Quality Gate, inclusi BDD Gherkin feature files.' },
+      { num: '02', title: 'Checkout', desc: 'Componente critico del flusso di pagamento. Applicazione del processo di QA integrato con il team di prodotto e automazione test.' },
+      { num: '03', title: 'Flussi di Rendicontazione (FdR)', desc: 'Sistema con automazione preesistente (FdR Test). Evoluzione e integrazione nel nuovo framework di branching, CI/CD e Quality Gate.' }
+    ]
+  },
+  adr: {
+    title: '📄 Decision Record Documentati',
+    items: [
+      { num: 'ADR', title: 'ADR-002 Data Quality Framework', desc: 'Architettura del framework con Modulo Quality (SODA + Impala) e Modulo Observability. Contract-driven quality, orchestrazione Airflow.' },
+      { num: 'ADR', title: 'ADR-003 Observability Platform', desc: 'SODA Cloud come piattaforma centralizzata di observability. Modello push, dashboard, alerting configurabile.' },
+      { num: 'GDR', title: 'GDR-001 Modello Operativo', desc: 'Definizione dei 3 stream (Platform, Governance, Prodotto), unità esecutive inter-funzionali e cadence di coordinamento.' },
+      { num: 'RFC', title: 'RFC — Stack Tecnologico QA', desc: 'Standardizzazione dello stack per la QA Automation a livello dipartimentale.' },
+      { num: 'RFC', title: 'RFC — Lingua Ufficiale dei Test', desc: 'Definizione della lingua ufficiale con cui scrivere i test case e i feature file Gherkin.' }
+    ]
+  },
+  streams: {
+    title: '🔀 I 3 Stream Operativi Data',
+    items: [
+      { num: '🔧', title: 'Stream Platform', desc: 'Realizzare e mantenere le capability per il Data Quality Framework e i Data Product. Standard architetturali, template, provisioning infrastrutturale.' },
+      { num: '📜', title: 'Stream Governance', desc: 'Processi di governance e Data Quality, perimetro domini e Data Product, policy e regole di utilizzo, definizione e uso dei Data Contract.' },
+      { num: '📦', title: 'Stream Prodotto', desc: 'Progettare e realizzare i Data Product per gli use-case di business. Modello dati, componenti applicative, porte di accesso, controlli DQ, ciclo di vita.' }
+    ]
+  }
+};
+
+function openModal(key) {
+  const data = modalData[key];
+  if (!data) return;
+  let html = '<h3 style="margin-bottom:24px;">' + data.title + '</h3>';
+
+  if (data.type === 'cards') {
+    html += '<div class="modal-cards-grid">';
+    data.items.forEach(item => {
+      html += '<div class="modal-card">' +
+        '<div class="mc-icon">' + item.icon + '</div>' +
+        '<div class="mc-over">' + item.over + '</div>' +
+        '<div class="mc-vs">over</div>' +
+        '<div class="mc-under">' + item.under + '</div>' +
+        '<div class="mc-desc">' + item.desc + '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+  } else {
+    data.items.forEach(item => {
+      html += '<div class="modal-item">' +
+        '<div class="modal-item-num">' + item.num + '</div>' +
+        '<div class="modal-item-body"><h4>' + item.title + '</h4>' +
+        '<p>' + item.desc + '</p></div></div>';
+    });
+  }
+
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeModal(); closeFlowModal(); closeBranchingModal(); closeArchModal(); closeDQModal(); closeControlliModal(); closeImgModal(); }
+});
+
+(function() {
+  const deck = document.getElementById('deck');
+  const slides = deck.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let transitioning = false;
+
+  // Build nav dots
+  const navDots = document.getElementById('navDots');
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    navDots.appendChild(dot);
+  });
+
+  function updateUI() {
+    document.getElementById('progressBar').style.width = ((current / (total - 1)) * 100) + '%';
+    document.getElementById('slideCounter').textContent = (current + 1) + ' / ' + total;
+    navDots.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    document.getElementById('scrollHint').style.display = current === 0 ? '' : 'none';
+  }
+
+  function goTo(idx) {
+    if (idx === current || idx < 0 || idx >= total || transitioning) return;
+    transitioning = true;
+    const dir = idx > current ? 1 : -1;
+    const prev = slides[current];
+    const next = slides[idx];
+
+    // Exit the previous slide
+    prev.classList.remove('active');
+    if (dir > 0) {
+      prev.classList.add('exit-up');
+    } else {
+      prev.classList.add('exit-down');
+    }
+
+    // Prepare the next slide off-screen (no transition yet)
+    next.classList.add('no-transition');
+    if (dir > 0) {
+      next.style.transform = 'translateY(40px)';
+    } else {
+      next.style.transform = 'translateY(-40px)';
+    }
+    next.style.opacity = '0';
+
+    // Force reflow, then animate in
+    void next.offsetHeight;
+    next.classList.remove('no-transition');
+    next.classList.add('active');
+    next.style.transform = '';
+    next.style.opacity = '';
+
+    // Cleanup after transition
+    setTimeout(() => {
+      prev.classList.remove('exit-up', 'exit-down');
+      prev.style.transform = '';
+      prev.style.opacity = '';
+      transitioning = false;
+    }, 700);
+
+    current = idx;
+    updateUI();
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (document.getElementById('modalOverlay').classList.contains('open')) return;
+    if (document.getElementById('flowModalOverlay').classList.contains('open')) return;
+    if (document.getElementById('branchModalOverlay').classList.contains('open')) return;
+    if (document.getElementById('archModalOverlay').classList.contains('open')) return;
+    if (document.getElementById('dqModalOverlay').classList.contains('open')) return;
+    if (document.getElementById('controlliModalOverlay').classList.contains('open')) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault(); goTo(current + 1);
+    }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault(); goTo(current - 1);
+    }
+    if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+  });
+
+  // Wheel
+  let wheelTimeout;
+  deck.addEventListener('wheel', e => {
+    // Check if the active slide has scrollable content
+    const activeSlide = slides[current];
+    const scrollEl = activeSlide.querySelector('.slide-scroll');
+    if (scrollEl) {
+      const atTop = scrollEl.scrollTop <= 0;
+      const atBottom = scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 5;
+      if ((e.deltaY > 0 && !atBottom) || (e.deltaY < 0 && !atTop)) return;
+    }
+    e.preventDefault();
+    clearTimeout(wheelTimeout);
+    wheelTimeout = setTimeout(() => {
+      if (e.deltaY > 0) goTo(current + 1);
+      else goTo(current - 1);
+    }, 80);
+  }, { passive: false });
+
+  // Touch
+  let touchY;
+  deck.addEventListener('touchstart', e => { touchY = e.touches[0].clientY; });
+  deck.addEventListener('touchend', e => {
+    const dy = touchY - e.changedTouches[0].clientY;
+    if (Math.abs(dy) > 50) {
+      dy > 0 ? goTo(current + 1) : goTo(current - 1);
+    }
+  });
+
+  updateUI();
+})();
+</script>
+</body>
+</html>
