@@ -737,6 +737,10 @@ h3 {
   gap: 16px;
   margin-top: 4px;
 }
+.fw-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
 .fw-tile {
   display: flex;
   align-items: center;
@@ -995,6 +999,137 @@ h3 {
   background: var(--teal); width: 24px; border-radius: 4px;
   box-shadow: 0 0 8px rgba(0,212,170,0.4);
 }
+
+/* TMM MATRIX */
+.tmm-table { border-collapse:collapse; width:100%; min-width:580px; font-family:var(--font-mono); font-size:9px; }
+.tmm-table th, .tmm-table td { padding:2px 3px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.04); }
+.tmm-table td.tmm-name { text-align:left; padding:2px 7px; color:var(--text-dim); white-space:nowrap; font-family:var(--font-body); font-size:10px; }
+.tmm-table td.tmm-id { color:var(--text-muted); min-width:22px; }
+.tmm-c0 { background:rgba(245,158,11,0.07); }
+.tmm-c1 { background:rgba(6,182,212,0.04); }
+.tmm-c2 { background:rgba(0,212,170,0.04); }
+.tmm-c3 { background:rgba(236,72,153,0.04); }
+.tmm-ltr { display:inline-block; width:10px; height:10px; border-radius:2px; font-size:0; vertical-align:middle; }
+.tmm-c0 .tmm-ltr { background:var(--amber); }
+.tmm-c1 .tmm-ltr { background:var(--cyan); }
+.tmm-c2 .tmm-ltr { background:var(--teal); }
+.tmm-c3 .tmm-ltr { background:var(--pink); }
+.tmm-picco { background:var(--teal) !important; box-shadow:0 0 6px rgba(0,212,170,0.5); border-radius:2px; padding:0; }
+.tmm-row-picco td.tmm-name { color:var(--teal); font-weight:600; }
+.tmm-row-picco td.tmm-id { color:var(--teal); }
+[data-theme="light"] .tmm-table th, [data-theme="light"] .tmm-table td { border-bottom-color:rgba(0,0,0,0.05); }
+[data-theme="light"] .tmm-c0 { background:rgba(245,158,11,0.09); }
+[data-theme="light"] .tmm-c1 { background:rgba(6,182,212,0.06); }
+[data-theme="light"] .tmm-c2 { background:rgba(0,212,170,0.06); }
+[data-theme="light"] .tmm-c3 { background:rgba(236,72,153,0.06); }
+
+/* QADRO MODAL */
+.qadro-notice {
+  padding: 10px 16px; border-radius: 10px; margin-bottom: 16px;
+  background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.2);
+  font-size: 12px; color: var(--text-dim); line-height: 1.6;
+}
+.qadro-notice strong { color: var(--cyan); }
+[data-theme="light"] .qadro-notice { background: rgba(8,145,178,0.05); }
+
+.qadro-acronym {
+  display: flex; align-items: center; justify-content: center;
+  gap: 4px; margin-bottom: 18px;
+  padding: 12px 16px; border-radius: 10px;
+  background: var(--surface2);
+}
+.qadro-letter { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.ql-big { font-family: var(--font-display); font-size: 26px; font-weight: 900; color: var(--teal); line-height: 1; }
+.ql-small { font-size: 9px; color: var(--text-muted); font-family: var(--font-mono); letter-spacing: 0.5px; white-space: nowrap; }
+.qadro-arrow-h { font-size: 16px; color: var(--text-muted); padding: 0 4px; }
+
+.qadro-cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+.qadro-cat {
+  padding: 12px 14px; border-radius: 10px; cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--surface); transition: all 0.2s; text-align: center;
+}
+[data-theme="light"] .qadro-cat { border-color: rgba(0,0,0,0.08); }
+.qadro-cat:hover { border-color: var(--teal); }
+.qadro-cat-active { border-color: var(--teal) !important; background: rgba(0,212,170,0.07) !important; }
+.qadro-cat-pct { font-family: var(--font-display); font-size: 28px; font-weight: 900; color: var(--teal); line-height: 1; }
+.qadro-cat-name { font-size: 11px; color: var(--text-dim); margin-top: 4px; line-height: 1.35; }
+.qadro-cat-min { font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); margin-top: 4px; }
+
+.qadro-detail-panel {
+  background: var(--surface); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px; padding: 14px 16px; min-height: 100px;
+  margin-bottom: 12px;
+}
+[data-theme="light"] .qadro-detail-panel { border-color: rgba(0,0,0,0.08); }
+.qadro-criterion {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 12px; color: var(--text-dim); line-height: 1.5;
+}
+[data-theme="light"] .qadro-criterion { border-bottom-color: rgba(0,0,0,0.05); }
+.qadro-criterion:last-child { border-bottom: none; }
+.qadro-crit-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--teal);
+  flex-shrink: 0; margin-top: 5px;
+}
+
+.qadro-blockers {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 8px 14px; border-radius: 8px;
+  background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.2);
+  font-size: 11px; color: var(--text-dim);
+}
+.qadro-blocker-label { color: var(--red); font-weight: 700; font-family: var(--font-mono); font-size: 10px; flex-shrink: 0; }
+
+/* READINESS MODAL */
+.rdns-phase-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; font-style: italic; }
+.rdns-tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+.rdns-tab {
+  padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
+  background: transparent; color: var(--text-muted); font-family: var(--font-body);
+  font-size: 13px; cursor: pointer; transition: all 0.2s;
+}
+.rdns-tab:hover { border-color: var(--teal); color: var(--text); }
+.rdns-tab.active { background: rgba(0,212,170,0.1); border-color: var(--teal); color: var(--teal); }
+[data-theme="light"] .rdns-tab { border-color: rgba(0,0,0,0.1); }
+
+.rdns-section { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+[data-theme="light"] .rdns-section { border-bottom-color: rgba(0,0,0,0.07); }
+.rdns-checklist { display: flex; flex-direction: column; gap: 4px; }
+.rdns-item {
+  display: flex; align-items: center; gap: 12px; padding: 9px 12px;
+  border-radius: 8px; cursor: pointer; transition: background 0.2s; font-size: 13px; color: var(--text-dim);
+}
+.rdns-item:hover { background: rgba(0,212,170,0.05); }
+.rdns-item.checked { color: var(--teal); }
+.rdns-check { font-size: 16px; flex-shrink: 0; transition: transform 0.2s; }
+.rdns-item.checked .rdns-check { transform: scale(1.2); }
+
+.rdns-progress-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.rdns-progress-bar { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.rdns-progress-fill { height: 100%; background: linear-gradient(90deg, var(--teal), var(--cyan)); border-radius: 4px; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+.rdns-progress-label { font-family: var(--font-mono); font-size: 12px; color: var(--teal); flex-shrink: 0; }
+
+.rdns-gherkin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.rdns-gherkin-rule { padding: 12px 14px; border-radius: 10px; background: var(--surface); border: 1px solid rgba(255,255,255,0.06); }
+[data-theme="light"] .rdns-gherkin-rule { border-color: rgba(0,0,0,0.08); }
+.rdns-gherkin-label { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 4px; }
+.rdns-gherkin-val { font-size: 13px; color: var(--text); }
+.rdns-gherkin-val code { font-family: var(--font-mono); font-size: 12px; color: var(--cyan); background: rgba(6,182,212,0.1); padding: 1px 5px; border-radius: 4px; }
+.rdns-gherkin-example { background: var(--surface); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px 16px; }
+[data-theme="light"] .rdns-gherkin-example { border-color: rgba(0,0,0,0.08); }
+.rdns-gherkin-ex-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 10px; }
+.rdns-code { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); line-height: 1.8; margin: 0; white-space: pre; }
+
+.rdns-release-flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.rdns-rflow-step { flex: 1; min-width: 140px; display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 12px; background: var(--surface); border: 1px solid rgba(255,255,255,0.06); }
+[data-theme="light"] .rdns-rflow-step { border-color: rgba(0,0,0,0.08); }
+.rdns-rflow-gate { border-color: rgba(0,212,170,0.2); background: rgba(0,212,170,0.04); }
+.rdns-rflow-num { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+.rdns-rflow-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.rdns-rflow-desc { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+.rdns-rflow-arr { font-size: 20px; color: var(--text-muted); flex-shrink: 0; }
 
 /* CONTROLLI MODAL */
 .ctrl-grid {
@@ -1587,7 +1722,7 @@ h3 {
   </div>
   <h1 class="fade-in glow-teal">Centro di Competenza<br><span class="accent">Quality Assurance</span></h1>
   <div class="fade-in">
-    <p class="subtitle">Creare un ecosistema di QA centralizzato che trasformi i risultati dell'assessment in standard operativi condivisi, elevando la qualità del software a pilastro misurabile del dipartimento.</p>
+    <p class="subtitle">Da pratiche ad hoc a un modello di QA misurabile e replicabile: due pilastri, un framework operativo, un percorso condiviso verso la maturità del dipartimento.</p>
   </div>
   <div class="cover-meta fade-in">
     <span>📅 Feb 2026 → Giu 2027</span>
@@ -1608,12 +1743,12 @@ h3 {
         <div class="mb-seg mb-seg-1">
           <div class="mb-fill"></div>
           <div class="mb-label">Ad Hoc</div>
-          <div class="mb-range">0 – 2</div>
+          <div class="mb-range">0</div>
         </div>
         <div class="mb-seg mb-seg-2">
           <div class="mb-fill"></div>
           <div class="mb-label">Controlled</div>
-          <div class="mb-range">3 – 5</div>
+          <div class="mb-range">1 – 5</div>
         </div>
         <div class="mb-seg mb-seg-3">
           <div class="mb-fill"></div>
@@ -1630,6 +1765,57 @@ h3 {
           <div class="mb-marker-line"></div>
           <div class="mb-marker-label">Siamo qui</div>
         </div>
+      </div>
+    </div>
+
+    <!-- TMM Detail toggle -->
+    <div class="fade-in" style="margin-bottom:14px;">
+      <button onclick="toggleTMMDetail()" style="background:none;border:1px solid var(--text-muted);border-radius:6px;padding:4px 12px;font-size:12px;color:var(--text-dim);font-family:var(--font-mono);cursor:pointer;display:flex;align-items:center;gap:6px;transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal)'" onmouseout="this.style.borderColor='var(--text-muted)';this.style.color='var(--text-dim)'">
+        <span id="tmmToggleIcon">▶</span> TMM — Dettaglio Key Areas &amp; Scale
+      </button>
+      <div id="tmmDetailPanel" style="display:none;margin-top:10px;overflow-x:auto;background:var(--surface);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px 14px;">
+        <table class="tmm-table">
+          <thead>
+            <tr>
+              <th colspan="2" style="text-align:left;padding:3px 7px;color:var(--text-muted);font-weight:400;letter-spacing:1px;">KEY AREA</th>
+              <th class="tmm-c0" style="color:var(--amber);">Ad Hoc</th>
+              <th colspan="5" class="tmm-c1" style="color:var(--cyan);">Controlled</th>
+              <th colspan="5" class="tmm-c2" style="color:var(--teal);">Efficient</th>
+              <th colspan="3" class="tmm-c3" style="color:var(--pink);">Optimizing</th>
+            </tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.09);">
+              <th style="color:var(--text-muted);font-weight:400;">ID</th>
+              <th style="text-align:left;color:var(--text-muted);font-weight:400;padding:2px 7px;">Scale →</th>
+              <th class="tmm-c0" style="color:var(--text-muted);font-weight:400;">0</th>
+              <th class="tmm-c1" style="color:var(--text-muted);font-weight:400;">1</th><th class="tmm-c1" style="color:var(--text-muted);font-weight:400;">2</th><th class="tmm-c1" style="color:var(--text-muted);font-weight:400;">3</th><th class="tmm-c1" style="color:var(--text-muted);font-weight:400;">4</th><th class="tmm-c1" style="color:var(--text-muted);font-weight:400;">5</th>
+              <th class="tmm-c2" style="color:var(--text-muted);font-weight:400;">6</th><th class="tmm-c2" style="color:var(--text-muted);font-weight:400;">7</th><th class="tmm-c2" style="color:var(--text-muted);font-weight:400;">8</th><th class="tmm-c2" style="color:var(--text-muted);font-weight:400;">9</th><th class="tmm-c2" style="color:var(--text-muted);font-weight:400;">10</th>
+              <th class="tmm-c3" style="color:var(--text-muted);font-weight:400;">11</th><th class="tmm-c3" style="color:var(--text-muted);font-weight:400;">12</th><th class="tmm-c3" style="color:var(--text-muted);font-weight:400;">13</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="tmm-id">01</td><td class="tmm-name">Test Strategy</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">02</td><td class="tmm-name">Lifecycle Model</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">03</td><td class="tmm-name">Pervasiveness</td><td class="tmm-c0"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"><span class="tmm-ltr"></span></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr class="tmm-row-picco"><td class="tmm-id">04</td><td class="tmm-name">Estimation &amp; Planning ★</td><td class="tmm-c0"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"><span class="tmm-ltr tmm-picco"></span></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">05</td><td class="tmm-name">Test Spec. Techniques</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">06</td><td class="tmm-name">Static Test Techniques</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">07</td><td class="tmm-name">Metrics</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">08</td><td class="tmm-name">Test Tools</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">09</td><td class="tmm-name">Test Environment</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">10</td><td class="tmm-name">Office Environment</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">11</td><td class="tmm-name">Commitment &amp; Motivation</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">12</td><td class="tmm-name">Test Functions &amp; Training</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">13</td><td class="tmm-name">Scope of Methodology</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">14</td><td class="tmm-name">Communication</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">15</td><td class="tmm-name">Reporting</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">16</td><td class="tmm-name">Defect Management</td><td class="tmm-c0"></td><td class="tmm-c1"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">17</td><td class="tmm-name">Testware Management</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">18</td><td class="tmm-name">Test Process Mgmt</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">19</td><td class="tmm-name">Evaluation</td><td class="tmm-c0"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+            <tr><td class="tmm-id">20</td><td class="tmm-name">Low-level Testing</td><td class="tmm-c0"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"></td><td class="tmm-c1"><span class="tmm-ltr"></span></td><td class="tmm-c1"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c2"></td><td class="tmm-c3"></td><td class="tmm-c3"></td><td class="tmm-c3"></td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:8px;font-size:10px;color:var(--text-muted);font-family:var(--font-mono);">★ Estimation &amp; Planning — unica area che raggiunge il livello Efficient (scala 10) · fonte: ALTEN Assessment 2025</div>
       </div>
     </div>
 
@@ -1836,9 +2022,9 @@ h3 {
 <div class="slide" data-idx="5">
   <div class="fade-in kicker">Pilastro 1 · Testing</div>
   <h2 class="fade-in">Il Framework QA <span class="accent">in Dettaglio</span></h2>
-  <p class="subtitle fade-in" style="margin-bottom:28px;font-size:16px;">Clicca su ogni area per approfondire. Tutto il framework è operativo e documentato su Confluence.</p>
+  <p class="subtitle fade-in" style="margin-bottom:20px;font-size:15px;">Clicca su ogni area per approfondire. Tutto il framework è operativo e documentato su Confluence.</p>
 
-  <div class="fw-grid fade-in">
+  <div class="fw-grid fw-grid-4 fade-in">
 
     <div class="fw-tile" onclick="openModal('raci')">
       <div class="fw-tile-icon">🏛️</div>
@@ -1849,7 +2035,7 @@ h3 {
       <div class="fw-tile-arrow">↗</div>
     </div>
 
-    <div class="fw-tile fw-tile-featured" onclick="openFlowModal()">
+    <div class="fw-tile" onclick="openFlowModal()">
       <div class="fw-tile-icon">⚙️</div>
       <div class="fw-tile-body">
         <div class="fw-tile-title">Processo QA & SDLC</div>
@@ -1864,7 +2050,7 @@ h3 {
         <div class="fw-tile-title">Branching Model</div>
         <div class="fw-tile-sub">Dual-track · 3 sync points · naming convention</div>
       </div>
-      <div class="fw-tile-arrow">↗</div>
+      <div class="fw-tile-arrow">▶</div>
     </div>
 
     <div class="fw-tile" onclick="openModal('jira')">
@@ -1890,6 +2076,24 @@ h3 {
       <div class="fw-tile-body">
         <div class="fw-tile-title">Dashboard One</div>
         <div class="fw-tile-sub">Operativo · Qualità & Bug · Insights & Trend</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+    <div class="fw-tile" onclick="openQadroModal()">
+      <div class="fw-tile-icon">🧭</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">QAdro</div>
+        <div class="fw-tile-sub">Modello valutazione pratiche QA · maturità per progetto</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+    <div class="fw-tile" onclick="openReadinessModal()">
+      <div class="fw-tile-icon">✅</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Readiness & Gherkin</div>
+        <div class="fw-tile-sub">Checklist adozione · linee guida BDD · Release Gov</div>
       </div>
       <div class="fw-tile-arrow">↗</div>
     </div>
@@ -2647,6 +2851,233 @@ h3 {
   </div>
 </div>
 
+<!-- QADRO MODAL -->
+<div class="flow-modal-overlay" id="qadroModalOverlay" onclick="if(event.target===this)closeQadroModal()">
+  <div class="flow-modal-box" style="max-width:860px;">
+    <button class="modal-close" onclick="closeQadroModal()">✕</button>
+    <div class="fm-step-desc" style="margin-bottom:6px;">
+      <span class="fm-step-num">🧭</span>
+      <span class="fm-step-label">QAdro — Modello di valutazione delle pratiche di QA</span>
+    </div>
+    <div class="qadro-notice">
+      ℹ️ QAdro è il modello di <strong>maturità delle pratiche QA</strong> adottato per misurare quanto la QA sia integrata nel ciclo di sviluppo di ogni prodotto. La prima valutazione formale sui nostri progetti è <strong>ancora da condurre</strong> — questo è lo strumento che useremo.
+    </div>
+
+    <!-- Acronym -->
+    <div class="qadro-acronym">
+      <div class="qadro-letter"><span class="ql-big">Q</span><span class="ql-small">uality Assurance</span></div>
+      <div class="qadro-arrow-h">→</div>
+      <div class="qadro-letter"><span class="ql-big">A</span><span class="ql-small">Assessment</span></div>
+      <div class="qadro-arrow-h">→</div>
+      <div class="qadro-letter"><span class="ql-big">D</span><span class="ql-small">esign dei test</span></div>
+      <div class="qadro-arrow-h">→</div>
+      <div class="qadro-letter"><span class="ql-big">R</span><span class="ql-small">un delle suite</span></div>
+      <div class="qadro-arrow-h">→</div>
+      <div class="qadro-letter"><span class="ql-big">O</span><span class="ql-small">utcome &amp; Go/No-Go</span></div>
+    </div>
+
+    <!-- 4 categories -->
+    <div class="qadro-cats">
+      <div class="qadro-cat qadro-cat-active" onclick="selectQadroCat(0, this)">
+        <div class="qadro-cat-pct">25%</div>
+        <div class="qadro-cat-name">Governance &amp; Organizzazione</div>
+        <div class="qadro-cat-min">min 15%</div>
+      </div>
+      <div class="qadro-cat" onclick="selectQadroCat(1, this)">
+        <div class="qadro-cat-pct">25%</div>
+        <div class="qadro-cat-name">Requisiti &amp; Analisi</div>
+        <div class="qadro-cat-min">min 15%</div>
+      </div>
+      <div class="qadro-cat" onclick="selectQadroCat(2, this)">
+        <div class="qadro-cat-pct">35%</div>
+        <div class="qadro-cat-name">Implementazione DEV &amp; UAT</div>
+        <div class="qadro-cat-min">min 25%</div>
+      </div>
+      <div class="qadro-cat" onclick="selectQadroCat(3, this)">
+        <div class="qadro-cat-pct">15%</div>
+        <div class="qadro-cat-name">Hotfix &amp; Manutenzione</div>
+        <div class="qadro-cat-min">min 5%</div>
+      </div>
+    </div>
+
+    <!-- Detail panel -->
+    <div class="qadro-detail-panel" id="qadroCatDetail">
+      <div class="qadro-criteria" id="qadroCriteria"></div>
+    </div>
+
+    <!-- Blocking criteria note -->
+    <div class="qadro-blockers">
+      <span class="qadro-blocker-label">🔴 Criteri bloccanti</span>
+      <span>Ambiente UAT dedicato con software congelato</span>
+      <span>·</span>
+      <span>Quality Gate in UAT con Go/No-Go QA</span>
+      <span>·</span>
+      <span>Hotfix validate su branch separato</span>
+      <span>·</span>
+      <span>Checklist di rilascio verificata dal QA Lead</span>
+    </div>
+  </div>
+</div>
+
+<!-- READINESS MODAL -->
+<div class="flow-modal-overlay" id="readinessModalOverlay" onclick="if(event.target===this)closeReadinessModal()">
+  <div class="flow-modal-box" style="max-width:860px;">
+    <button class="modal-close" onclick="closeReadinessModal()">✕</button>
+    <div class="fm-step-desc" style="margin-bottom:16px;">
+      <span class="fm-step-num">📋</span>
+      <span class="fm-step-label">Checklist Lifecycle Iniziativa &amp; QA Governance</span>
+    </div>
+
+    <div class="rdns-tabs">
+      <button class="rdns-tab active" onclick="switchRdnsTab(0,this)">🏗️ Setup &amp; Requisiti</button>
+      <button class="rdns-tab" onclick="switchRdnsTab(1,this)">🛡️ Integrazione QA &amp; DoD</button>
+      <button class="rdns-tab" onclick="switchRdnsTab(2,this)">🧪 Operatività QA</button>
+      <button class="rdns-tab" onclick="switchRdnsTab(3,this)">🚀 Release &amp; NRT</button>
+      <button class="rdns-tab" onclick="switchRdnsTab(4,this)">📖 Linee Guida Gherkin</button>
+    </div>
+
+    <!-- Tab 0: Setup -->
+    <div class="rdns-panel" id="rdnsPanel0">
+      <p class="rdns-phase-desc">Fase 1 — Il Team Prodotto censisce l'iniziativa e struttura i requisiti su Jira.</p>
+      <div class="rdns-checklist">
+        <div class="rdns-item" onclick="toggleCheck(this,'t0')"><span class="rdns-check">☐</span><span><strong>[Team Prodotto]</strong> Iniziativa censita su Jira (Area pagoPA Iniziative Comitato)</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t0')"><span class="rdns-check">☐</span><span><strong>[Team Prodotto]</strong> WorkPackages (WP) agganciati all'Iniziativa</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t0')"><span class="rdns-check">☐</span><span><strong>[Team Prodotto]</strong> BRD / Epic agganciati ai rispettivi WP</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t0')"><span class="rdns-check">☐</span><span><strong>[Team Prodotto]</strong> User Story create nelle Epic (board Core o Touchpoints)</span></div>
+      </div>
+      <div class="rdns-progress-row"><div class="rdns-progress-bar"><div class="rdns-progress-fill" id="rdnsFill0" style="width:0%"></div></div><span class="rdns-progress-label" id="rdnsLbl0">0 / 4</span></div>
+    </div>
+
+    <!-- Tab 1: DoD -->
+    <div class="rdns-panel" id="rdnsPanel1" style="display:none;">
+      <p class="rdns-phase-desc">Fasi 2 — Il Team QA interviene nel ciclo di vita della US e definisce il vincolo DoD.</p>
+      <div class="rdns-checklist">
+        <div class="rdns-item" onclick="toggleCheck(this,'t1')"><span class="rdns-check">☐</span><span><strong>[Team QA]</strong> Partecipazione alle cerimonie di prodotto (planning, daily, refinement, review)</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t1')"><span class="rdns-check">☐</span><span><strong>[Team QA]</strong> QA Epic creata e agganciata alla User Story di riferimento</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t1')"><span class="rdns-check">☐</span><span><strong>[Team QA]</strong> Linking tra QA Epic e US verificato su Jira</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t1')"><span class="rdns-check">☐</span><span><strong>[Team QA + Prodotto]</strong> Vincolo DoD: la US non può chiudersi se la QA Epic non è Done</span></div>
+      </div>
+      <div class="rdns-progress-row"><div class="rdns-progress-bar"><div class="rdns-progress-fill" id="rdnsFill1" style="width:0%"></div></div><span class="rdns-progress-label" id="rdnsLbl1">0 / 4</span></div>
+    </div>
+
+    <!-- Tab 2: Operatività -->
+    <div class="rdns-panel" id="rdnsPanel2" style="display:none;">
+      <p class="rdns-phase-desc">Fasi 3–4 — Work item QA con stima, worklog e gestione documentale su Confluence.</p>
+      <div class="rdns-checklist">
+        <div class="rdns-item" onclick="toggleCheck(this,'t2')"><span class="rdns-check">☐</span><span><strong>[Team QA]</strong> Comprensione del Requisito (attività congiunta QA Analyst + Engineer)</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t2')"><span class="rdns-check">☐</span><span><strong>[Team QA]</strong> Progettazione Scenari: pagina Confluence + Jira + Test Case su Xray (se manuali)</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t2')"><span class="rdns-check">☐</span><span><strong>[Team QA]</strong> Implementazione Suite: test automatici e/o manuali sviluppati</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t2')"><span class="rdns-check">☐</span><span><strong>[Team QA]</strong> Esecuzione Test: cicli di test completati (TA e/o TM)</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t2')"><span class="rdns-check">☐</span><span><strong>[Team QA]</strong> Output archiviati nella cartella iniziativa su Confluence (Testing Suites)</span></div>
+      </div>
+      <div class="rdns-progress-row"><div class="rdns-progress-bar"><div class="rdns-progress-fill" id="rdnsFill2" style="width:0%"></div></div><span class="rdns-progress-label" id="rdnsLbl2">0 / 5</span></div>
+    </div>
+
+    <!-- Tab 3: Release & NRT -->
+    <div class="rdns-panel" id="rdnsPanel3" style="display:none;">
+      <p class="rdns-phase-desc">Fasi 5–6 — Release, chiusura e gestione post-rilascio con NRT giornaliero.</p>
+      <div class="rdns-checklist">
+        <div class="rdns-item" onclick="toggleCheck(this,'t3')"><span class="rdns-check">☐</span><span><strong>[Team QA]</strong> NRT eseguito (se esiste già suite) — compilato Analisi RUN Template</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t3')"><span class="rdns-check">☐</span><span><strong>[Team QA]</strong> Checklist di Release compilata con esiti di tutti i task (Template Release QA CheckList)</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t3')"><span class="rdns-check">☐</span><span><strong>[Team QA]</strong> Tutte le issue della QA Epic portate in stato Done — team Prodotto notificato</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t3')"><span class="rdns-check">☐</span><span><strong>[Team Prodotto]</strong> User Story chiusa solo dopo completamento QA</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t3')"><span class="rdns-check">☐</span><span><strong>[Team QA + Prodotto + Infra]</strong> Checklist di Release allegata alla Release Governance Procedure (RGP)</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t3')"><span class="rdns-check">☐</span><span><strong>[Team QA]</strong> Suite NRT aggiornata con nuova feature dal giorno successivo al rilascio</span></div>
+        <div class="rdns-item" onclick="toggleCheck(this,'t3')"><span class="rdns-check">☐</span><span><strong>[Team QA]</strong> In caso di fallimento NRT: Build Analysis issue creata + pagina Analisi RUN generata</span></div>
+      </div>
+      <div class="rdns-progress-row"><div class="rdns-progress-bar"><div class="rdns-progress-fill" id="rdnsFill3" style="width:0%"></div></div><span class="rdns-progress-label" id="rdnsLbl3">0 / 7</span></div>
+    </div>
+
+    <!-- Tab 4: Linee Guida Gherkin -->
+    <div class="rdns-panel" id="rdnsPanel4" style="display:none;">
+      <p class="rdns-phase-desc">Standard BDD per la scrittura dei feature file — garantisce leggibilità, manutenibilità e stabilità dei test automatici.</p>
+
+      <!-- 3 Principi Fondamentali -->
+      <div class="rdns-gherkin-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px;">
+        <div class="rdns-gherkin-rule">
+          <div class="rdns-gherkin-label">REGOLA D'ORO</div>
+          <div class="rdns-gherkin-val">Scrivere scenari comprensibili anche a chi non conosce la funzionalità</div>
+        </div>
+        <div class="rdns-gherkin-rule">
+          <div class="rdns-gherkin-label">REGOLA CARDINALE</div>
+          <div class="rdns-gherkin-val">Un comportamento = uno scenario — evitare coppie <code>When-Then</code> multiple</div>
+        </div>
+        <div class="rdns-gherkin-rule">
+          <div class="rdns-gherkin-label">LESS IS MORE</div>
+          <div class="rdns-gherkin-val">Scenari brevi e concisi — ideale &lt; 10 step per scenario</div>
+        </div>
+      </div>
+
+      <!-- Dichiarativo vs Imperativo + Anatomia Given/When/Then -->
+      <div class="rdns-gherkin-grid" style="margin-bottom:12px;">
+        <div class="rdns-gherkin-example">
+          <div class="rdns-gherkin-ex-label">DICHIARATIVO ✓ vs IMPERATIVO ✗</div>
+          <pre class="rdns-code"><span style="color:var(--red)">✗ When</span> l'utente clicca sulla casella
+  <span style="color:var(--red)">And</span> digita il numero avviso
+  <span style="color:var(--red)">And</span> preme Invio
+
+<span style="color:var(--teal)">✓ When</span> l'utente inserisce il numero avviso
+
+<span style="color:var(--red)">✗ Given</span> l'utente apre Chrome e naviga su uat.checkout...
+
+<span style="color:var(--teal)">✓ Given</span> la home page Checkout è visualizzata</pre>
+        </div>
+        <div class="rdns-gherkin-example">
+          <div class="rdns-gherkin-ex-label">GIVEN / WHEN / THEN — ANATOMIA</div>
+          <div style="display:flex;flex-direction:column;gap:7px;margin-top:6px;">
+            <div class="rdns-gherkin-rule" style="padding:8px 12px;">
+              <div style="display:flex;gap:10px;align-items:center;">
+                <code style="color:var(--teal);font-family:var(--font-mono);font-size:13px;font-weight:700;flex-shrink:0;">Given</code>
+                <span style="font-size:12px;color:var(--text-dim);">Precondizioni — stato iniziale (Setup)</span>
+              </div>
+            </div>
+            <div class="rdns-gherkin-rule" style="padding:8px 12px;">
+              <div style="display:flex;gap:10px;align-items:center;">
+                <code style="color:var(--amber);font-family:var(--font-mono);font-size:13px;font-weight:700;flex-shrink:0;">When</code>
+                <span style="font-size:12px;color:var(--text-dim);">Azione centrale che scatena il comportamento</span>
+              </div>
+            </div>
+            <div class="rdns-gherkin-rule" style="padding:8px 12px;">
+              <div style="display:flex;gap:10px;align-items:center;">
+                <code style="color:var(--cyan);font-family:var(--font-mono);font-size:13px;font-weight:700;flex-shrink:0;">Then</code>
+                <span style="font-size:12px;color:var(--text-dim);">Verifica risultato atteso (Asserzione)</span>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">→ Sempre terza persona singolare · Presente indicativo · Ordine rigoroso</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stile & Nomenclatura -->
+      <div class="rdns-gherkin-grid">
+        <div class="rdns-gherkin-rule">
+          <div class="rdns-gherkin-label">REGOLE DI STILE &amp; FORMATTAZIONE</div>
+          <ul style="font-size:12px;color:var(--text-dim);line-height:2;padding-left:16px;margin-top:6px;">
+            <li>1 blocco <code>Feature</code> per file · max 12 scenari</li>
+            <li>Lunghezza step: 80–120 caratteri</li>
+            <li>Keyword sempre capitalizzate (<code>Given</code>, <code>When</code>, <code>Then</code>, <code>And</code>, <code>But</code>)</li>
+            <li>Nessuna punteggiatura (punti/virgole) a fine step</li>
+            <li>Pipe <code>|</code> nelle tabelle <code>Examples</code> perfettamente allineate</li>
+            <li>Usare <code>Scenario Outline</code> + <code>Examples</code> invece di duplicare scenari</li>
+          </ul>
+        </div>
+        <div class="rdns-gherkin-rule">
+          <div class="rdns-gherkin-label">NOMENCLATURA &amp; TAG STANDARD</div>
+          <ul style="font-size:12px;color:var(--text-dim);line-height:2;padding-left:16px;margin-top:6px;">
+            <li><strong style="color:var(--text);">Feature:</strong> descrive il modulo/dominio, non l'azione di test</li>
+            <li><strong style="color:var(--text);">Scenario:</strong> auto-esplicativo, &lt; 15 parole, chi legge il log capisce subito</li>
+            <li><strong style="color:var(--text);">Tipologia:</strong> <code>@smoke-test</code> · <code>@regression</code> · <code>@sanity</code></li>
+            <li><strong style="color:var(--text);">Livello:</strong> <code>@e2e</code> · <code>@api</code> · <code>@integration</code></li>
+            <li><strong style="color:var(--text);">Dominio:</strong> <code>@checkout</code> · <code>@backoffice</code> · <code>@auth-service</code></li>
+            <li><strong style="color:var(--text);">Tracciabilità:</strong> <code>@PQ-XXX-CUP-2027</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- BRANCHING MODEL MODAL -->
 <div class="flow-modal-overlay" id="branchModalOverlay" onclick="if(event.target===this)closeBranchingModal()">
   <div class="flow-modal-box" style="max-width:860px;">
@@ -2764,6 +3195,111 @@ h3 {
 <script>
 function openImgModal() {}
 function closeImgModal() {}
+
+// QADRO MODAL
+const QADRO_CATS = [
+  {
+    name: 'Organizzazione e Governance della QA',
+    weight: 25, minPct: 15,
+    criteria: [
+      'Esiste un appuntamento fisso periodico tra QA e QA Manager per mantenere allineata la roadmap di testing [3%]',
+      'Il team di QA partecipa in modo permanente e regolare agli Stand Up (SU), integrando i feedback raccolti [3%]',
+      'Il team di QA partecipa attivamente all\'analisi dei cambiamenti del software da testare [3%]',
+      'Il team di QA produce report di avanzamento durante le sessioni di validazione [3%]',
+      'Il team di QA ha l\'esclusiva sulla creazione dei bug per garantire coerenza nella gestione delle anomalie [3%]'
+    ]
+  },
+  {
+    name: 'Integrazione della QA nei Requisiti e nell\'Analisi',
+    weight: 25, minPct: 15,
+    criteria: [
+      'Il team di QA effettua la validazione della comprensione del requisito con il team di sviluppo prima di scrivere i test [6%]',
+      'Il team di QA formalizza gli scenari di test prima della partenza dello sviluppo della feature o del cambiamento [5%]',
+      'Le User Story (in generale, work item) sono collegate ai casi di test e alle BRD/SRS/DR per garantire tracciabilità [5%]',
+      'Il team di sviluppo si accerta che QA abbia dato il suo GO sulla BRD/SRS/DR prima di iniziare lo sviluppo [4%]'
+    ]
+  },
+  {
+    name: 'Implementazione della QA in ambiente di sviluppo (DEV) e nell\'ambiente dedicato alla QA',
+    weight: 35, minPct: 25,
+    criteria: [
+      'Le suite di test automatizzate sono sviluppate in parallelo con il codice, sfruttando API/mock [4%]',
+      'Eventuali anomalie rilevate in DEV vengono tracciate su Jira e gestite come bug [4%]',
+      'Il team di QA ha un ambiente dedicato per la sessione di QA, dove le modifiche al software sono congelate durante la sessione [5%]',
+      'Il team di QA determina il Go/No-Go per l\'avanzamento della release o feature [4%]',
+      'Esiste almeno un quality gate nel percorso di rilascio e, se ce n\'è uno solo, è ospitato nell\'ambiente dedicato alla QA [5%]',
+      'Le suite di test automatici sono state eseguite nell\'ambiente dedicato alla QA e i risultati sono documentati [4%]',
+      'È stato condotto un Non-Regression Testing (NRT) prima della promozione della feature o release [4%]',
+      'I report delle run di test sono completi e includono l\'analisi degli esiti [4%]',
+      'Il team di QA formalizza gli esiti della run in un report di analisi il cui GO determina la promozione d\'ambiente [3%]',
+      'La checklist di rilascio è stata completata e verificata dal QA Lead [3%]'
+    ]
+  },
+  {
+    name: 'Gestione della QA per Hotfix e Manutenzione',
+    weight: 15, minPct: 5,
+    criteria: [
+      'Per ogni hotfix, è stata eseguita una sessione di QA dedicata (manuale o automatica) [5%]',
+      'Le hotfix sono state validate su un branch separato e non direttamente in produzione [5%]'
+    ]
+  }
+];
+
+function selectQadroCat(i, el) {
+  document.querySelectorAll('.qadro-cat').forEach((c, j) => c.classList.toggle('qadro-cat-active', j === i));
+  const cat = QADRO_CATS[i];
+  const panel = document.getElementById('qadroCriteria');
+  panel.innerHTML = cat.criteria.map(c => `
+    <div class="qadro-criterion">
+      <span class="qadro-crit-dot"></span>
+      <span>${c}</span>
+    </div>`).join('');
+}
+
+function toggleTMMDetail() {
+  const panel = document.getElementById('tmmDetailPanel');
+  const icon  = document.getElementById('tmmToggleIcon');
+  const open  = panel.style.display === 'none';
+  panel.style.display = open ? '' : 'none';
+  icon.textContent    = open ? '▼' : '▶';
+}
+
+function openQadroModal() {
+  document.getElementById('qadroModalOverlay').classList.add('open');
+  // Select first category by default
+  selectQadroCat(0, document.querySelector('.qadro-cat'));
+}
+function closeQadroModal() { document.getElementById('qadroModalOverlay').classList.remove('open'); }
+
+// READINESS MODAL
+function openReadinessModal() {
+  document.getElementById('readinessModalOverlay').classList.add('open');
+  ['t0','t1','t2','t3'].forEach((t,i) => updateTabProgress(i));
+}
+function closeReadinessModal() { document.getElementById('readinessModalOverlay').classList.remove('open'); }
+
+function toggleCheck(el, tab) {
+  el.classList.toggle('checked');
+  el.querySelector('.rdns-check').textContent = el.classList.contains('checked') ? '☑' : '☐';
+  const tabIdx = parseInt(tab.replace('t',''));
+  updateTabProgress(tabIdx);
+}
+function updateTabProgress(tabIdx) {
+  const panel = document.getElementById('rdnsPanel' + tabIdx);
+  if (!panel) return;
+  const items = panel.querySelectorAll('.rdns-item');
+  const checked = panel.querySelectorAll('.rdns-item.checked').length;
+  const pct = items.length ? Math.round((checked / items.length) * 100) : 0;
+  const fill = document.getElementById('rdnsFill' + tabIdx);
+  const lbl  = document.getElementById('rdnsLbl' + tabIdx);
+  if (fill) fill.style.width = pct + '%';
+  if (lbl)  lbl.textContent = checked + ' / ' + items.length;
+}
+function switchRdnsTab(idx, btn) {
+  document.querySelectorAll('.rdns-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.rdns-panel').forEach((p, i) => p.style.display = i === idx ? '' : 'none');
+}
 
 // CONTROLLI MODAL
 function openControlliModal() {
@@ -3003,6 +3539,24 @@ const modalData = {
       { icon: '🤖', over: 'Automated Checking', under: 'Manual Testing', desc: 'L\'automazione libera tempo per scoprire ciò che le macchine non possono vedere.' }
     ]
   },
+  qadro: {
+    title: '🧭 QAdro — Modello di Valutazione QA',
+    items: [
+      { num: '01', title: 'Cos\'è QAdro', desc: 'Framework ereditato dal Team SL QA&OPS per misurare il grado di integrazione della QA nel ciclo di sviluppo di ogni progetto. Permette di fotografare la maturità attuale e definire un percorso di miglioramento.' },
+      { num: '02', title: '5 dimensioni di valutazione', desc: 'Processo · Automazione · Documentazione · Collaborazione · Metriche. Ogni dimensione viene valutata su una scala da 1 a 5, producendo un profilo radar del progetto.' },
+      { num: '03', title: 'Come si usa', desc: 'Il QA Lead compila il QAdro con il team di prodotto all\'inizio della collaborazione. Il risultato orienta le priorità di intervento e le aspettative reciproche.' },
+      { num: '04', title: 'Baseline e miglioramento', desc: 'La valutazione viene ripetuta periodicamente (es. ogni quarter) per misurare il progresso. Il delta tra valutazioni successive è la prova concreta del valore portato dalla QA.' }
+    ]
+  },
+  readiness: {
+    title: '✅ Readiness · Gherkin · Release Governance',
+    items: [
+      { num: '01', title: 'Checklist di Readiness', desc: 'Checklist strutturata per i team che iniziano la collaborazione con la QA. Verifica la presenza di: requisiti leggibili, acceptance criteria, ambiente disponibile, stakeholder identificati, backlog priorizzato.' },
+      { num: '02', title: 'Linee guida Gherkin / BDD', desc: 'Standard per la scrittura dei feature file in linguaggio Gherkin (Given/When/Then). Definisce: lingua ufficiale (italiano), naming convention degli scenari, struttura dei file, uso dei tag e parametrizzazione.' },
+      { num: '03', title: 'Release Governance Integration', desc: 'Il team QA è integrato nella Release Governance Procedure dei team di prodotto. Prima di ogni rilascio: checklist QA compilata, esito test suite allegato, Go/No-Go firmato dal QA Lead.' },
+      { num: '04', title: 'Compliance ISO 9001', desc: 'Matrice di mapping tra le pratiche QA del Dipartimento Pagamenti e i requisiti della norma ISO 9001. Documentata su Confluence come riferimento per audit e revisioni di processo.' }
+    ]
+  },
   raci: {
     title: '🏛️ Struttura Organizzativa & RACI',
     items: [
@@ -3180,7 +3734,7 @@ function closeModal() {
 }
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') { closeModal(); closeFlowModal(); closeBranchingModal(); closeArchModal(); closeDQModal(); closeControlliModal(); closeImgModal(); }
+  if (e.key === 'Escape') { closeModal(); closeFlowModal(); closeBranchingModal(); closeArchModal(); closeDQModal(); closeControlliModal(); closeQadroModal(); closeReadinessModal(); closeImgModal(); }
 });
 
 (function() {
@@ -3257,6 +3811,8 @@ document.addEventListener('keydown', function(e) {
     if (document.getElementById('archModalOverlay').classList.contains('open')) return;
     if (document.getElementById('dqModalOverlay').classList.contains('open')) return;
     if (document.getElementById('controlliModalOverlay').classList.contains('open')) return;
+    if (document.getElementById('qadroModalOverlay').classList.contains('open')) return;
+    if (document.getElementById('readinessModalOverlay').classList.contains('open')) return;
     if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
       e.preventDefault(); goTo(current + 1);
     }
