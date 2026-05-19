@@ -730,6 +730,52 @@ h3 {
 }
 [data-theme="light"] .sinergia-footer { border-color: rgba(0,140,110,0.12); background: rgba(0,140,110,0.04); }
 
+/* SYN PANEL */
+.syn-panel {
+  display: flex; flex-direction: column; gap: 6px; margin: 10px 0 6px;
+}
+.syn-row {
+  display: flex; align-items: stretch; gap: 0;
+}
+.syn-col {
+  flex: 1; padding: 10px 14px; border-radius: 8px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.syn-col-pag { background: rgba(0,212,170,0.07); border: 1px solid rgba(0,212,170,0.2); }
+.syn-col-send { background: rgba(236,72,153,0.07); border: 1px solid rgba(236,72,153,0.2); }
+.syn-col-hdr { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1px; font-weight: 700; text-transform: uppercase; margin-bottom: 3px; }
+.syn-col-pag .syn-col-hdr { color: var(--teal); }
+.syn-col-send .syn-col-hdr { color: var(--pink); }
+.syn-bullet { font-size: 11px; color: var(--text-dim); display: flex; align-items: baseline; gap: 5px; }
+.syn-bullet::before { content: '▸'; font-size: 9px; flex-shrink: 0; }
+.syn-col-pag .syn-bullet::before { color: var(--teal); }
+.syn-col-send .syn-bullet::before { color: var(--pink); }
+.syn-plus {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; flex-shrink: 0;
+  font-size: 20px; font-weight: 700; color: var(--text-muted);
+}
+.syn-result {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 9px 16px; border-radius: 8px;
+  background: linear-gradient(90deg, rgba(0,212,170,0.08), rgba(236,72,153,0.08));
+  border: 1px solid rgba(255,255,255,0.1);
+  font-size: 12px;
+}
+.syn-result-icon { font-size: 16px; }
+.syn-result-text { color: var(--text); flex: 1; line-height: 1.5; }
+.syn-result-text strong { color: var(--teal); }
+.syn-result-tag {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  padding: 2px 8px; border-radius: 20px; white-space: nowrap;
+  background: rgba(0,212,170,0.12); color: var(--teal); border: 1px solid rgba(0,212,170,0.25);
+}
+[data-theme="light"] .syn-col-pag { background: rgba(0,140,110,0.05); border-color: rgba(0,140,110,0.18); }
+[data-theme="light"] .syn-col-send { background: rgba(190,24,93,0.05); border-color: rgba(190,24,93,0.18); }
+[data-theme="light"] .syn-result { background: linear-gradient(90deg, rgba(0,140,110,0.06), rgba(190,24,93,0.06)); border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .syn-result-text strong { color: #007a5a; }
+[data-theme="light"] .syn-result-tag { background: rgba(0,140,110,0.1); color: #007a5a; border-color: rgba(0,140,110,0.22); }
+
 /* FRAMEWORK TILE GRID */
 .fw-grid {
   display: grid;
@@ -999,6 +1045,74 @@ h3 {
   background: var(--teal); width: 24px; border-radius: 4px;
   box-shadow: 0 0 8px rgba(0,212,170,0.4);
 }
+
+/* DQ SOLUTION DIAGRAM */
+.dqs-arch { display:flex; flex-direction:column; gap:8px; }
+.dqs-top-row { display:flex; align-items:stretch; gap:0; }
+.dqs-zone-src { display:flex; flex-direction:column; gap:4px; justify-content:center; padding:8px; background:rgba(100,116,139,0.08); border:1.5px solid rgba(100,116,139,0.2); border-radius:8px; flex-shrink:0; }
+.dqs-zone-hdr { font-family:var(--font-mono); font-size:9px; letter-spacing:1.2px; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; text-align:center; }
+.dqs-src-box { background:rgba(59,130,246,0.15); border:1.5px solid rgba(59,130,246,0.3); border-radius:5px; padding:4px 8px; font-size:10px; font-weight:600; color:#93c5fd; text-align:center; white-space:nowrap; }
+.dqs-harr { display:flex; align-items:center; justify-content:center; padding:0 8px; font-size:18px; color:var(--text-muted); flex-shrink:0; align-self:center; }
+.dqs-zone-ingest { display:flex; flex-direction:column; gap:4px; padding:8px; background:rgba(59,130,246,0.07); border:1.5px solid rgba(59,130,246,0.2); border-radius:8px; flex-shrink:0; }
+.dqs-zone-subhdr { font-family:var(--font-mono); font-size:8px; color:rgba(147,197,253,0.5); text-align:center; margin-bottom:2px; }
+.dqs-hub-box { background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.35); border-radius:5px; padding:3px 8px; font-size:10px; color:#93c5fd; display:flex; align-items:center; justify-content:space-between; gap:6px; }
+.dqs-hub-diamond { opacity:0.6; }
+.dqs-ingest-arr { display:flex; flex-direction:column; justify-content:space-evenly; padding:0 6px; flex-shrink:0; }
+.dqs-ingest-lbl { font-size:9px; color:var(--text-muted); font-family:var(--font-mono); white-space:nowrap; }
+.dqs-zone-lake { display:flex; flex-direction:column; gap:6px; padding:10px 12px; background:rgba(220,180,60,0.07); border:1.5px solid rgba(220,180,60,0.22); border-radius:8px; flex:1; position:relative; }
+.dqs-lake-hdr { color:var(--amber); }
+.dqs-lake-inner { display:flex; align-items:flex-start; gap:5px; }
+.dqs-lake-col { display:flex; flex-direction:column; gap:3px; }
+.dqs-col-hdr { font-family:var(--font-mono); font-size:9px; letter-spacing:0.8px; margin-bottom:3px; text-align:center; }
+.dqs-entity { border-radius:5px; padding:3px 7px; font-size:10px; font-weight:600; text-align:center; border:1.5px solid; white-space:nowrap; }
+.dqs-entity-bronze { background:rgba(180,120,40,0.15); border-color:rgba(180,120,40,0.4); color:#fbbf24; }
+.dqs-entity-silver { background:rgba(148,163,184,0.12); border-color:rgba(148,163,184,0.3); color:#cbd5e1; }
+.dqs-entity-gold   { background:rgba(161,140,40,0.18); border-color:rgba(161,140,40,0.4); color:#fde68a; }
+.dqs-dc-badge { font-size:8px; color:rgba(251,191,36,0.8); background:rgba(251,191,36,0.07); border:1px solid rgba(251,191,36,0.18); border-radius:4px; padding:2px 5px; text-align:center; }
+.dqs-dedup-arr { display:flex; flex-direction:column; justify-content:space-evenly; padding:0 3px; color:var(--text-muted); font-size:8px; font-family:var(--font-mono); align-self:stretch; padding-top:18px; }
+.dqs-check-down { color:var(--red); font-size:8px; font-family:var(--font-mono); font-weight:700; text-align:center; margin-top:4px; }
+.dqs-gold-col { border:1.5px dashed rgba(245,158,11,0.3); border-radius:7px; padding:6px 8px; background:rgba(245,158,11,0.04); }
+.dqs-gold-badge { font-size:8px; color:var(--amber); background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:5px; padding:3px 6px; text-align:center; line-height:1.3; margin-bottom:5px; }
+.dqs-dqf-bar { background:rgba(239,68,68,0.1); border:1.5px solid rgba(239,68,68,0.35); border-radius:7px; padding:8px 16px; display:flex; align-items:center; justify-content:center; gap:12px; }
+.dqs-dqf-title { font-size:12px; font-weight:700; color:#fca5a5; }
+.dqs-dqf-tech { font-size:11px; color:var(--text-muted); }
+.dqs-cloudera-badge { position:absolute; top:6px; right:8px; font-family:var(--font-display); font-size:11px; font-weight:700; color:var(--amber); background:rgba(245,158,11,0.08); border:1.5px solid rgba(245,158,11,0.28); border-radius:5px; padding:2px 8px; }
+.dqs-bottom-row { display:flex; align-items:center; gap:8px; }
+.dqs-results-row { display:flex; align-items:center; gap:8px; flex:1; }
+.dqs-storage-box { background:rgba(245,158,11,0.08); border:1.5px solid rgba(245,158,11,0.25); border-radius:7px; padding:6px 10px; font-size:10px; color:#fde68a; text-align:center; flex-shrink:0; }
+.dqs-res-lbl { font-size:9px; color:var(--text-muted); font-family:var(--font-mono); white-space:nowrap; flex-shrink:0; }
+.dqs-obs-bar { background:rgba(59,130,246,0.1); border:1.5px solid rgba(59,130,246,0.28); border-radius:7px; padding:7px 14px; flex:1; display:flex; align-items:center; gap:8px; }
+.dqs-obs-title { font-size:11px; font-weight:600; color:#93c5fd; white-space:nowrap; }
+.dqs-alerts-col { display:flex; flex-direction:column; gap:3px; align-items:center; flex-shrink:0; }
+.dqs-alert-box { background:rgba(16,185,129,0.1); border:1.5px solid rgba(16,185,129,0.28); border-radius:6px; padding:4px 10px; font-size:10px; color:#6ee7b7; text-align:center; white-space:nowrap; }
+.dqs-slack-box { background:rgba(76,0,130,0.12); border:1.5px solid rgba(150,70,200,0.25); border-radius:6px; padding:3px 10px; font-size:10px; color:#c4b5fd; text-align:center; }
+.dqs-notes { display:flex; gap:8px; flex-wrap:wrap; }
+.dqs-note { font-size:10px; color:var(--text-muted); background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.14); border-radius:6px; padding:5px 9px; line-height:1.5; flex:1; min-width:120px; }
+.dqs-item { opacity:0; transform:translateY(12px); transition:opacity 0.45s ease, transform 0.45s ease; }
+.dqs-item.dqs-visible { opacity:1; transform:translateY(0); }
+[data-theme="light"] .dqs-zone-src { background:rgba(100,116,139,0.05); border-color:rgba(100,116,139,0.18); }
+[data-theme="light"] .dqs-zone-ingest { background:rgba(59,130,246,0.04); border-color:rgba(59,130,246,0.18); }
+[data-theme="light"] .dqs-zone-lake { background:rgba(220,180,60,0.04); border-color:rgba(180,140,0,0.18); }
+[data-theme="light"] .dqs-zone-subhdr { color:rgba(37,99,235,0.65); }
+[data-theme="light"] .dqs-src-box { background:rgba(37,99,235,0.08); border-color:rgba(37,99,235,0.25); color:#1d4ed8; }
+[data-theme="light"] .dqs-hub-box { background:rgba(37,99,235,0.07); border-color:rgba(37,99,235,0.22); color:#1d4ed8; }
+[data-theme="light"] .dqs-entity-bronze { background:rgba(146,64,14,0.08); border-color:rgba(146,64,14,0.25); color:#92400e; }
+[data-theme="light"] .dqs-entity-silver { background:rgba(71,85,105,0.08); border-color:rgba(71,85,105,0.22); color:#475569; }
+[data-theme="light"] .dqs-entity-gold   { background:rgba(120,90,0,0.08); border-color:rgba(120,90,0,0.22); color:#78530a; }
+[data-theme="light"] .dqs-dc-badge { background:rgba(146,64,14,0.05); border-color:rgba(146,64,14,0.2); color:#92400e; }
+[data-theme="light"] .dqs-gold-badge { background:rgba(120,80,0,0.07); border-color:rgba(120,80,0,0.2); color:#78530a; }
+[data-theme="light"] .dqs-check-down { color:#dc2626; }
+[data-theme="light"] .dqs-gold-col { border-color:rgba(120,80,0,0.2); background:rgba(120,80,0,0.03); }
+[data-theme="light"] .dqs-dqf-bar { background:rgba(185,28,28,0.06); border-color:rgba(185,28,28,0.2); }
+[data-theme="light"] .dqs-dqf-title { color:#b91c1c; }
+[data-theme="light"] .dqs-dqf-tech { color:#475569; }
+[data-theme="light"] .dqs-storage-box { background:rgba(120,80,0,0.06); border-color:rgba(120,80,0,0.2); color:#78530a; }
+[data-theme="light"] .dqs-obs-bar { background:rgba(29,78,216,0.06); border-color:rgba(29,78,216,0.2); }
+[data-theme="light"] .dqs-obs-title { color:#1d4ed8; }
+[data-theme="light"] .dqs-alert-box { background:rgba(4,120,87,0.07); border-color:rgba(4,120,87,0.2); color:#065f46; }
+[data-theme="light"] .dqs-slack-box { background:rgba(76,0,130,0.06); border-color:rgba(109,40,217,0.2); color:#6d28d9; }
+[data-theme="light"] .dqs-cloudera-badge { background:rgba(249,103,2,0.08); border-color:rgba(249,103,2,0.28); color:#c2410c; }
+[data-theme="light"] .dqs-note { background:rgba(185,28,28,0.04); border-color:rgba(185,28,28,0.12); }
 
 /* TMM MATRIX */
 .tmm-table { border-collapse:collapse; width:100%; min-width:580px; font-family:var(--font-mono); font-size:9px; }
@@ -1593,6 +1707,21 @@ h3 {
 }
 .modal-item-body h4 { font-size: 15px; margin-bottom: 4px; }
 .modal-item-body p { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+.modal-item-body .cer-note { font-size: 12px; color: var(--teal); margin-top: 5px; font-style: italic; }
+.cer-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 20px; margin-left: 8px;
+  vertical-align: middle; flex-shrink: 0;
+}
+.cer-badge.inplace { background: rgba(0,212,170,0.15); color: var(--teal); border: 1px solid rgba(0,212,170,0.35); }
+.cer-badge.tostart { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+.cer-badge.new-proj { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.35); }
+.cer-badge.replatform { background: rgba(59,130,246,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+[data-theme="light"] .cer-badge.inplace { background: rgba(0,140,110,0.1); color: #007a5a; border-color: rgba(0,140,110,0.3); }
+[data-theme="light"] .cer-badge.tostart { background: rgba(180,120,0,0.08); color: #9a6800; border-color: rgba(180,120,0,0.25); }
+[data-theme="light"] .cer-badge.new-proj { background: rgba(109,40,217,0.08); color: #6d28d9; border-color: rgba(109,40,217,0.25); }
+[data-theme="light"] .cer-badge.replatform { background: rgba(29,78,216,0.08); color: #1d4ed8; border-color: rgba(29,78,216,0.25); }
 
 /* CLICKABLE ACHIEVEMENT */
 .ach-item.clickable {
@@ -1982,11 +2111,11 @@ h3 {
         <div class="ach-label">Cerimonie QA<br>definite</div>
       </div>
       <div class="ach-item clickable" onclick="openModal('pilota')">
-        <div class="ach-num">3</div>
+        <div class="ach-num">4</div>
         <div class="ach-label">Progetti Pilota<br>identificati</div>
       </div>
       <div class="ach-item clickable" onclick="openModal('adr')">
-        <div class="ach-num">5</div>
+        <div class="ach-num">9</div>
         <div class="ach-label">ADR/GDR<br>documentati</div>
       </div>
       <div class="ach-item clickable" onclick="openModal('streams')">
@@ -2109,6 +2238,16 @@ h3 {
 
   <div class="fw-grid fade-in">
 
+    <div class="fw-tile fw-tile-amber" onclick="openDQSolutionModal()">
+      <div class="fw-tile-icon">🗺️</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Soluzione Target</div>
+        <div class="fw-tile-sub">Data flow end-to-end · DQ Framework · SODA Cloud</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+
+    <!-- TILE COMMENTATA: ridondante con "Soluzione Target"
     <div class="fw-tile fw-tile-amber" onclick="openArchModal()">
       <div class="fw-tile-icon">🏗️</div>
       <div class="fw-tile-body">
@@ -2117,6 +2256,7 @@ h3 {
       </div>
       <div class="fw-tile-arrow">↗</div>
     </div>
+    -->
 
     <div class="fw-tile fw-tile-amber" onclick="openModal('datacontract')">
       <div class="fw-tile-icon">📄</div>
@@ -2184,7 +2324,7 @@ h3 {
       <tbody>
         <tr>
           <td class="ct-dim">Team</td>
-          <td>3 interni + 3 ALTEN + hiring in corso</td>
+          <td>3 interni + 4 ALTEN + 1 Quantyca</td>
           <td>Team più ampio e consolidato</td>
         </tr>
         <tr>
@@ -2203,14 +2343,14 @@ h3 {
           <td style="color:var(--text-muted);">Non presente</td>
         </tr>
         <tr>
-          <td class="ct-dim">Orientamento</td>
+          <td class="ct-dim">Gestione release</td>
           <td><span class="tag tag-cyan" style="font-size:9px;">CI/CD</span> automazione spinta</td>
           <td><span class="tag tag-pink" style="font-size:9px;">RELEASE MGMT</span> finestre di rilascio</td>
         </tr>
         <tr>
           <td class="ct-dim">Scope</td>
-          <td>QA pura (Testing + Data Quality)</td>
-          <td>QA + Operations</td>
+          <td>Testing + Data Quality</td>
+          <td>Testing + Operations</td>
         </tr>
         <tr class="ct-row-highlight">
           <td class="ct-dim">Quality Manifesto</td>
@@ -2229,6 +2369,31 @@ h3 {
         </tr>
       </tbody>
     </table>
+
+    <div class="syn-panel fade-in">
+      <div class="syn-row">
+        <div class="syn-col syn-col-pag">
+          <div class="syn-col-hdr">Pagamenti porta</div>
+          <div class="syn-bullet">DQ Framework &amp; Data Contract</div>
+          <div class="syn-bullet">CI/CD &amp; automazione test spinta</div>
+          <div class="syn-bullet">BDD Gherkin &amp; Quality Gate</div>
+          <div class="syn-bullet">Integrazione Prodotto leggera e iterativa</div>
+        </div>
+        <div class="syn-plus">+</div>
+        <div class="syn-col syn-col-send">
+          <div class="syn-col-hdr">SEND porta</div>
+          <div class="syn-bullet">Ambiente di test dedicato e isolato</div>
+          <div class="syn-bullet">Release Management strutturato</div>
+          <div class="syn-bullet">QA + Operations integrati</div>
+          <div class="syn-bullet">Team consolidato e metodologia matura</div>
+        </div>
+      </div>
+      <div class="syn-result">
+        <span class="syn-result-icon">🔗</span>
+        <span class="syn-result-text"><strong>Nessuna sovrapposizione, nessun conflitto</strong> — i due approcci coprono dimensioni diverse e complementari del ciclo di qualità. Insieme costituiscono una copertura end-to-end per l'intera Direzione.</span>
+        <span class="syn-result-tag">moltiplicatore di valore</span>
+      </div>
+    </div>
 
     <div class="sinergia-footer fade-in">
       <span>🤝 <strong style="color:var(--teal);">Credits</strong> — tutte le pagine ereditate riportano i credits al Team SL QA&OPS</span>
@@ -2296,6 +2461,7 @@ h3 {
             <div class="pill wip" style="font-size:14px;padding:8px 18px;">Canone Unico Patrimoniale</div>
             <div class="pill wip" style="font-size:14px;padding:8px 18px;">Checkout</div>
             <div class="pill wip" style="font-size:14px;padding:8px 18px;">FdR</div>
+            <div class="pill wip" style="font-size:14px;padding:8px 18px;">Dismissione WISP</div>
           </div>
         </div>
       </div>
@@ -2363,7 +2529,7 @@ h3 {
         <div class="card" style="border-top:3px solid var(--amber);">
           <h3 style="font-size:14px;color:var(--amber);">🔄 In Corso</h3>
           <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;font-size:13px;color:var(--text-dim);">
-            <span>Progetti Pilota (CUP, Checkout, FdR)</span>
+            <span>Progetti Pilota (CUP, Checkout, FdR, Dismissione WISP)</span>
             <span>Integrazione CI/CD</span>
             <span>Data Quality Framework impl.</span>
             <span>Portale NRT</span>
@@ -2417,7 +2583,7 @@ h3 {
       <!-- Monitoring & Control bar -->
       <div class="fd-mc-row">
         <div class="fd-lbl-gap"></div>
-        <div class="fd-mc-bar flow-item" data-fstep="1">← MONITORING &amp; CONTROL ────────────────────────────────────────────────────────→</div>
+        <div class="fd-mc-bar flow-item" data-fstep="1">←───────────────────────────── MONITORING &amp; CONTROL ─────────────────────────────────────────────→</div>
       </div>
 
       <!-- Phase headers -->
@@ -2436,16 +2602,16 @@ h3 {
       <div class="fd-row">
         <div class="fd-track-lbl">Product<br>Team</div>
         <div class="fd-col">
-          <div class="fd-node flow-item" data-fstep="2">Pre-KickOff</div>
+          <div class="fd-node flow-item" data-fstep="2">Initiative Canvas</div>
           <div class="fd-down flow-item" data-fstep="2">↓</div>
-          <div class="fd-node flow-item" data-fstep="2">KickOff</div>
+          <div class="fd-node flow-item" data-fstep="2">Product Squad</div>
           <div class="fd-down flow-item" data-fstep="2">↓</div>
-          <div class="fd-node flow-item" data-fstep="2">Focus Group</div>
+          <div class="fd-node flow-item" data-fstep="2">Comitato prodotto</div>
           <div class="fd-down flow-item" data-fstep="2">↓</div>
           <div class="fd-node flow-item" data-fstep="2">BRD / SRS</div>
         </div>
-        <div class="fd-harrow flow-item" data-fstep="3">→</div>
-        <div class="fd-col">
+        <div class="fd-harrow flow-item" data-fstep="3" style="align-self:flex-end;padding-bottom:2px;">→</div>
+        <div class="fd-col" style="justify-content:flex-end;align-self:stretch;">
           <div class="fd-node flow-item" data-fstep="3">Jira Backlog<br><small>Epic / Story</small></div>
         </div>
         <div class="fd-harrow flow-item" data-fstep="4">→</div>
@@ -3078,6 +3244,156 @@ h3 {
   </div>
 </div>
 
+<!-- DQ SOLUTION MODAL -->
+<div class="flow-modal-overlay" id="dqSolutionModalOverlay" onclick="if(event.target===this)closeDQSolutionModal()">
+  <div class="flow-modal-box" style="max-width:1200px;width:98vw;max-height:95vh;padding:24px 28px 20px;">
+    <button class="modal-close" onclick="closeDQSolutionModal()">✕</button>
+    <div class="fm-step-desc">
+      <span class="fm-step-num" id="dqsStepNum">0 / 6</span>
+      <span class="fm-step-label" id="dqsStepLabel">Clicca "Avanti" per scoprire il flusso end-to-end</span>
+    </div>
+
+    <div class="dqs-arch">
+
+      <!-- TOP ROW: Source → Ingestion → [Data Lake] -->
+      <div class="dqs-top-row">
+
+        <!-- Source Systems -->
+        <div class="dqs-zone-src dqs-item" data-dqs="1">
+          <div class="dqs-zone-hdr">Source Systems</div>
+          <div class="dqs-src-box">GPD</div>
+          <div class="dqs-src-box">BIZ</div>
+          <div class="dqs-src-box" style="font-size:9px;">FDR · GEC · WALLET</div>
+        </div>
+
+        <div class="dqs-harr dqs-item" data-dqs="1">→</div>
+
+        <!-- Data Ingestion / Event Hubs -->
+        <div class="dqs-zone-ingest dqs-item" data-dqs="1">
+          <div class="dqs-zone-hdr">Data Ingestion</div>
+          <div class="dqs-zone-subhdr"><svg width="52" height="14" viewBox="0 0 90 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5" fill="none" stroke="#fff" stroke-width="1.5"/><circle cx="38" cy="5" r="4" fill="none" stroke="#fff" stroke-width="1.5"/><circle cx="38" cy="19" r="4" fill="none" stroke="#fff" stroke-width="1.5"/><line x1="17" y1="10" x2="34" y2="6.5" stroke="#fff" stroke-width="1.2"/><line x1="17" y1="14" x2="34" y2="17.5" stroke="#fff" stroke-width="1.2"/><text x="46" y="17" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="white">Kafka</text></svg></div>
+          <div class="dqs-hub-box">gpd-topic-1 <span class="dqs-hub-diamond">◇</span></div>
+          <div class="dqs-hub-box">gpd-topic-2 <span class="dqs-hub-diamond">◇</span></div>
+          <div style="height:5px;"></div>
+          <div class="dqs-hub-box">biz-topic-1 <span class="dqs-hub-diamond">◇</span></div>
+          <div class="dqs-hub-box">biz-topic-2 <span class="dqs-hub-diamond">◇</span></div>
+        </div>
+
+        <!-- Ingest arrows -->
+        <div class="dqs-ingest-arr dqs-item" data-dqs="2">
+          <div class="dqs-ingest-lbl">Ingest →</div>
+          <div class="dqs-ingest-lbl">Ingest →</div>
+        </div>
+
+        <!-- ======== DATA LAKE (big yellow container) ======== -->
+        <div class="dqs-zone-lake dqs-item" data-dqs="2">
+          <div class="dqs-zone-hdr dqs-lake-hdr">Data Lake</div>
+          <div class="dqs-cloudera-badge dqs-item" data-dqs="4"><svg width="68" height="18" viewBox="0 0 120 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="10" fill="#F96702"/><path fill="#F96702" d="M16 2l2 4.5 4.5-2.5-.5 5 5 .5-3 3.5 3 3.5-5 .5.5 5-4.5-2.5-2 4.5-2-4.5-4.5 2.5.5-5-5-.5 3-3.5-3-3.5 5-.5-.5-5 4.5 2.5z"/><circle cx="16" cy="16" r="6" fill="white"/><circle cx="16" cy="16" r="3.5" fill="#F96702"/><text x="32" y="21" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#F96702">CLOUDERA</text></svg></div>
+
+          <!-- Bronze / Silver / Gold columns -->
+          <div class="dqs-lake-inner">
+
+            <!-- BRONZE -->
+            <div class="dqs-lake-col dqs-item" data-dqs="2">
+              <div class="dqs-col-hdr" style="color:#fbbf24;">Bronze</div>
+              <div class="dqs-entity dqs-entity-bronze">gpd-entity-1</div>
+              <div class="dqs-entity dqs-entity-bronze">gpd-entity-2</div>
+              <div style="height:5px;"></div>
+              <div class="dqs-entity dqs-entity-bronze">biz-entity-1</div>
+              <div class="dqs-entity dqs-entity-bronze">biz-entity-2</div>
+            </div>
+
+            <!-- Dedup arrows -->
+            <div class="dqs-dedup-arr dqs-item" data-dqs="3">
+              <div>Dedup→</div>
+              <div>Dedup→</div>
+            </div>
+
+            <!-- SILVER -->
+            <div class="dqs-lake-col dqs-item" data-dqs="3">
+              <div class="dqs-col-hdr" style="color:#cbd5e1;">Silver</div>
+              <div class="dqs-entity dqs-entity-silver">gpd-entity-1</div>
+              <div class="dqs-dc-badge">📄 Data Contract</div>
+              <div class="dqs-entity dqs-entity-silver">gpd-entity-2</div>
+              <div class="dqs-dc-badge">📄 Data Contract</div>
+              <div class="dqs-entity dqs-entity-silver">biz-entity-1</div>
+              <div class="dqs-dc-badge">📄 Data Contract</div>
+              <div class="dqs-entity dqs-entity-silver">biz-entity-2</div>
+              <div class="dqs-dc-badge">📄 Data Contract</div>
+              <div class="dqs-check-down dqs-item" data-dqs="5">▼ Check ▼ Check</div>
+            </div>
+
+            <!-- Arrow Silver → Gold -->
+            <div class="dqs-harr dqs-item" data-dqs="4" style="font-size:14px;padding:0 4px;align-self:center;margin-top:18px;">→</div>
+
+            <!-- GOLD / Data Product -->
+            <div class="dqs-lake-col dqs-gold-col dqs-item" data-dqs="4">
+              <div class="dqs-gold-badge">Data Product<br>Consumer Aligned</div>
+              <div class="dqs-entity dqs-entity-gold">entity-1</div>
+              <div class="dqs-dc-badge">📄 Data Contract</div>
+              <div class="dqs-entity dqs-entity-gold">entity-2</div>
+              <div class="dqs-dc-badge">📄 Data Contract</div>
+              <div class="dqs-check-down dqs-item" data-dqs="5">▼ Check</div>
+            </div>
+
+          </div><!-- /lake-inner -->
+
+          <!-- DQ Framework bar (inside lake, at bottom) -->
+          <div class="dqs-dqf-bar dqs-item" data-dqs="5">
+            <div class="dqs-dqf-title">⚙️ pagoPA Data Quality Framework</div>
+            <div class="dqs-dqf-tech">Apache <strong style="color:#e25a1c;">Spark</strong> + <svg width="46" height="16" viewBox="0 0 80 28" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;"><rect x="0" y="4" width="76" height="20" rx="10" fill="none" stroke="#00d4aa" stroke-width="2"/><text x="10" y="19" font-family="Arial,sans-serif" font-size="14" font-weight="900" fill="#00d4aa">SODA</text></svg></div>
+          </div>
+
+        </div><!-- /zone-lake -->
+
+      </div><!-- /top-row -->
+
+      <!-- BOTTOM ROW: Storage ← Results | Obs Platform | → Alerts -->
+      <div class="dqs-bottom-row dqs-item" data-dqs="6">
+        <!-- spacer aligns with src + harr + ingest + ingest-arr -->
+        <div style="flex:0 0 260px;"></div>
+        <div class="dqs-results-row">
+          <div class="dqs-storage-box">🗄️ Data Lake<br><span style="font-size:9px;opacity:0.7;">Storage</span></div>
+          <div class="dqs-res-lbl">← Results</div>
+          <div class="dqs-obs-bar">
+            <span class="dqs-obs-title"><svg width="46" height="16" viewBox="0 0 80 28" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:4px;"><rect x="0" y="4" width="76" height="20" rx="10" fill="none" stroke="#00d4aa" stroke-width="2"/><text x="10" y="19" font-family="Arial,sans-serif" font-size="14" font-weight="900" fill="#00d4aa">SODA</text></svg> Cloud · Observability Platform</span>
+            <span style="color:var(--text-muted);font-size:16px;">📊 📈</span>
+          </div>
+          <div class="dqs-res-lbl">Results ↓</div>
+          <div class="dqs-alerts-col">
+            <div class="dqs-alert-box">🔔 Quality Alerts</div>
+            <div class="dqs-slack-box"><svg width="16" height="16" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:5px;"><path d="M19.7.1a5.4 5.4 0 0 0-5.4 5.4 5.4 5.4 0 0 0 5.4 5.4h5.4V5.5A5.4 5.4 0 0 0 19.7.1m0 14.4H5.4A5.4 5.4 0 0 0 0 19.9a5.4 5.4 0 0 0 5.4 5.4h14.3a5.4 5.4 0 0 0 5.4-5.4 5.4 5.4 0 0 0-5.4-5.4" fill="#E01E5A"/><path d="M54 19.9a5.4 5.4 0 0 0-5.4-5.4 5.4 5.4 0 0 0-5.4 5.4v5.4h5.4A5.4 5.4 0 0 0 54 19.9m-14.3 0V5.5A5.4 5.4 0 0 0 34.3.1a5.4 5.4 0 0 0-5.4 5.4v14.4a5.4 5.4 0 0 0 5.4 5.4 5.4 5.4 0 0 0 5.4-5.4" fill="#2EB67D"/><path d="M34.3 54a5.4 5.4 0 0 0 5.4-5.4 5.4 5.4 0 0 0-5.4-5.4h-5.4v5.4A5.4 5.4 0 0 0 34.3 54m0-14.3h14.3A5.4 5.4 0 0 0 54 34.3a5.4 5.4 0 0 0-5.4-5.4H34.3a5.4 5.4 0 0 0-5.4 5.4 5.4 5.4 0 0 0 5.4 5.4" fill="#ECB22E"/><path d="M0 34.3a5.4 5.4 0 0 0 5.4 5.4 5.4 5.4 0 0 0 5.4-5.4v-5.4H5.4A5.4 5.4 0 0 0 0 34.3m14.3 0v14.3A5.4 5.4 0 0 0 19.7 54a5.4 5.4 0 0 0 5.4-5.4V34.3a5.4 5.4 0 0 0-5.4-5.4 5.4 5.4 0 0 0-5.4 5.4" fill="#36C5F0"/></svg>Slack</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="dqs-notes dqs-item" data-dqs="6">
+        <div class="dqs-note">📌 Il processo di ingestion non subisce variazioni rispetto all'AS-IS.</div>
+        <div class="dqs-note">📌 Il DQ Framework usa il <strong>Data Contract</strong> come source of truth per i controlli.</div>
+        <div class="dqs-note">📌 I risultati sono esportati su tabelle custom per la console di observability.</div>
+        <div class="dqs-note">📌 Alert automatici e proattivi inviati verso canali <strong>Slack</strong>.</div>
+      </div>
+
+    </div><!-- /dqs-arch -->
+
+    <div class="fm-nav">
+      <button class="fm-btn fm-btn-sec" id="dqsBtnPrev" onclick="dqsStep(-1)" disabled>← Indietro</button>
+      <div class="fm-steps-track" id="dqsStepsTrack">
+        <div class="fm-step-dot" data-ddot="0"></div>
+        <div class="fm-step-dot" data-ddot="1"></div>
+        <div class="fm-step-dot" data-ddot="2"></div>
+        <div class="fm-step-dot" data-ddot="3"></div>
+        <div class="fm-step-dot" data-ddot="4"></div>
+        <div class="fm-step-dot" data-ddot="5"></div>
+        <div class="fm-step-dot" data-ddot="6"></div>
+      </div>
+      <button class="fm-btn fm-btn-pri" id="dqsBtnNext" onclick="dqsStep(1)">Avanti →</button>
+    </div>
+  </div>
+</div>
+
+<!-- BRANCHING MODEL MODAL -->
 <!-- BRANCHING MODEL MODAL -->
 <div class="flow-modal-overlay" id="branchModalOverlay" onclick="if(event.target===this)closeBranchingModal()">
   <div class="flow-modal-box" style="max-width:860px;">
@@ -3333,6 +3649,46 @@ function openArchModal() {
   renderArchDiagram();
 }
 function closeArchModal() { document.getElementById('archModalOverlay').classList.remove('open'); }
+
+// DQ SOLUTION MODAL
+const DQS_LABELS = [
+  'Clicca "Avanti" per scoprire il flusso',
+  'I sistemi sorgente inviano eventi agli Event Hubs (Kafka)',
+  'I dati vengono caricati nel layer Bronze del Data Lake',
+  'Deduplication → layer Silver con Data Contract allegato a ogni entità',
+  'Il DQ Framework (Spark + SODA) esegue i Check e pubblica i risultati',
+  'Il dato certificato raggiunge il Gold layer · Data Product Consumer Aligned',
+  'Note architetturali: invarianza ingestion · Data Contract come source of truth · alert Slack'
+];
+let currentDqsStep = 0;
+const DQS_MAX = 6;
+function openDQSolutionModal() {
+  currentDqsStep = 0;
+  document.getElementById('dqSolutionModalOverlay').classList.add('open');
+  document.querySelectorAll('#dqSolutionModalOverlay .dqs-item').forEach(el => el.classList.remove('dqs-visible'));
+  updateDqsStep();
+}
+function closeDQSolutionModal() { document.getElementById('dqSolutionModalOverlay').classList.remove('open'); }
+function dqsStep(dir) {
+  const next = currentDqsStep + dir;
+  if (next < 0 || next > DQS_MAX) return;
+  currentDqsStep = next;
+  updateDqsStep();
+}
+function updateDqsStep() {
+  document.querySelectorAll('#dqSolutionModalOverlay .dqs-item').forEach(el => {
+    const s = parseInt(el.dataset.dqs || '0');
+    el.classList.toggle('dqs-visible', s <= currentDqsStep);
+  });
+  document.getElementById('dqsStepNum').textContent = currentDqsStep + ' / ' + DQS_MAX;
+  document.getElementById('dqsStepLabel').textContent = DQS_LABELS[currentDqsStep];
+  document.getElementById('dqsBtnPrev').disabled = currentDqsStep === 0;
+  document.getElementById('dqsBtnNext').disabled = currentDqsStep === DQS_MAX;
+  document.querySelectorAll('#dqSolutionModalOverlay .fm-step-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === currentDqsStep);
+    dot.classList.toggle('done', i < currentDqsStep);
+  });
+}
 function archStep(dir) {
   const next = currentArchStep + dir;
   if (next < 0 || next > ARCH_MAX) return;
@@ -3655,36 +4011,40 @@ const modalData = {
     title: '👥 Piano di Hiring',
     items: [
       { num: '01', title: 'QA Analyst (1 risorsa)', desc: 'Comprensione requisiti, progettazione scenari e casi di test, analisi risultati, reportistica manuale.' },
-      { num: '02', title: 'QA Engineer — Automazione (2 risorse)', desc: 'Implementazione suite di test automatici, sviluppo e manutenzione codebase di testing, integrazione CI/CD.' },
-      { num: '03', title: 'QA Engineer — Framework (1 risorsa)', desc: 'Supporto allo sviluppo dell\'ecosistema QA, tooling, automazione operativa, template e blueprint.' },
-      { num: '04', title: 'Data Quality Support (1 risorsa)', desc: 'Supporto all\'implementazione del Data Quality Framework, sviluppo controlli, gestione Data Contract su Cloudera.' }
+      { num: '02', title: 'QA Engineer — Automazione (3 risorse)', desc: 'Implementazione suite di test automatici, sviluppo e manutenzione codebase di testing, integrazione CI/CD.' },
+      { num: '03', title: 'Data Quality Support (1 risorsa)', desc: 'Supporto all\'implementazione del Data Quality Framework, sviluppo controlli, gestione Data Contract su Cloudera.' }
     ]
   },
   cerimonie: {
     title: '🔄 Le 6 Cadence per la Qualità',
     items: [
-      { num: '01', title: 'Release Strategy Review — Trimestrale', desc: 'Definisce i cambiamenti strategici per l\'evoluzione del team, dell\'architettura e degli strumenti.' },
-      { num: '02', title: 'Release Operations Review — Mensile', desc: 'Analizza il flusso per identificare problemi sistemici e colli di bottiglia da risolvere.' },
-      { num: '03', title: 'Release Service Delivery Review — Bisettimanale', desc: 'Monitora le metriche di performance del team QA (es. Lead Time, Defect Rate).' },
-      { num: '04', title: 'Release Replenishment Meeting — Settimanale', desc: 'Pianifica il lavoro della settimana, allineando la capacità del team con le roadmap di prodotto.' },
-      { num: '05', title: 'Kanban Delivery Meeting — 2-4x settimana', desc: 'Valida la solidità tecnica del lavoro in corso tramite revisioni e critiche costruttive.' },
-      { num: '06', title: 'Daily QA — Giornaliero', desc: 'Allineamento tattico per gestire il flusso, rimuovere blocchi e pianificare la giornata.' }
+      { num: '01', title: 'Release Strategy Review — Trimestrale', desc: 'Definisce i cambiamenti strategici per l\'evoluzione del team, dell\'architettura e degli strumenti.', status: 'tostart' },
+      { num: '02', title: 'Release Operations Review — Mensile', desc: 'Analizza il flusso per identificare problemi sistemici e colli di bottiglia da risolvere.', status: 'inplace' },
+      { num: '03', title: 'Release Service Delivery Review — Bisettimanale', desc: 'Monitora le metriche di performance del team QA (es. Lead Time, Defect Rate).', status: 'inplace' },
+      { num: '04', title: 'Release Replenishment Meeting — Settimanale', desc: 'Pianifica il lavoro della settimana, allineando la capacità del team con le roadmap di prodotto.', status: 'inplace', note: '↳ Corrisponde agli eventi di Sprint Refinement con i team di Prodotto.' },
+      { num: '05', title: 'Kanban Delivery Critique Meeting — 2-4x settimana', desc: 'Valida la solidità tecnica del lavoro in corso tramite revisioni e critiche costruttive.', status: 'tostart' },
+      { num: '06', title: 'Daily QA — Giornaliero', desc: 'Allineamento tattico per gestire il flusso, rimuovere blocchi e pianificare la giornata.', status: 'inplace' }
     ]
   },
   pilota: {
     title: '🎯 Progetti Pilota',
     items: [
-      { num: '01', title: 'Canone Unico Patrimoniale (CUP-2027)', desc: 'Nuovo servizio di pagamento. Primo progetto su cui calare l\'intero framework QA dalla comprensione requisiti al Quality Gate, inclusi BDD Gherkin feature files.' },
-      { num: '02', title: 'Checkout', desc: 'Componente critico del flusso di pagamento. Applicazione del processo di QA integrato con il team di prodotto e automazione test.' },
-      { num: '03', title: 'Flussi di Rendicontazione (FdR)', desc: 'Sistema con automazione preesistente (FdR Test). Evoluzione e integrazione nel nuovo framework di branching, CI/CD e Quality Gate.' }
+      { num: '01', title: 'Canone Unico Patrimoniale (CUP-2027)', desc: 'Nuovo servizio di pagamento. Primo progetto su cui calare l\'intero framework QA dalla comprensione requisiti al Quality Gate, inclusi BDD Gherkin feature files.', type: 'new-proj' },
+      { num: '02', title: 'Checkout', desc: 'Componente critico del flusso di pagamento. Applicazione del processo di QA integrato con il team di prodotto e automazione test.', type: 'replatform' },
+      { num: '03', title: 'Flussi di Rendicontazione (FdR)', desc: 'Sistema con automazione preesistente (FdR Test). Evoluzione e integrazione nel nuovo framework di branching, CI/CD e Quality Gate.', type: 'replatform' },
+      { num: '04', title: 'Dismissione WISP', desc: 'Sistema con automazione preesistente (Dismissione WISP). Evoluzione e integrazione nel nuovo framework di branching, CI/CD e Quality Gate.', type: 'replatform' }
     ]
   },
   adr: {
     title: '📄 Decision Record Documentati',
     items: [
+      { num: 'ADR', title: 'ADR-001 Data Product', desc: 'Definizione dei Data Product e delle relative responsabilità. Un Data Product rappresenta la più piccola unità di deployment all interno della data platform' },
       { num: 'ADR', title: 'ADR-002 Data Quality Framework', desc: 'Architettura del framework con Modulo Quality (SODA + Impala) e Modulo Observability. Contract-driven quality, orchestrazione Airflow.' },
-      { num: 'ADR', title: 'ADR-003 Observability Platform', desc: 'SODA Cloud come piattaforma centralizzata di observability. Modello push, dashboard, alerting configurabile.' },
+      { num: 'ADR', title: 'ADR-003 Observability Platform', desc: 'Modulo di Observability del Data Quality Framework è responsabile della pubblicazione attiva dei risultati di Quality verso l’Observability Platform: un componente centralizzato che colleziona i dati di qualità di tutti i sistemi della piattaforma, abilitando monitoraggio e governance.' },
+      { num: 'ADR', title: 'ADR-004 Struttura risultati Quality', desc: 'Tabelle di salvataggio dei risultati di quality all interno del data lake' },
       { num: 'GDR', title: 'GDR-001 Modello Operativo', desc: 'Definizione dei 3 stream (Platform, Governance, Prodotto), unità esecutive inter-funzionali e cadence di coordinamento.' },
+      { num: 'GDR', title: 'GDR-002 Utilizzo dei Data Contract', desc: 'Utilizzo dei Data Contract come strumento di governance per il consumo dei dati esposti sui diversi layer del Data Lake' },
+      { num: 'GDR', title: 'GDR-003 Naming Convention', desc: 'Utilizzo della naming convention all’interno dei processi di sviluppo e per le risorse infrastrutturali necessarie agli use-case in ambito dati.' },
       { num: 'RFC', title: 'RFC — Stack Tecnologico QA', desc: 'Standardizzazione dello stack per la QA Automation a livello dipartimentale.' },
       { num: 'RFC', title: 'RFC — Lingua Ufficiale dei Test', desc: 'Definizione della lingua ufficiale con cui scrivere i test case e i feature file Gherkin.' }
     ]
@@ -3718,10 +4078,21 @@ function openModal(key) {
     html += '</div>';
   } else {
     data.items.forEach(item => {
+      const badge = item.status
+        ? (item.status === 'inplace'
+            ? '<span class="cer-badge inplace">✓ in place</span>'
+            : '<span class="cer-badge tostart">▶ to start</span>')
+        : '';
+      const typeBadge = item.type
+        ? (item.type === 'new-proj'
+            ? '<span class="cer-badge new-proj">✦ new</span>'
+            : '<span class="cer-badge replatform">⟳ replatform</span>')
+        : '';
+      const note = item.note ? '<div class="cer-note">' + item.note + '</div>' : '';
       html += '<div class="modal-item">' +
         '<div class="modal-item-num">' + item.num + '</div>' +
-        '<div class="modal-item-body"><h4>' + item.title + '</h4>' +
-        '<p>' + item.desc + '</p></div></div>';
+        '<div class="modal-item-body"><h4>' + item.title + badge + typeBadge + '</h4>' +
+        '<p>' + item.desc + '</p>' + note + '</div></div>';
     });
   }
 
@@ -3734,7 +4105,7 @@ function closeModal() {
 }
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') { closeModal(); closeFlowModal(); closeBranchingModal(); closeArchModal(); closeDQModal(); closeControlliModal(); closeQadroModal(); closeReadinessModal(); closeImgModal(); }
+  if (e.key === 'Escape') { closeModal(); closeFlowModal(); closeBranchingModal(); closeArchModal(); closeDQModal(); closeControlliModal(); closeQadroModal(); closeReadinessModal(); closeImgModal(); closeDQSolutionModal(); }
 });
 
 (function() {
