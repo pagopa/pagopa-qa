@@ -1,0 +1,2478 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Centro di Competenza QA — AllHands di Dipartimento</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Space+Mono:wght@400;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e17;
+  --bg2: #111827;
+  --surface: #1a2236;
+  --surface2: #232d45;
+  --teal: #00d4aa;
+  --teal-dim: #00856b;
+  --cyan: #06b6d4;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --pink: #ec4899;
+  --text: #e8edf5;
+  --text-dim: #8899b4;
+  --text-muted: #4a5a78;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --svg-text: #e8edf5;
+  --svg-muted: #8899b4;
+  --svg-dc-bg: rgba(255,255,255,0.05);
+  --svg-dc-border: rgba(255,255,255,0.18);
+}
+
+[data-theme="light"] {
+  --bg: #f4f6fa;
+  --bg2: #e9ecf2;
+  --surface: #ffffff;
+  --surface2: #edf0f7;
+  --teal: #008c6e;
+  --teal-dim: #006b54;
+  --cyan: #0891b2;
+  --amber: #d97706;
+  --red: #dc2626;
+  --pink: #db2777;
+  --text: #1a1f2e;
+  --text-dim: #4b5563;
+  --text-muted: #9ca3af;
+  --svg-text: #1a1f2e;
+  --svg-muted: #6b7280;
+  --svg-dc-bg: rgba(0,0,0,0.03);
+  --svg-dc-border: rgba(0,0,0,0.18);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  transition: background-color 0.4s, color 0.4s;
+}
+
+/* SLIDE SYSTEM */
+.deck { width: 100%; height: 100vh; position: relative; }
+
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding: 60px 80px;
+  opacity: 0;
+  transform: translateY(40px);
+  pointer-events: none;
+  transition: opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.4,0,.2,1);
+  overflow-y: auto;
+}
+.slide.active { opacity: 1; transform: translateY(0); pointer-events: all; }
+.slide.exit-up { opacity: 0; transform: translateY(-40px); }
+.slide.exit-down { opacity: 0; transform: translateY(40px); }
+.slide.no-transition { transition: none !important; }
+
+.deck::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999;
+}
+
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: linear-gradient(90deg, var(--teal), var(--cyan));
+  z-index: 1000;
+  transition: width 0.5s cubic-bezier(.4,0,.2,1);
+}
+
+.nav-dots {
+  position: fixed; right: 30px; top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 1000;
+}
+.nav-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+}
+.nav-dot.active { background: var(--teal); box-shadow: 0 0 12px var(--teal); transform: scale(1.3); }
+.nav-dot:hover { background: var(--text-dim); }
+
+.slide-counter {
+  position: fixed; bottom: 30px; right: 30px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  z-index: 1000;
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 16px;
+}
+h1 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(42px, 5vw, 72px);
+  line-height: 1.05;
+  margin-bottom: 24px;
+}
+h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(30px, 3.3vw, 48px);
+  line-height: 1.15;
+  margin-bottom: 20px;
+}
+h3 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.subtitle { font-size: 19px; color: var(--text-dim); line-height: 1.6; max-width: 720px; }
+.accent { color: var(--teal); }
+.accent-amber { color: var(--amber); }
+.accent-pink { color: var(--pink); }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.four-col { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 24px;
+  transition: transform 0.3s, border-color 0.3s;
+}
+.card:hover { transform: translateY(-4px); border-color: rgba(0,212,170,0.2); }
+.card-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  margin-bottom: 14px;
+}
+.card p { color: var(--text-dim); font-size: 14px; line-height: 1.6; }
+
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.tag-teal { background: rgba(0,212,170,0.15); color: var(--teal); }
+.tag-amber { background: rgba(245,158,11,0.15); color: var(--amber); }
+.tag-cyan { background: rgba(6,182,212,0.15); color: var(--cyan); }
+.tag-pink { background: rgba(236,72,153,0.15); color: var(--pink); }
+
+.timeline { position: relative; padding-left: 40px; }
+.timeline::before {
+  content: '';
+  position: absolute; left: 15px; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--teal), var(--cyan), var(--teal-dim));
+}
+.tl-item { position: relative; margin-bottom: 26px; }
+.tl-item::before {
+  content: '';
+  position: absolute; left: -33px; top: 6px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 10px var(--teal);
+}
+.tl-item.dim::before { background: var(--text-muted); box-shadow: none; }
+.tl-item h4 { font-size: 15px; margin-bottom: 4px; }
+.tl-item p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+.tl-date { font-family: var(--font-mono); font-size: 11px; color: var(--teal); margin-bottom: 4px; }
+
+.pill-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.pill {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text-dim);
+}
+.pill.done { border-color: var(--teal); color: var(--teal); }
+.pill.wip { border-color: var(--amber); color: var(--amber); }
+
+.status-legend {
+  display: flex; align-items: center; gap: 20px;
+  font-size: 12px; color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-bottom: 16px;
+}
+.status-legend span { display: flex; align-items: center; gap: 6px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.status-dot.done { background: var(--teal); }
+.status-dot.wip { background: var(--amber); }
+
+.cover-meta {
+  display: flex; gap: 40px; margin-top: 32px;
+  font-family: var(--font-mono); font-size: 13px; color: var(--text-dim);
+}
+.cover-meta span { display: flex; align-items: center; gap: 8px; }
+
+.glow-teal { text-shadow: 0 0 40px rgba(0,212,170,0.3); }
+
+.scroll-hint {
+  position: fixed; bottom: 80px; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  z-index: 1000;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+.pillar {
+  padding: 32px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  overflow: hidden;
+}
+.pillar::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.pillar-testing { background: linear-gradient(180deg, rgba(0,212,170,0.08), var(--surface)); }
+.pillar-testing::before { background: linear-gradient(90deg, var(--teal), var(--cyan)); }
+.pillar-data { background: linear-gradient(180deg, rgba(245,158,11,0.08), var(--surface)); }
+.pillar-data::before { background: linear-gradient(90deg, var(--amber), var(--pink)); }
+.pillar-ai { background: linear-gradient(180deg, rgba(236,72,153,0.08), var(--surface)); }
+.pillar-ai::before { background: linear-gradient(90deg, var(--pink), var(--cyan)); }
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin: 26px 0;
+}
+.ach-item {
+  text-align: center;
+  padding: 22px 10px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.ach-num {
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--teal), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.ach-label { font-size: 12px; color: var(--text-dim); margin-top: 6px; line-height: 1.4; }
+
+.slide.active .fade-in { animation: fadeInUp 0.6s ease both; }
+.fade-in:nth-child(1) { animation-delay: 0.1s; }
+.fade-in:nth-child(2) { animation-delay: 0.2s; }
+.fade-in:nth-child(3) { animation-delay: 0.3s; }
+.fade-in:nth-child(4) { animation-delay: 0.4s; }
+.fade-in:nth-child(5) { animation-delay: 0.5s; }
+.fade-in:nth-child(6) { animation-delay: 0.6s; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.slide-scroll { overflow-y: auto; max-height: calc(100vh - 120px); padding-right: 20px; }
+.slide-scroll::-webkit-scrollbar { width: 4px; }
+.slide-scroll::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+
+@media (max-width: 900px) {
+  .slide { padding: 30px 24px; }
+  .two-col, .three-col, .four-col { grid-template-columns: 1fr; }
+  .achievements-grid { grid-template-columns: repeat(2, 1fr); }
+  .nav-dots { display: none; }
+  h1 { font-size: 36px; }
+  h2 { font-size: 26px; }
+}
+
+[data-theme="light"] .deck::before { opacity: 0; }
+[data-theme="light"] .glow-teal { text-shadow: none; }
+[data-theme="light"] .nav-dot.active { box-shadow: 0 0 8px rgba(0,140,110,0.4); }
+[data-theme="light"] .tl-item::before { box-shadow: 0 0 6px rgba(0,140,110,0.3); }
+[data-theme="light"] .card { border-color: rgba(0,0,0,0.08); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+[data-theme="light"] .card:hover { border-color: rgba(0,140,110,0.25); }
+[data-theme="light"] .pill { border-color: rgba(0,0,0,0.1); background: var(--bg2); }
+[data-theme="light"] .pillar-testing { background: linear-gradient(180deg, rgba(0,140,110,0.06), var(--surface)); }
+[data-theme="light"] .pillar-data { background: linear-gradient(180deg, rgba(217,119,6,0.06), var(--surface)); }
+[data-theme="light"] .pillar-ai { background: linear-gradient(180deg, rgba(190,24,93,0.06), var(--surface)); }
+[data-theme="light"] .pillar { border-color: rgba(0,0,0,0.08); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+[data-theme="light"] .ach-item { box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.06); }
+[data-theme="light"] .flow-step { border-color: rgba(0,0,0,0.1); background: var(--bg2); }
+[data-theme="light"] .slide-scroll::-webkit-scrollbar-thumb { background: #c4c9d4; }
+[data-theme="light"] .ach-num { background: linear-gradient(135deg, var(--teal), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+[data-theme="light"] .fw-tile { border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .fw-tile-amber { border-color: rgba(245,158,11,0.2); }
+[data-theme="light"] .syn-col-pag { background: rgba(0,140,110,0.05); border-color: rgba(0,140,110,0.18); }
+[data-theme="light"] .syn-col-send { background: rgba(190,24,93,0.05); border-color: rgba(190,24,93,0.18); }
+[data-theme="light"] .syn-result { background: linear-gradient(90deg, rgba(0,140,110,0.06), rgba(190,24,93,0.06)); border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .syn-result-text strong { color: #007a5a; }
+[data-theme="light"] .syn-result-tag { background: rgba(0,140,110,0.1); color: #007a5a; border-color: rgba(0,140,110,0.22); }
+
+/* FRAMEWORK / MODULE TILES (informational, no modal) */
+.fw-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 4px; }
+.fw-tile {
+  display: flex; align-items: center; gap: 16px;
+  padding: 20px 22px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: all 0.25s;
+}
+.fw-tile:hover { border-color: var(--teal); background: rgba(0,212,170,0.05); transform: translateY(-3px); }
+.fw-tile-amber { border-color: rgba(245,158,11,0.15); }
+.fw-tile-amber:hover { border-color: var(--amber); background: rgba(245,158,11,0.05); }
+.fw-tile-icon { font-size: 26px; flex-shrink: 0; line-height: 1; }
+.fw-tile-body { flex: 1; min-width: 0; }
+.fw-tile-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.fw-tile-sub { font-size: 12px; color: var(--text-muted); line-height: 1.4; font-family: var(--font-mono); }
+
+/* FLOW BREADCRUMB */
+.flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+.flow-step { padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; background: var(--surface); border: 1px solid rgba(255,255,255,0.08); }
+.flow-arrow { color: var(--teal); font-size: 18px; }
+
+/* SINERGIA PANEL */
+.syn-panel { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 6px; }
+.syn-row { display: flex; align-items: stretch; gap: 0; }
+.syn-col { flex: 1; padding: 14px 16px; border-radius: 10px; display: flex; flex-direction: column; gap: 6px; }
+.syn-col-pag { background: rgba(0,212,170,0.07); border: 1px solid rgba(0,212,170,0.2); }
+.syn-col-send { background: rgba(236,72,153,0.07); border: 1px solid rgba(236,72,153,0.2); }
+.syn-col-hdr { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; font-weight: 700; text-transform: uppercase; margin-bottom: 3px; }
+.syn-col-pag .syn-col-hdr { color: var(--teal); }
+.syn-col-send .syn-col-hdr { color: var(--pink); }
+.syn-bullet { font-size: 13px; color: var(--text-dim); display: flex; align-items: baseline; gap: 6px; }
+.syn-bullet::before { content: '▸'; font-size: 10px; flex-shrink: 0; }
+.syn-col-pag .syn-bullet::before { color: var(--teal); }
+.syn-col-send .syn-bullet::before { color: var(--pink); }
+.syn-plus { display: flex; align-items: center; justify-content: center; width: 40px; flex-shrink: 0; font-size: 20px; font-weight: 700; color: var(--text-muted); }
+.syn-result { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 18px; border-radius: 10px; background: linear-gradient(90deg, rgba(0,212,170,0.08), rgba(236,72,153,0.08)); border: 1px solid rgba(255,255,255,0.1); font-size: 13px; margin-top: 14px; }
+.syn-result-icon { font-size: 18px; }
+.syn-result-text { color: var(--text); flex: 1; line-height: 1.5; }
+.syn-result-text strong { color: var(--teal); }
+.syn-result-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 10px; border-radius: 20px; white-space: nowrap; background: rgba(0,212,170,0.12); color: var(--teal); border: 1px solid rgba(0,212,170,0.25); }
+
+/* WATERMARK */
+.watermark {
+  position: fixed; bottom: 30px; left: 40px;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-muted); letter-spacing: 2px;
+  text-transform: uppercase; z-index: 1000;
+  display: flex; align-items: center;
+}
+.logo-light { display: none; }
+.logo-dark { display: inline; }
+[data-theme="light"] .logo-light { display: inline; }
+[data-theme="light"] .logo-dark { display: none; }
+.cover-logo { margin-bottom: 24px; }
+.cover-logo svg { opacity: 0.7; }
+[data-theme="light"] .cover-logo .logo-light { display: block; }
+[data-theme="light"] .cover-logo .logo-dark { display: none; }
+.cover-logo .logo-light { display: none; }
+.cover-logo .logo-dark { display: block; }
+
+/* THEME TOGGLE */
+.theme-toggle {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+  z-index: 1001;
+  background: var(--surface);
+  border: 1px solid rgba(128,128,128,0.2);
+  border-radius: 40px;
+  padding: 6px 8px;
+  display: flex; align-items: center; gap: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+.theme-toggle:hover { border-color: var(--teal); }
+.theme-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: none; background: transparent; cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+  color: var(--text-muted);
+}
+.theme-btn.active { background: var(--teal); color: #fff; box-shadow: 0 0 10px rgba(0,212,170,0.3); }
+[data-theme="light"] .theme-btn.active { box-shadow: 0 0 10px rgba(0,140,110,0.3); }
+
+/* ROADMAP TIMELINE */
+.rm-track { display: flex; gap: 0; margin-bottom: 40px; position: relative; }
+.rm-line { position: absolute; top: 18px; left: 0; right: 0; height: 3px; background: linear-gradient(90deg,var(--teal),var(--cyan),var(--amber),var(--pink)); border-radius: 2px; }
+.rm-step { flex: 1; text-align: center; position: relative; padding-top: 40px; }
+.rm-dot { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 16px; height: 16px; border-radius: 50%; }
+.rm-dot.done { background: var(--teal); box-shadow: 0 0 12px var(--teal); }
+.rm-dot.pending { border: 2px solid var(--amber); background: transparent; }
+.rm-dot.future { border: 2px solid var(--pink); background: transparent; }
+.rm-date { font-family: var(--font-mono); font-size: 11px; margin-bottom: 6px; }
+.rm-title { font-size: 13px; font-weight: 700; }
+.rm-desc { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+/* DEEP DIVE SEPARATOR */
+.dd-separator { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+.dd-badge {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--pink); border: 1px solid rgba(236,72,153,0.3); background: rgba(236,72,153,0.08);
+  padding: 4px 12px; border-radius: 20px;
+}
+
+/* CLICKABLE TILES */
+.ach-item.clickable, .fw-tile.clickable { cursor: pointer; }
+.fw-tile.clickable { justify-content: space-between; }
+.fw-tile-arrow { font-size: 16px; color: var(--text-muted); transition: color 0.2s, transform 0.2s; flex-shrink: 0; }
+.fw-tile.clickable:hover .fw-tile-arrow { color: var(--teal); transform: translate(2px, -2px); }
+.fw-tile-amber.clickable:hover .fw-tile-arrow { color: var(--amber); }
+
+/* MODAL SYSTEM */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 720px; width: 90%; max-height: 80vh;
+  overflow-y: auto;
+  transform: translateY(20px) scale(0.97);
+  transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  position: relative;
+}
+[data-theme="light"] .modal-box { border-color: rgba(0,0,0,0.1); box-shadow: 0 24px 64px rgba(0,0,0,0.15); }
+.modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid rgba(128,128,128,0.2);
+  background: var(--bg); color: var(--text-dim);
+  font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.modal-close:hover { border-color: var(--teal); color: var(--teal); }
+.modal-box h3 { font-family: var(--font-display); font-size: 24px; margin-bottom: 18px; padding-right: 30px; }
+.modal-box p { color: var(--text-dim); font-size: 14px; line-height: 1.7; margin-bottom: 12px; }
+.modal-box ul { padding-left: 20px; color: var(--text-dim); font-size: 13px; line-height: 1.9; }
+.modal-box li { margin-bottom: 4px; }
+.modal-box li strong, .modal-box p strong { color: var(--text); }
+.modal-item { padding: 14px 0; border-bottom: 1px solid rgba(128,128,128,0.1); display: flex; gap: 14px; align-items: flex-start; }
+.modal-item:last-child { border-bottom: none; }
+.modal-item-num { font-family: var(--font-mono); font-size: 13px; color: var(--teal); width: 28px; flex-shrink: 0; padding-top: 2px; }
+.modal-item-body h4 { font-size: 15px; margin-bottom: 4px; }
+.modal-item-body p { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 0; }
+
+/* MODAL CARDS (over/under style, es. Quality Manifesto) */
+.modal-cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.modal-card {
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 20px 16px;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 6px;
+  transition: border-color 0.25s, transform 0.25s;
+}
+[data-theme="light"] .modal-card { border-color: rgba(0,0,0,0.08); background: var(--bg); }
+.modal-card:hover { border-color: var(--teal); transform: translateY(-3px); }
+.mc-icon { font-size: 32px; line-height: 1; margin-bottom: 6px; }
+.mc-over { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.mc-vs { font-family: var(--font-mono); font-size: 9px; letter-spacing: 2px; color: var(--teal); text-transform: uppercase; padding: 2px 8px; border-radius: 4px; background: rgba(0,212,170,0.1); }
+.mc-under { font-size: 11px; color: var(--text-muted); text-decoration: line-through; line-height: 1.3; }
+.mc-desc { font-size: 11px; color: var(--text-dim); line-height: 1.55; margin-top: 6px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); }
+[data-theme="light"] .mc-desc { border-top-color: rgba(0,0,0,0.07); }
+@media (max-width: 900px) { .modal-cards-grid { grid-template-columns: 1fr; } }
+
+/* FLOW DIAGRAM MODAL (Processo QA & SDLC / Branching Model) */
+.flow-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 2500;
+  display: flex; align-items: center; justify-content: center;
+  padding: 30px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.flow-modal-overlay.open { opacity: 1; pointer-events: all; }
+.flow-modal-box {
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 36px 40px 28px;
+  width: 100%; max-width: 940px;
+  max-height: 90vh; overflow-y: auto;
+  position: relative;
+  transform: translateY(24px) scale(0.97);
+  transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+}
+[data-theme="light"] .flow-modal-box { border-color: rgba(0,0,0,0.1); box-shadow: 0 32px 80px rgba(0,0,0,0.15); }
+.flow-modal-overlay.open .flow-modal-box { transform: translateY(0) scale(1); }
+
+.fm-step-desc { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; min-height: 44px; }
+.fm-step-num { font-family: var(--font-mono); font-size: 11px; color: var(--teal); letter-spacing: 2px; flex-shrink: 0; }
+.fm-step-label { font-size: 16px; font-weight: 600; color: var(--text); transition: opacity 0.3s; }
+
+.fd-wrap { display: flex; flex-direction: column; gap: 10px; }
+.fd-mc-row, .fd-header-row, .fd-row { display: flex; align-items: center; gap: 10px; }
+.fd-lbl-gap { width: 80px; flex-shrink: 0; }
+.fd-harrow-gap { width: 32px; flex-shrink: 0; }
+.fd-mc-bar {
+  flex: 1; text-align: center; padding: 5px 12px; border-radius: 6px;
+  border: 1px dashed rgba(6,182,212,0.35); color: var(--cyan);
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px;
+  overflow: hidden; white-space: nowrap;
+}
+.fd-ph { flex: 1; text-align: center; padding: 8px 6px; border-radius: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; font-weight: 700; }
+.fd-init  { background: rgba(99,115,180,0.18); color: #8899cc; }
+.fd-plan  { background: rgba(6,182,212,0.14); color: var(--cyan); }
+.fd-exec  { background: rgba(0,212,170,0.14); color: var(--teal); }
+.fd-close { background: rgba(245,158,11,0.14); color: var(--amber); }
+.fd-track-lbl { width: 80px; flex-shrink: 0; font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); text-align: right; line-height: 1.5; padding-right: 4px; text-transform: uppercase; letter-spacing: 1px; }
+.fd-qa-lbl { color: var(--teal); }
+.fd-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.fd-col-empty { flex: 1; }
+.fd-harrow { width: 32px; flex-shrink: 0; text-align: center; font-size: 22px; color: var(--text-muted); }
+.fd-node {
+  width: 100%; padding: 10px 12px; border-radius: 10px; font-size: 12px;
+  text-align: center; line-height: 1.45;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--text);
+}
+[data-theme="light"] .fd-node { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.1); }
+.fd-node small { display: block; font-size: 10px; opacity: 0.65; margin-top: 2px; }
+.fd-sprint { background: rgba(6,182,212,0.1) !important; border-color: rgba(6,182,212,0.25) !important; }
+.fd-qa { background: rgba(0,212,170,0.08) !important; border-color: rgba(0,212,170,0.2) !important; }
+.fd-gate { background: rgba(245,158,11,0.1) !important; border-color: rgba(245,158,11,0.35) !important; color: var(--amber) !important; font-weight: 700; font-size: 13px !important; }
+.fd-qa-gate { background: rgba(0,212,170,0.1) !important; border-color: rgba(0,212,170,0.35) !important; color: var(--teal) !important; font-weight: 700; font-size: 18px !important; padding: 16px !important; }
+.fd-down { color: var(--text-muted); font-size: 16px; }
+.fd-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 4px 0; }
+[data-theme="light"] .fd-divider { background: rgba(0,0,0,0.08); }
+
+.flow-item { opacity: 0; transform: scale(0.85) translateY(6px); transition: opacity 0.4s ease, transform 0.4s cubic-bezier(.34,1.4,.64,1); }
+.flow-item.fi-visible { opacity: 1 !important; transform: scale(1) translateY(0) !important; }
+.fd-gate.fi-visible { animation: gatePulseAmber 2.5s ease-in-out infinite 0.5s; }
+.fd-qa-gate.fi-visible { animation: gatePulseTeal 2.5s ease-in-out infinite 0.7s; }
+@keyframes gatePulseAmber { 0%,100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); } 50% { box-shadow: 0 0 18px 4px rgba(245,158,11,0.25); } }
+@keyframes gatePulseTeal { 0%,100% { box-shadow: 0 0 0 0 rgba(0,212,170,0); } 50% { box-shadow: 0 0 18px 4px rgba(0,212,170,0.25); } }
+
+.fm-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+[data-theme="light"] .fm-nav { border-top-color: rgba(0,0,0,0.08); }
+.fm-btn { padding: 10px 24px; border-radius: 10px; border: 1px solid rgba(128,128,128,0.2); font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.fm-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.fm-btn-sec { background: transparent; color: var(--text-dim); }
+.fm-btn-sec:not(:disabled):hover { border-color: var(--text-dim); color: var(--text); }
+.fm-btn-pri { background: var(--teal); color: #000; border-color: var(--teal); }
+.fm-btn-pri:not(:disabled):hover { opacity: 0.85; }
+.fm-steps-track { display: flex; gap: 8px; align-items: center; }
+.fm-step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: all 0.3s; }
+.fm-step-dot.active { background: var(--teal); width: 24px; border-radius: 4px; box-shadow: 0 0 8px rgba(0,212,170,0.4); }
+
+/* BRANCHING DIAGRAM */
+.bm-diagram { display: flex; flex-direction: column; gap: 0; padding: 8px 0 16px; overflow-x: auto; }
+.bm-row { display: flex; align-items: center; height: 40px; }
+.bm-track-lbl { width: 72px; flex-shrink: 0; font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); text-align: right; padding-right: 12px; line-height: 1.4; text-transform: uppercase; letter-spacing: 1px; }
+.bm-fb-lbl { color: var(--amber); }
+.bm-line-wrap { display: flex; align-items: center; flex: 1; }
+.bm-seg { height: 4px; flex: 1; opacity: 0; transition: opacity 0.35s; }
+.bm-seg-main { background: var(--cyan); }
+.bm-seg-fb { background: var(--amber); }
+.bm-node { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; position: relative; z-index: 2; opacity: 0; transform: scale(0); transition: opacity 0.3s, transform 0.35s cubic-bezier(.34,1.56,.64,1); }
+.bm-merge-point { width: 18px; height: 18px; border-radius: 50%; border: 3px solid var(--teal); background: var(--bg2); flex-shrink: 0; opacity: 0; transform: scale(0); transition: opacity 0.3s, transform 0.35s cubic-bezier(.34,1.56,.64,1); z-index: 2; }
+.bm-spacer-2 { width: 110px; flex-shrink: 0; }
+.bm-node-main { background: var(--cyan); box-shadow: 0 0 8px rgba(6,182,212,0.5); }
+.bm-node-fb { background: var(--amber); box-shadow: 0 0 8px rgba(245,158,11,0.5); }
+.bm-node-mock { background: var(--text-muted); width: 10px; height: 10px; }
+.bm-node-dev { background: var(--cyan); width: 16px; height: 16px; box-shadow: 0 0 10px rgba(6,182,212,0.6); }
+.bm-node-uat { background: var(--amber); width: 16px; height: 16px; box-shadow: 0 0 10px rgba(245,158,11,0.6); }
+.bm-node-rc { background: var(--teal); width: 12px; height: 12px; box-shadow: 0 0 8px rgba(0,212,170,0.5); }
+.bm-node-release { background: var(--teal); width: 18px; height: 18px; box-shadow: 0 0 14px rgba(0,212,170,0.7); }
+.bm-node-release::after { content: '🎉'; position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: 14px; }
+.bm-item.bm-visible { opacity: 1 !important; }
+.bm-item.bm-visible.bm-node, .bm-item.bm-visible.bm-merge-point { opacity: 1; transform: scale(1); }
+.bm-labels-row { display: flex; align-items: center; padding-left: 72px; height: 22px; opacity: 0; transition: opacity 0.4s; }
+.bm-item.bm-visible.bm-labels-row { opacity: 1; }
+.bm-label-spacer { flex: 7; }
+.bm-label { font-family: var(--font-mono); font-size: 9px; letter-spacing: 1px; text-align: center; flex: 1.2; }
+.bm-label-merge, .bm-label-rc, .bm-label-rel { color: var(--teal); }
+.bm-connectors { position: relative; height: 0; padding-left: 72px; pointer-events: none; }
+.bm-fork, .bm-join { position: absolute; border-left: 2px dashed rgba(245,158,11,0.5); height: 40px; width: 1px; opacity: 0; transition: opacity 0.4s; z-index: 1; }
+.bm-fork { left: 186px; top: -40px; }
+.bm-join { left: calc(72px + 385px); top: -40px; border-color: rgba(0,212,170,0.5); }
+.bm-sync-row { display: flex; align-items: flex-start; padding-left: 72px; margin-top: 6px; }
+.bm-sync-spacer { width: 110px; flex-shrink: 0; }
+.bm-sync { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; opacity: 0; transition: opacity 0.4s; }
+.bm-item.bm-visible.bm-sync { opacity: 1; }
+.bm-sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); margin-top: 2px; }
+.bm-sync-label { font-size: 10px; color: var(--text-dim); text-align: center; line-height: 1.4; font-family: var(--font-mono); }
+.bm-sync-label code { font-size: 9px; color: var(--text-muted); background: var(--surface2); padding: 1px 4px; border-radius: 3px; display: block; margin-top: 2px; }
+.bm-gate-banner { margin: 16px 0 0; padding: 12px 18px; border-radius: 10px; background: rgba(0,212,170,0.08); border: 1px solid rgba(0,212,170,0.25); font-size: 13px; color: var(--text); opacity: 0; transition: opacity 0.5s; }
+.bm-item.bm-visible.bm-gate-banner { opacity: 1; }
+[data-theme="light"] .bm-gate-banner { background: rgba(0,140,110,0.06); border-color: rgba(0,140,110,0.2); }
+
+/* DQ SOLUTION DIAGRAM */
+.dqs-arch { display:flex; flex-direction:column; gap:8px; }
+.dqs-top-row { display:flex; align-items:stretch; gap:0; }
+.dqs-zone-src { display:flex; flex-direction:column; gap:4px; justify-content:center; padding:8px; background:rgba(100,116,139,0.08); border:1.5px solid rgba(100,116,139,0.2); border-radius:8px; flex-shrink:0; }
+.dqs-zone-hdr { font-family:var(--font-mono); font-size:9px; letter-spacing:1.2px; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; text-align:center; }
+.dqs-src-box { background:rgba(59,130,246,0.15); border:1.5px solid rgba(59,130,246,0.3); border-radius:5px; padding:4px 8px; font-size:10px; font-weight:600; color:#93c5fd; text-align:center; white-space:nowrap; }
+.dqs-harr { display:flex; align-items:center; justify-content:center; padding:0 8px; font-size:18px; color:var(--text-muted); flex-shrink:0; align-self:center; }
+.dqs-zone-ingest { display:flex; flex-direction:column; gap:4px; padding:8px; background:rgba(59,130,246,0.07); border:1.5px solid rgba(59,130,246,0.2); border-radius:8px; flex-shrink:0; }
+.dqs-zone-subhdr { font-family:var(--font-mono); font-size:8px; color:rgba(147,197,253,0.5); text-align:center; margin-bottom:2px; }
+.dqs-hub-box { background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.35); border-radius:5px; padding:3px 8px; font-size:10px; color:#93c5fd; display:flex; align-items:center; justify-content:space-between; gap:6px; }
+.dqs-hub-diamond { opacity:0.6; }
+.dqs-ingest-arr { display:flex; flex-direction:column; justify-content:space-evenly; padding:0 6px; flex-shrink:0; }
+.dqs-ingest-lbl { font-size:9px; color:var(--text-muted); font-family:var(--font-mono); white-space:nowrap; }
+.dqs-zone-lake { display:flex; flex-direction:column; gap:6px; padding:10px 12px; background:rgba(220,180,60,0.07); border:1.5px solid rgba(220,180,60,0.22); border-radius:8px; flex:1; position:relative; }
+.dqs-lake-hdr { color:var(--amber); }
+.dqs-lake-inner { display:flex; align-items:flex-start; gap:5px; }
+.dqs-lake-col { display:flex; flex-direction:column; gap:3px; }
+.dqs-col-hdr { font-family:var(--font-mono); font-size:9px; letter-spacing:0.8px; margin-bottom:3px; text-align:center; }
+.dqs-entity { border-radius:5px; padding:3px 7px; font-size:10px; font-weight:600; text-align:center; border:1.5px solid; white-space:nowrap; }
+.dqs-entity-bronze { background:rgba(180,120,40,0.15); border-color:rgba(180,120,40,0.4); color:#fbbf24; }
+.dqs-entity-silver { background:rgba(148,163,184,0.12); border-color:rgba(148,163,184,0.3); color:#cbd5e1; }
+.dqs-entity-gold   { background:rgba(161,140,40,0.18); border-color:rgba(161,140,40,0.4); color:#fde68a; }
+.dqs-dc-badge { font-size:8px; color:rgba(251,191,36,0.8); background:rgba(251,191,36,0.07); border:1px solid rgba(251,191,36,0.18); border-radius:4px; padding:2px 5px; text-align:center; }
+.dqs-dedup-arr { display:flex; flex-direction:column; justify-content:space-evenly; padding:0 3px; color:var(--text-muted); font-size:8px; font-family:var(--font-mono); align-self:stretch; padding-top:18px; }
+.dqs-check-down { color:var(--red); font-size:8px; font-family:var(--font-mono); font-weight:700; text-align:center; margin-top:4px; }
+.dqs-gold-col { border:1.5px dashed rgba(245,158,11,0.3); border-radius:7px; padding:6px 8px; background:rgba(245,158,11,0.04); }
+.dqs-gold-badge { font-size:8px; color:var(--amber); background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:5px; padding:3px 6px; text-align:center; line-height:1.3; margin-bottom:5px; }
+.dqs-dqf-bar { background:rgba(239,68,68,0.1); border:1.5px solid rgba(239,68,68,0.35); border-radius:7px; padding:8px 16px; display:flex; align-items:center; justify-content:center; gap:12px; }
+.dqs-dqf-title { font-size:12px; font-weight:700; color:#fca5a5; }
+.dqs-dqf-tech { font-size:11px; color:var(--text-muted); }
+.dqs-cloudera-badge { position:absolute; top:6px; right:8px; font-family:var(--font-display); font-size:11px; font-weight:700; color:var(--amber); background:rgba(245,158,11,0.08); border:1.5px solid rgba(245,158,11,0.28); border-radius:5px; padding:2px 8px; }
+.dqs-bottom-row { display:flex; align-items:center; gap:8px; }
+.dqs-results-row { display:flex; align-items:center; gap:8px; flex:1; }
+.dqs-storage-box { background:rgba(245,158,11,0.08); border:1.5px solid rgba(245,158,11,0.25); border-radius:7px; padding:6px 10px; font-size:10px; color:#fde68a; text-align:center; flex-shrink:0; }
+.dqs-res-lbl { font-size:9px; color:var(--text-muted); font-family:var(--font-mono); white-space:nowrap; flex-shrink:0; }
+.dqs-obs-bar { background:rgba(59,130,246,0.1); border:1.5px solid rgba(59,130,246,0.28); border-radius:7px; padding:7px 14px; flex:1; display:flex; align-items:center; gap:8px; }
+.dqs-obs-title { font-size:11px; font-weight:600; color:#93c5fd; white-space:nowrap; }
+.dqs-alerts-col { display:flex; flex-direction:column; gap:3px; align-items:center; flex-shrink:0; }
+.dqs-alert-box { background:rgba(16,185,129,0.1); border:1.5px solid rgba(16,185,129,0.28); border-radius:6px; padding:4px 10px; font-size:10px; color:#6ee7b7; text-align:center; white-space:nowrap; }
+.dqs-slack-box { background:rgba(76,0,130,0.12); border:1.5px solid rgba(150,70,200,0.25); border-radius:6px; padding:3px 10px; font-size:10px; color:#c4b5fd; text-align:center; }
+.dqs-notes { display:flex; gap:8px; flex-wrap:wrap; }
+.dqs-note { font-size:10px; color:var(--text-muted); background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.14); border-radius:6px; padding:5px 9px; line-height:1.5; flex:1; min-width:120px; }
+.dqs-item { opacity:0; transform:translateY(12px); transition:opacity 0.45s ease, transform 0.45s ease; }
+.dqs-item.dqs-visible { opacity:1; transform:translateY(0); }
+
+/* CATALOGO CONTROLLI */
+.ctrl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
+.ctrl-card { border-radius: 14px; padding: 18px; border: 1px solid rgba(255,255,255,0.07); background: var(--surface); display: flex; flex-direction: column; gap: 12px; }
+[data-theme="light"] .ctrl-card { border-color: rgba(0,0,0,0.08); }
+.ctrl-puntuale { border-color: rgba(0,212,170,0.2); background: rgba(0,212,170,0.03); }
+.ctrl-intra { border-color: rgba(6,182,212,0.2); background: rgba(6,182,212,0.03); }
+.ctrl-cross { border-color: rgba(236,72,153,0.2); background: rgba(236,72,153,0.03); }
+.ctrl-card-header { display: flex; justify-content: space-between; align-items: center; }
+.ctrl-badge { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 6px; border: 1px solid; font-weight: 700; }
+.ctrl-icon { font-size: 22px; }
+.ctrl-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+.ctrl-desc strong { color: var(--text); }
+.ctrl-examples { display: flex; flex-direction: column; gap: 8px; }
+.ctrl-example { background: var(--bg2); border-radius: 8px; padding: 9px 11px; border: 1px solid rgba(255,255,255,0.05); }
+[data-theme="light"] .ctrl-example { background: var(--bg); border-color: rgba(0,0,0,0.07); }
+.ctrl-ex-anim { opacity: 0; transform: translateY(6px); animation: ctrlFadeIn 0.4s ease forwards; }
+@keyframes ctrlFadeIn { to { opacity: 1; transform: translateY(0); } }
+.ctrl-ex-header { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; flex-wrap: wrap; }
+.ctrl-entity { font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.07); color: var(--text); }
+[data-theme="light"] .ctrl-entity { background: rgba(0,0,0,0.06); }
+.ctrl-field { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); flex: 1; }
+.ctrl-result { font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; flex-shrink: 0; }
+.ctrl-pass { background: rgba(0,212,170,0.15); color: var(--teal); }
+.ctrl-warn { background: rgba(245,158,11,0.15); color: var(--amber); }
+.ctrl-fail { background: rgba(239,68,68,0.15); color: var(--red); }
+.ctrl-ex-rule { font-family: var(--font-mono); font-size: 10px; color: var(--cyan); margin-bottom: 3px; }
+.ctrl-ex-val { font-size: 11px; color: var(--text-muted); }
+.ctrl-ex-val code { font-family: var(--font-mono); font-size: 10px; background: rgba(255,255,255,0.06); padding: 1px 4px; border-radius: 3px; color: var(--text); }
+[data-theme="light"] .ctrl-ex-val code { background: rgba(0,0,0,0.06); }
+.ctrl-legend { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 14px; border-radius: 10px; background: var(--surface2); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="nav-dots" id="navDots"></div>
+<div class="slide-counter" id="slideCounter"></div>
+<div class="scroll-hint" id="scrollHint">↓&ensp;Frecce o scroll per navigare</div>
+
+<div class="watermark">
+  <span class="logo-dark"><svg viewBox="0 0 35 23" width="52" height="34" xmlns="http://www.w3.org/2000/svg"><path fill="#FFFFFF" d="M24.4,6.9v2.9h-2.1V0h2.1h0.2h1.5C27.4,0,28,0.3,28,1v4.8c0,0.7-0.6,1-1.8,1L24.4,6.9z M26,1.1h-1.6v4.5H26V1.1z"/><path fill="#FFFFFF" d="M1.8,9.8v2.9H0V2.9h1.8H2h1.3c1.1,0,1.6,0.3,1.6,1v4.8c0,0.7-0.5,1-1.5,1L1.8,9.8z M3.1,4H1.8v4.5h1.3V4z"/><path fill="#FFFFFF" d="M10.4,9.7H7c-1,0-1.5-0.3-1.5-1v-2c0-0.7,0.5-1,1.5-1h1.6V4H7.3v0.9H5.5v-1c0-0.7,0.5-1,1.6-1h1.7c1,0,1.5,0.3,1.5,1L10.4,9.7z M7.3,8.6h1.3V6.8H7.3V8.6z"/><path fill="#FFFFFF" d="M14.2,9.7h-1.6c-1,0-1.5-0.3-1.5-1V3.9c0-0.7,0.5-1,1.6-1H14h0.2H16v8.8c0,0.7-0.5,1-1.6,1h-1.8c-1,0-1.6-0.3-1.6-1v-1h1.8v0.9h1.3L14.2,9.7z M12.9,8.6h1.3V4h-1.3V8.6z"/><path fill="#FFFFFF" d="M21.5,8.7c0,0.7-0.5,1-1.6,1h-1.7c-1,0-1.6-0.3-1.6-1V3.9c0-0.7,0.5-1,1.6-1H20c1,0,1.5,0.3,1.5,1V8.7z M19.8,4h-1.3v4.5h1.3V4z"/><path fill="#FFFFFF" d="M34.7,1.1c0-0.7-0.6-1-1.8-1h-2.1c-1.2,0-1.9,0.3-1.9,1v8.7H31v-3h1.6v2.5c0,6.4-5.2,11.6-11.6,11.6c-3.7,0-7-1.8-9.1-4.5l1.1-0.8l-4.3-2.9l0.2,6l1.4-1.1C12.7,20.9,16.6,23,21,23c7.6,0,13.7-6.1,13.7-13.7V1.1z M32.6,5.7H31V1.2h1.6V5.7z"/></svg></span>
+  <span class="logo-light"><svg viewBox="0 0 35 23" width="52" height="34" xmlns="http://www.w3.org/2000/svg"><path fill="#1D1D1B" d="M24.4,6.9v2.9h-2.1V0h2.1h0.2h1.5c1.3,0,1.9,0.3,1.9,1v4.8c0,0.7-0.6,1-1.8,1L24.4,6.9z M26,1.1h-1.6v4.5H26V1.1z"/><path fill="#1D1D1B" d="M1.8,9.8v2.9H0V2.9h1.8H2h1.3c1.1,0,1.6,0.3,1.6,1v4.8c0,0.7-0.5,1-1.5,1L1.8,9.8z M3.1,4H1.8v4.5h1.3V4z"/><path fill="#1D1D1B" d="M10.4,9.7H7c-1,0-1.5-0.3-1.5-1v-2c0-0.7,0.5-1,1.5-1h1.6V4H7.3v0.9H5.5v-1c0-0.7,0.5-1,1.6-1h1.7c1,0,1.5,0.3,1.5,1V9.7z M7.3,8.6h1.3V6.8H7.3V8.6z"/><path fill="#1D1D1B" d="M14.2,9.7h-1.6c-1,0-1.5-0.3-1.5-1V3.9c0-0.7,0.5-1,1.6-1H14h0.2H16v8.8c0,0.7-0.5,1-1.6,1h-1.8c-1,0-1.6-0.3-1.6-1v-1h1.8v0.9h1.3L14.2,9.7z M12.9,8.6h1.3V4h-1.3V8.6z"/><path fill="#1D1D1B" d="M21.5,8.7c0,0.7-0.5,1-1.6,1h-1.7c-1,0-1.6-0.3-1.6-1V3.9c0-0.7,0.5-1,1.6-1H20c1,0,1.5,0.3,1.5,1V8.7z M19.8,4h-1.3v4.5h1.3V4z"/><path fill="#1D1D1B" d="M34.7,1.1c0-0.7-0.6-1-1.8-1h-2.1c-1.2,0-1.9,0.3-1.9,1v8.7H31v-3h1.6v2.5c0,6.4-5.2,11.6-11.6,11.6c-3.7,0-7-1.8-9.1-4.5l1.1-0.8l-4.3-2.9l0.2,6l1.4-1.1C12.7,20.9,16.6,23,21,23c7.6,0,13.7-6.1,13.7-13.7V1.1z M32.6,5.7H31V1.2h1.6V5.7z"/></svg></span>
+  <span style="margin-left:10px;">Dipartimento Pagamenti</span>
+</div>
+
+<div class="theme-toggle" id="themeToggle" title="Cambia tema">
+  <button class="theme-btn active" data-theme-val="dark" onclick="setTheme('dark')">🌙</button>
+  <button class="theme-btn" data-theme-val="light" onclick="setTheme('light')">☀️</button>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- ==================== SLIDE 0: COVER ==================== -->
+<div class="slide active" data-idx="0">
+  <div class="fade-in cover-logo">
+    <span class="logo-dark"><svg viewBox="0 0 35 23" width="90" height="58" xmlns="http://www.w3.org/2000/svg"><path fill="#FFFFFF" d="M24.4,6.9v2.9h-2.1V0h2.1h0.2h1.5C27.4,0,28,0.3,28,1v4.8c0,0.7-0.6,1-1.8,1L24.4,6.9z M26,1.1h-1.6v4.5H26V1.1z"/><path fill="#FFFFFF" d="M1.8,9.8v2.9H0V2.9h1.8H2h1.3c1.1,0,1.6,0.3,1.6,1v4.8c0,0.7-0.5,1-1.5,1L1.8,9.8z M3.1,4H1.8v4.5h1.3V4z"/><path fill="#FFFFFF" d="M10.4,9.7H7c-1,0-1.5-0.3-1.5-1v-2c0-0.7,0.5-1,1.5-1h1.6V4H7.3v0.9H5.5v-1c0-0.7,0.5-1,1.6-1h1.7c1,0,1.5,0.3,1.5,1L10.4,9.7z M7.3,8.6h1.3V6.8H7.3V8.6z"/><path fill="#FFFFFF" d="M14.2,9.7h-1.6c-1,0-1.5-0.3-1.5-1V3.9c0-0.7,0.5-1,1.6-1H14h0.2H16v8.8c0,0.7-0.5,1-1.6,1h-1.8c-1,0-1.6-0.3-1.6-1v-1h1.8v0.9h1.3L14.2,9.7z M12.9,8.6h1.3V4h-1.3V8.6z"/><path fill="#FFFFFF" d="M21.5,8.7c0,0.7-0.5,1-1.6,1h-1.7c-1,0-1.6-0.3-1.6-1V3.9c0-0.7,0.5-1,1.6-1H20c1,0,1.5,0.3,1.5,1V8.7z M19.8,4h-1.3v4.5h1.3V4z"/><path fill="#FFFFFF" d="M34.7,1.1c0-0.7-0.6-1-1.8-1h-2.1c-1.2,0-1.9,0.3-1.9,1v8.7H31v-3h1.6v2.5c0,6.4-5.2,11.6-11.6,11.6c-3.7,0-7-1.8-9.1-4.5l1.1-0.8l-4.3-2.9l0.2,6l1.4-1.1C12.7,20.9,16.6,23,21,23c7.6,0,13.7-6.1,13.7-13.7V1.1z M32.6,5.7H31V1.2h1.6V5.7z"/></svg></span>
+    <span class="logo-light"><svg viewBox="0 0 35 23" width="90" height="58" xmlns="http://www.w3.org/2000/svg"><path fill="#1D1D1B" d="M24.4,6.9v2.9h-2.1V0h2.1h0.2h1.5c1.3,0,1.9,0.3,1.9,1v4.8c0,0.7-0.6,1-1.8,1L24.4,6.9z M26,1.1h-1.6v4.5H26V1.1z"/><path fill="#1D1D1B" d="M1.8,9.8v2.9H0V2.9h1.8H2h1.3c1.1,0,1.6,0.3,1.6,1v4.8c0,0.7-0.5,1-1.5,1L1.8,9.8z M3.1,4H1.8v4.5h1.3V4z"/><path fill="#1D1D1B" d="M10.4,9.7H7c-1,0-1.5-0.3-1.5-1v-2c0-0.7,0.5-1,1.5-1h1.6V4H7.3v0.9H5.5v-1c0-0.7,0.5-1,1.6-1h1.7c1,0,1.5,0.3,1.5,1V9.7z M7.3,8.6h1.3V6.8H7.3V8.6z"/><path fill="#1D1D1B" d="M14.2,9.7h-1.6c-1,0-1.5-0.3-1.5-1V3.9c0-0.7,0.5-1,1.6-1H14h0.2H16v8.8c0,0.7-0.5,1-1.6,1h-1.8c-1,0-1.6-0.3-1.6-1v-1h1.8v0.9h1.3L14.2,9.7z M12.9,8.6h1.3V4h-1.3V8.6z"/><path fill="#1D1D1B" d="M21.5,8.7c0,0.7-0.5,1-1.6,1h-1.7c-1,0-1.6-0.3-1.6-1V3.9c0-0.7,0.5-1,1.6-1H20c1,0,1.5,0.3,1.5,1V8.7z M19.8,4h-1.3v4.5h1.3V4z"/><path fill="#1D1D1B" d="M34.7,1.1c0-0.7-0.6-1-1.8-1h-2.1c-1.2,0-1.9,0.3-1.9,1v8.7H31v-3h1.6v2.5c0,6.4-5.2,11.6-11.6,11.6c-3.7,0-7-1.8-9.1-4.5l1.1-0.8l-4.3-2.9l0.2,6l1.4-1.1C12.7,20.9,16.6,23,21,23c7.6,0,13.7-6.1,13.7-13.7V1.1z M32.6,5.7H31V1.2h1.6V5.7z"/></svg></span>
+  </div>
+  <div class="fade-in"><div class="kicker">AllHands di Dipartimento · Luglio 2026</div></div>
+  <h1 class="fade-in glow-teal">Centro di Competenza<br><span class="accent">Quality Assurance</span></h1>
+  <div class="fade-in">
+    <p class="subtitle">Un anno dopo il via: framework operativo, primi risultati in produzione e le novità che stiamo portando ai team prodotto.</p>
+  </div>
+  <div class="cover-meta fade-in">
+    <span>📅 Kick-off Feb 2026 → Target Giu 2027</span>
+    <span>🏢 Dipartimento Pagamenti</span>
+    <span>🤝 In sinergia con SEND & Interop, IO-Wallet-Multicanalità</span>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 1: MOMENTUM ==================== -->
+<div class="slide" data-idx="1">
+  <div class="fade-in kicker">Il Contesto</div>
+  <h2 class="fade-in">Uno dei progetti su cui il Dipartimento ha <span class="accent">investito di più</span></h2>
+  <p class="subtitle fade-in" style="margin-bottom:32px;">Come raccontato nello scorso AllHands, il Centro di Competenza QA è un'iniziativa strategica del Dipartimento. Da allora il framework è stato costruito, il pilota è partito, e i primi risultati sono già in produzione.</p>
+
+  <div class="three-col fade-in">
+    <div class="card" style="border-top:3px solid var(--teal);">
+      <div class="card-icon" style="background:rgba(0,212,170,0.12);">🧭</div>
+      <h3 style="font-size:15px;">Framework operativo</h3>
+      <p>Testing e Data Quality: due pilastri, entrambi documentati e in uso.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--amber);">
+      <div class="card-icon" style="background:rgba(245,158,11,0.12);">🚀</div>
+      <h3 style="font-size:15px;">In produzione</h3>
+      <p>Test Automation Service e Data Quality Framework già operativi sui primi progetti.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--pink);">
+      <div class="card-icon" style="background:rgba(236,72,153,0.12);">🤝</div>
+      <h3 style="font-size:15px;">3 dipartimenti in sinergia</h3>
+      <p>Scambio continuo con SEND & Interop e, da poco, IO-Wallet-Multicanalità.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 2: DUE PILASTRI ==================== -->
+<div class="slide" data-idx="2">
+  <div class="slide-scroll">
+    <div class="fade-in kicker">La Nostra Risposta</div>
+    <h2 class="fade-in">Due Pilastri,<br>un unico <span class="accent">Centro di Competenza</span></h2>
+
+    <div class="two-col fade-in" style="margin-top:32px;">
+      <div class="pillar pillar-testing">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+          <span style="font-size:30px;">🧪</span>
+          <div>
+            <h3 style="font-size:20px;margin:0;">Testing</h3>
+            <span class="tag tag-teal" style="margin-top:4px;">Pilastro 1</span>
+          </div>
+        </div>
+        <p style="color:var(--text-dim);font-size:14px;line-height:1.7;margin-bottom:14px;">Processo di Quality Assurance integrato nell'SDLC. Team dedicato, ruoli strutturati, automazione CI/CD tramite il Test Automation Service.</p>
+        <div class="pill-grid">
+          <div class="pill done">QA Manifesto</div>
+          <div class="pill done">Processo QA & SDLC</div>
+          <div class="pill done">Test Automation Service</div>
+          <div class="pill done">Central Hub QA</div>
+          <div class="pill wip">Adozione team prodotto</div>
+        </div>
+      </div>
+
+      <div class="pillar pillar-data">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+          <span style="font-size:30px;">🗄️</span>
+          <div>
+            <h3 style="font-size:20px;margin:0;">Data Quality</h3>
+            <span class="tag tag-amber" style="margin-top:4px;">Pilastro 2</span>
+          </div>
+        </div>
+        <p style="color:var(--text-dim);font-size:14px;line-height:1.7;margin-bottom:14px;">Governance e qualità del dato nel Data Lake. Framework strutturato con Data Contract e controlli automatici su SODA Cloud.</p>
+        <div class="pill-grid">
+          <div class="pill done">Solution Blueprint</div>
+          <div class="pill done">DQ Framework</div>
+          <div class="pill done">Controlli su GPD</div>
+          <div class="pill wip">Produzione su SODA</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 3: COSA ABBIAMO COSTRUITO ==================== -->
+<div class="slide" data-idx="3">
+  <div class="slide-scroll">
+    <div class="fade-in kicker">Risultati · Overview</div>
+    <h2 class="fade-in">Cosa Abbiamo <span class="accent">Costruito</span></h2>
+
+    <div class="status-legend fade-in">
+      <span><i class="status-dot done"></i> Completato</span>
+      <span><i class="status-dot wip"></i> In corso</span>
+    </div>
+
+    <div class="achievements-grid fade-in">
+      <div class="ach-item clickable" onclick="openModal('confluence')">
+        <div class="ach-num">70+</div>
+        <div class="ach-label">Pagine Confluence<br>documentazione QA</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('pilastri')">
+        <div class="ach-num">2</div>
+        <div class="ach-label">Pilastri operativi<br>Testing & Data Quality</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('tas')">
+        <div class="ach-num">1</div>
+        <div class="ach-label">Test Automation Service<br>costruito e in adozione</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('centralhub')">
+        <div class="ach-num">1</div>
+        <div class="ach-label">Portale Central Hub QA<br>online (FE + BE)</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('manifesto')">
+        <div class="ach-num">6</div>
+        <div class="ach-label">Principi nel<br>Quality Manifesto</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('jira')">
+        <div class="ach-num">4</div>
+        <div class="ach-label">Ticketing Systems Strutturato su Diverse Board Jira<br>strutturate</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('adr')">
+        <div class="ach-num">9</div>
+        <div class="ach-label">ADR/GDR<br>documentati</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('team')">
+        <div class="ach-num">5</div>
+        <div class="ach-label">Persone nel team<br>3 QAE · 1 QAA · 1 QADA</div>
+      </div>
+    </div>
+
+    <div class="fade-in" style="margin-top:20px;">
+      <h3 style="color:var(--teal);margin-bottom:12px;">Percorso di costruzione</h3>
+      <div class="flow">
+        <div class="flow-step" style="border-color:var(--teal);color:var(--teal);">Assessment ALTEN</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Studio Framework SL QA&OPS</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Tailorizzazione</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">QA Manifesto</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Confluence Space</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Strutture & Processi</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Hiring</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step" style="border-color:var(--amber);color:var(--amber);">Pilota</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 4: FRAMEWORK TESTING (SINTESI) ==================== -->
+<div class="slide" data-idx="4">
+  <div class="fade-in kicker">Pilastro 1 · Testing</div>
+  <h2 class="fade-in">Il Framework <span class="accent">in Sintesi</span></h2>
+  <p class="subtitle fade-in" style="margin-bottom:24px;font-size:15px;">Tutto il framework è operativo e documentato su Confluence.</p>
+
+  <div class="fw-grid fade-in">
+    <div class="fw-tile clickable" onclick="openModal('raci')">
+      <div class="fw-tile-icon">🏛️</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Struttura & RACI</div>
+        <div class="fw-tile-sub">Ruoli e responsabilità chiari</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+    <div class="fw-tile clickable" onclick="openFlowModal()">
+      <div class="fw-tile-icon">⚙️</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Processo QA & SDLC</div>
+        <div class="fw-tile-sub">INIT → PLANNING → EXECUTION → QA Gate</div>
+      </div>
+      <div class="fw-tile-arrow">▶</div>
+    </div>
+    <div class="fw-tile clickable" onclick="openBranchingModal()">
+      <div class="fw-tile-icon">🔀</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Branching Model</div>
+        <div class="fw-tile-sub">Dual-track · 3 sync points · naming convention</div>
+      </div>
+      <div class="fw-tile-arrow">▶</div>
+    </div>
+    <div class="fw-tile clickable" onclick="openModal('jiraorg')">
+      <div class="fw-tile-icon">📋</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Organizzazione Jira</div>
+        <div class="fw-tile-sub">3 board · epic dedicate</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+    <div class="fw-tile clickable" onclick="openModal('cadence')">
+      <div class="fw-tile-icon">🔄</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Cadence QA</div>
+        <div class="fw-tile-sub">Da trimestrale a giornaliera</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+    <div class="fw-tile clickable" onclick="openModal('tas')">
+      <div class="fw-tile-icon">🤖</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Test Automation Service</div>
+        <div class="fw-tile-sub">Automazione CI/CD centralizzata</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+    <div class="fw-tile clickable" onclick="openModal('dashboard')">
+      <div class="fw-tile-icon">📊</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Dashboard One</div>
+        <div class="fw-tile-sub">Qualità & bug · insights e trend</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 5: FRAMEWORK DATA QUALITY (SINTESI) ==================== -->
+<div class="slide" data-idx="5">
+  <div class="fade-in kicker">Pilastro 2 · Data Quality & Strategy</div>
+  <h2 class="fade-in">Governance del Dato <span class="accent-amber">in Sintesi</span></h2>
+  <p class="subtitle fade-in" style="margin-bottom:24px;font-size:15px;">Framework attivo su Cloudera, con SODA Cloud come Observability Platform.</p>
+
+  <div class="fw-grid fade-in">
+    <div class="fw-tile fw-tile-amber clickable" onclick="openDQSolutionModal()">
+      <div class="fw-tile-icon">🗺️</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Soluzione Target</div>
+        <div class="fw-tile-sub">Data flow end-to-end · DQ Framework · SODA Cloud</div>
+      </div>
+      <div class="fw-tile-arrow">▶</div>
+    </div>
+    <div class="fw-tile fw-tile-amber clickable" onclick="openModal('datacontract')">
+      <div class="fw-tile-icon">📄</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Data Contract</div>
+        <div class="fw-tile-sub">Interfaccia produttore/consumatore</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+    <div class="fw-tile fw-tile-amber clickable" onclick="openDQModal()">
+      <div class="fw-tile-icon">⚙️</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">DQ Framework</div>
+        <div class="fw-tile-sub">Modulo Quality + Observability · SODA + Impala · Airflow</div>
+      </div>
+      <div class="fw-tile-arrow">▶</div>
+    </div>
+    <div class="fw-tile fw-tile-amber clickable" onclick="openControlliModal()">
+      <div class="fw-tile-icon">🔍</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Catalogo Controlli</div>
+        <div class="fw-tile-sub">Puntuali · intra ed cross-entità</div>
+      </div>
+      <div class="fw-tile-arrow">▶</div>
+    </div>
+    <div class="fw-tile fw-tile-amber clickable" onclick="openModal('sodacloud')">
+      <div class="fw-tile-icon">☁️</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">SODA Cloud</div>
+        <div class="fw-tile-sub">Passaggio in produzione in corso</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+    <div class="fw-tile fw-tile-amber clickable" onclick="openModal('coordinamento')">
+      <div class="fw-tile-icon">🤝</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Coordinamento Inter-team</div>
+        <div class="fw-tile-sub">Data Lake · DQ Committee</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 6: NOVITÀ · STACK AI AGENTICO ==================== -->
+<div class="slide" data-idx="6">
+  <div class="fade-in kicker">Novità</div>
+  <h2 class="fade-in">L'AI lavora <span class="accent-pink">come il team QA</span></h2>
+  <p class="subtitle fade-in" style="margin-bottom:24px;">Stiamo dotando il nostro workflow di un sistema di agenti AI governati: non un singolo assistente generico, ma ruoli distinti che collaborano con regole chiare, proprio come un team QA reale.</p>
+
+  <div class="two-col fade-in">
+    <div>
+      <h3 style="color:var(--pink);margin-bottom:14px;">Come funziona</h3>
+      <div class="flow clickable" style="margin-bottom:0;cursor:pointer;" onclick="openModal('ai')">
+        <div class="flow-step">Analyst</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Engineer</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Runner</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-step">Closer</div>
+      </div>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:12px;line-height:1.6;">Un orchestratore coordina 6 agenti specializzati: chi analizza i requisiti, chi scrive i test, chi li esegue e diagnostica i problemi, chi chiude con documentazione e pull request. Ognuno resta nel proprio perimetro. <span class="accent-pink" style="cursor:pointer;" onclick="openModal('ai')">↗ Vedi tutti i 6 ruoli</span></p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="card" style="border-top:3px solid var(--pink);">
+        <h3 style="font-size:14px;">⚡ Più velocità</h3>
+        <p>Attività ripetitive automatizzate, onboarding più rapido sulle convenzioni del team.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--pink);">
+        <h3 style="font-size:14px;">🎯 Meno errori</h3>
+        <p>Ogni agente ha un ruolo specifico: meno modifiche fuori scope, meno variabilità.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--pink);">
+        <h3 style="font-size:14px;">📎 Tracciabilità</h3>
+        <p>Regole e comportamenti sono versionati insieme al codice, non conoscenza tribale.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 7: NOVITÀ · CENTRAL HUB QA ==================== -->
+<div class="slide" data-idx="7">
+  <div class="fade-in kicker">Novità</div>
+  <h2 class="fade-in">Central Hub QA: <span class="accent">un portale, tutti gli strumenti</span></h2>
+  <p class="subtitle fade-in" style="margin-bottom:24px;">Un nuovo portale unico che raccoglie in un solo posto gli strumenti prima sparsi tra Dashboard One, Portale NRT e fogli di lavoro — evoluzione naturale di quanto già in uso.</p>
+
+  <div class="fw-grid fade-in">
+    <div class="fw-tile clickable" onclick="openModal('bdd')">
+      <div class="fw-tile-icon">✍️</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Generatore BDD/Gherkin</div>
+        <div class="fw-tile-sub">Scenari di test assistiti da AI</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+    <div class="fw-tile clickable" onclick="openModal('e2edash')">
+      <div class="fw-tile-icon">🧪</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Dashboard Suite E2E</div>
+        <div class="fw-tile-sub">Esecuzioni e report in un colpo d'occhio</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+    <div class="fw-tile clickable" onclick="openModal('jirakpi')">
+      <div class="fw-tile-icon">📈</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">KPI Jira</div>
+        <div class="fw-tile-sub">Testing · SANP · Data</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+    <div class="fw-tile clickable" onclick="openModal('datahub')">
+      <div class="fw-tile-icon">🗄️</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Data Hub</div>
+        <div class="fw-tile-sub">Catalogo PSP e posizioni debitorie GPD</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+    <div class="fw-tile clickable" onclick="openModal('kb')">
+      <div class="fw-tile-icon">📚</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Knowledge Base</div>
+        <div class="fw-tile-sub">Documentazione centralizzata</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+    <div class="fw-tile clickable" onclick="openModal('roles')">
+      <div class="fw-tile-icon">🔐</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Utenti & Ruoli</div>
+        <div class="fw-tile-sub">Accessi governati per profilo</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 8: SINERGIA ==================== -->
+<div class="slide" data-idx="8">
+  <div class="fade-in kicker">Sinergia tra Dipartimenti</div>
+  <h2 class="fade-in" style="margin-bottom:6px;">Pagamenti <span class="accent">⇄</span> SEND & Interop</h2>
+  <p class="fade-in" style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Ora in espansione anche a IO-Wallet-Multicanalità</p>
+
+  <div class="syn-panel fade-in">
+    <div class="syn-row">
+      <div class="syn-col syn-col-pag">
+        <div class="syn-col-hdr">Pagamenti porta</div>
+        <div class="syn-bullet">DQ Framework & Data Contract</div>
+        <div class="syn-bullet">Test Automation Service & automazione CI/CD</div>
+        <div class="syn-bullet">BDD Gherkin & Quality Gate</div>
+        <div class="syn-bullet">Stack AI agentico per il workflow QA</div>
+      </div>
+      <div class="syn-plus">+</div>
+      <div class="syn-col syn-col-send">
+        <div class="syn-col-hdr">SEND porta</div>
+        <div class="syn-bullet">Ambiente di test dedicato e isolato</div>
+        <div class="syn-bullet">Release Management strutturato</div>
+        <div class="syn-bullet">QA + Operations integrati</div>
+        <div class="syn-bullet">Team consolidato e metodologia matura</div>
+      </div>
+    </div>
+    <div class="syn-result">
+      <span class="syn-result-icon">🔗</span>
+      <span class="syn-result-text"><strong>Nessuna sovrapposizione, nessun conflitto</strong> — i due approcci coprono dimensioni diverse e complementari del ciclo di qualità.</span>
+      <span class="syn-result-tag">moltiplicatore di valore</span>
+    </div>
+  </div>
+
+  <div class="fade-in" style="margin-top:18px;font-size:13px;color:var(--text-dim);">
+    🤝 Il Quality Manifesto, nato nel Team Pagamenti, è stato adottato anche da SL QA&OPS · Sync regolari attivi con entrambi i dipartimenti.
+  </div>
+</div>
+
+<!-- ==================== SLIDE 9: COSA STIAMO FACENDO ORA ==================== -->
+<div class="slide" data-idx="9">
+  <div class="slide-scroll">
+    <div class="fade-in kicker">Stato Corrente</div>
+    <h2 class="fade-in">Cosa Stiamo <span class="accent">Facendo Ora</span></h2>
+
+    <div class="two-col fade-in" style="margin-top:28px;">
+      <div>
+        <h3 style="color:var(--teal);margin-bottom:20px;">🔬 In Esecuzione</h3>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-date">In corso</div>
+            <h4>Adozione del Test Automation Service</h4>
+            <p>Il TAS è costruito e operativo: ora in fase di adozione da parte dei team prodotto, a partire dal progetto pilota Checkout</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">In corso</div>
+            <h4>Data Quality Framework in produzione</h4>
+            <p>Framework completato, controlli di qualità su GPD pronti: in fase di passaggio in produzione su SODA</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">In corso</div>
+            <h4>Central Hub QA</h4>
+            <p>Evoluzione del vecchio Portale NRT dentro il nuovo portale unificato per Testing e Data Quality</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">In corso</div>
+            <h4>Data Support CAB</h4>
+            <p>Supporto continuativo ai temi Data gestito con team ad hoc, all'interno del CAB.</p>
+          </div>
+          <div class="tl-item">
+            <div class="tl-date">In corso</div>
+            <h4>Agentic AI Framework</h4>
+            <p>Implementazione del framework di agenti AI governati all'interno del workflow QA.</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="color:var(--amber);margin-bottom:20px;">🤝 Coordinamento & Evoluzione</h3>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-date">Continuo</div>
+            <h4>Sync con SL QA&OPS</h4>
+            <p>Allineamento costante con Dipartimento SEND & Interop. Recente ingresso anche del dipartimento IO-Wallet-Multicanalità</p>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;padding:20px;background:var(--surface);border-radius:12px;">
+          <h3 style="font-size:14px;color:var(--teal);margin-bottom:10px;">🎯 Progetti Pilota</h3>
+          <div class="pill-grid">
+            <div class="pill wip" style="font-size:14px;padding:8px 18px;">Checkout</div>
+            <div class="pill wip" style="font-size:14px;padding:8px 18px;">Canone Unico Patrimoniale</div>
+            <div class="pill wip" style="font-size:14px;padding:8px 18px;">FdR</div>
+            <div class="pill wip" style="font-size:14px;padding:8px 18px;">Dismissione WISP</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 10: ROADMAP ==================== -->
+<div class="slide" data-idx="10">
+  <div class="slide-scroll">
+    <div class="fade-in kicker">Roadmap</div>
+    <h2 class="fade-in">Da Oggi al <span class="accent">Giugno 2027</span></h2>
+
+    <div class="fade-in" style="margin-top:28px;">
+      <div class="rm-track">
+        <div class="rm-line"></div>
+        <div class="rm-step">
+          <div class="rm-dot done"></div>
+          <div class="rm-date" style="color:var(--teal);">FEB 2026</div>
+          <div class="rm-title">Kick-off</div>
+          <div class="rm-desc">Assessment → Framework → Manifesto</div>
+        </div>
+        <div class="rm-step">
+          <div class="rm-dot done"></div>
+          <div class="rm-date" style="color:var(--teal);">MAG 2026</div>
+          <div class="rm-title">Pilota avviato</div>
+          <div class="rm-desc">Prime automazioni CI/CD + DQ Framework</div>
+        </div>
+        <div class="rm-step">
+          <div class="rm-dot done"></div>
+          <div class="rm-date" style="color:var(--teal);">LUG 2026</div>
+          <div class="rm-title">Siamo Qui</div>
+          <div class="rm-desc">TAS in adozione · Central Hub QA online · Framework Agentic AI</div>
+        </div>
+        <div class="rm-step">
+          <div class="rm-dot pending"></div>
+          <div class="rm-date" style="color:var(--amber);">GEN 2027</div>
+          <div class="rm-title">Scale-up</div>
+          <div class="rm-desc">Estensione ad altri team / iniziative</div>
+        </div>
+        <div class="rm-step">
+          <div class="rm-dot future"></div>
+          <div class="rm-date" style="color:var(--pink);">GIU 2027</div>
+          <div class="rm-title">Target</div>
+          <div class="rm-desc">QA Center of Excellence operativo</div>
+        </div>
+      </div>
+
+      <div class="three-col" style="margin-top:8px;">
+        <div class="card" style="border-top:3px solid var(--teal);">
+          <h3 style="font-size:14px;color:var(--teal);">✅ Completato</h3>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;font-size:13px;color:var(--text-dim);">
+            <span>QA Manifesto & Framework</span>
+            <span>Due pilastri costruiti</span>
+            <span>Test Automation Service</span>
+            <span>Data Quality Framework</span>
+          </div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--amber);">
+          <h3 style="font-size:14px;color:var(--amber);">🔄 In Corso</h3>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;font-size:13px;color:var(--text-dim);">
+            <span>Adozione TAS su Checkout</span>
+            <span>DQ controlli in produzione su SODA</span>
+            <span>Central Hub QA a regime</span>
+            <span>Progetti Pilota in corso</span>
+            <span>Central Hub QA (FE + BE)</span>
+            <span>Framework Agentic AI</span>
+          </div>
+        </div>
+        <div class="card" style="border-top:3px solid var(--pink);">
+          <h3 style="font-size:14px;color:var(--pink);">🎯 Prossimi</h3>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;font-size:13px;color:var(--text-dim);">
+            <span>Estensione TAS ad altri team prodotto</span>
+            <span>Scale-up sinergia 3 dipartimenti</span>
+            <span>Assessment TO-BE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 11: CHIUSURA ==================== -->
+<div class="slide" data-idx="11">
+  <div class="fade-in" style="text-align:center;width:100%;">
+    <p style="font-family:var(--font-display);font-size:30px;color:var(--teal);font-weight:700;font-style:italic;margin-bottom:20px;">"Build Quality Together!"</p>
+    <p class="subtitle" style="margin:0 auto 32px;text-align:center;">Nei prossimi 5 minuti: un approfondimento sul Test Automation Service.</p>
+    <span class="dd-badge" style="display:inline-block;">Deep Dive · TAS</span>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 12: TAS · COS'È ==================== -->
+<div class="slide" data-idx="12">
+  <div class="dd-separator fade-in"><span class="dd-badge">Deep Dive · Test Automation Service</span></div>
+  <h2 class="fade-in">Un motore di test <span class="accent">condiviso</span> per tutta la piattaforma</h2>
+  <p class="subtitle fade-in" style="margin-bottom:28px;">Il nostro team scrive suite di test su componenti sviluppate da team diversi. Il TAS le rende richiamabili da qualunque pipeline, senza che chi lo usa debba conoscerne i dettagli.</p>
+
+  <div class="flow fade-in" style="margin-bottom:28px;">
+    <div class="flow-step">Team esterno</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step" style="border-color:var(--teal);color:var(--teal);">Invoca il TAS</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step" style="border-color:var(--teal);color:var(--teal);">Suite eseguita centralmente</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step">Esito chiaro</div>
+  </div>
+
+  <div class="three-col fade-in">
+    <div class="card">
+      <div class="card-icon" style="background:rgba(0,212,170,0.12);">🔓</div>
+      <h3 style="font-size:14px;">Niente segreti da gestire</h3>
+      <p>Chi chiama il TAS non deve configurare credenziali o endpoint di test.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:rgba(0,212,170,0.12);">🔌</div>
+      <h3 style="font-size:14px;">Qualsiasi pipeline CI/CD</h3>
+      <p>GitHub Actions, Azure DevOps o qualunque altro strumento.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:rgba(0,212,170,0.12);">✅</div>
+      <h3 style="font-size:14px;">Esito strutturato</h3>
+      <p>Un resoconto chiaro, pronto per decidere se bloccare un rilascio.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 13: TAS · COME SI INTEGRA ==================== -->
+<div class="slide" data-idx="13">
+  <div class="dd-separator fade-in"><span class="dd-badge">Deep Dive · Test Automation Service</span></div>
+  <h2 class="fade-in">Due percorsi pronti, <span class="accent">zero complessità</span></h2>
+  <p class="subtitle fade-in" style="margin-bottom:28px;">Per i due strumenti più diffusi in Dipartimento esistono template ufficiali, pronti all'uso: pochissima configurazione, tutta la complessità resta nascosta dentro il TAS.</p>
+
+  <div class="two-col fade-in">
+    <div class="card" style="border-top:3px solid var(--cyan);">
+      <div class="card-icon" style="background:rgba(6,182,212,0.12);">🔷</div>
+      <h3>Azure DevOps</h3>
+      <p>Un unico riferimento al repository TAS nella pipeline. Il risultato dei test compare direttamente nel tab "Tests" nativo di ADO.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--teal);">
+      <div class="card-icon" style="background:rgba(0,212,170,0.12);">🐙</div>
+      <h3>GitHub Actions</h3>
+      <p>Un singolo step nel workflow. Le metriche dei test (passati, falliti, tempo) sono subito disponibili senza parsing manuale.</p>
+    </div>
+  </div>
+
+  <div class="fade-in" style="margin-top:24px;font-size:13px;color:var(--text-muted);">
+    Esistono anche opzioni più avanzate per casi particolari (es. testare un branch non ancora sul ramo principale), ma per la maggior parte dei team i template ufficiali bastano.
+  </div>
+</div>
+
+<!-- ==================== SLIDE 14: TAS · COSA RESTITUISCE ==================== -->
+<div class="slide" data-idx="14">
+  <div class="dd-separator fade-in"><span class="dd-badge">Deep Dive · Test Automation Service</span></div>
+  <h2 class="fade-in">Un responso chiaro per <span class="accent">decidere se rilasciare</span></h2>
+  <p class="subtitle fade-in" style="margin-bottom:28px;">Al termine di ogni esecuzione, il TAS restituisce un resoconto strutturato: le pipeline lo usano per bloccare automaticamente un rilascio in caso di problemi.</p>
+
+  <div class="four-col fade-in">
+    <div class="card" style="text-align:center;">
+      <div class="ach-num" style="font-size:28px;">✓ / ✕</div>
+      <div class="ach-label">Test passati,<br>falliti, saltati</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="ach-num" style="font-size:28px;">⏱️</div>
+      <div class="ach-label">Tempo totale<br>di esecuzione</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="ach-num" style="font-size:28px;">🚦</div>
+      <div class="ach-label">Esito finale<br>successo / fallimento</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="ach-num" style="font-size:28px;">🔗</div>
+      <div class="ach-label">Identificativo<br>per la tracciabilità</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 15: TAS · STATO & ADOZIONE ==================== -->
+<div class="slide" data-idx="15">
+  <div class="dd-separator fade-in"><span class="dd-badge">Deep Dive · Test Automation Service</span></div>
+  <h2 class="fade-in">Dove siamo <span class="accent">oggi</span></h2>
+
+  <div class="timeline fade-in" style="margin-top:28px;">
+    <div class="tl-item">
+      <div class="tl-date">Completato</div>
+      <h4>TAS costruito e operativo</h4>
+      <p>Infrastruttura centralizzata di test di integrazione, con template ufficiali per Azure DevOps e GitHub Actions</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">In corso</div>
+      <h4>Primo team pilota: Checkout</h4>
+      <p>Adozione in corso sul primo progetto prodotto, per validare l'integrazione end-to-end</p>
+    </div>
+    <div class="tl-item dim">
+      <div class="tl-date">Prossimi passi</div>
+      <h4>Rollout progressivo</h4>
+      <p>Estensione del TAS agli altri team prodotto, seguendo lo stesso percorso di adozione</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- MODAL OVERLAY -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- FLOW DIAGRAM MODAL: Processo QA & SDLC -->
+<div class="flow-modal-overlay" id="flowModalOverlay" onclick="if(event.target===this)closeFlowModal()">
+  <div class="flow-modal-box">
+    <button class="modal-close" onclick="closeFlowModal()">✕</button>
+
+    <div class="fm-step-desc" id="fmStepDesc">
+      <span class="fm-step-num" id="fmStepNum">0 / 5</span>
+      <span class="fm-step-label" id="fmStepLabel">Clicca "Avanti" per iniziare</span>
+    </div>
+
+    <div class="fd-wrap" id="flowDiagram">
+      <div class="fd-mc-row">
+        <div class="fd-lbl-gap"></div>
+        <div class="fd-mc-bar flow-item" data-fstep="1">←───────────────────────────── MONITORING &amp; CONTROL ─────────────────────────────────────────────→</div>
+      </div>
+
+      <div class="fd-header-row">
+        <div class="fd-lbl-gap"></div>
+        <div class="fd-ph fd-init  flow-item" data-fstep="1">INIT</div>
+        <div class="fd-harrow-gap"></div>
+        <div class="fd-ph fd-plan  flow-item" data-fstep="1">PLANNING</div>
+        <div class="fd-harrow-gap"></div>
+        <div class="fd-ph fd-exec  flow-item" data-fstep="1">EXECUTION</div>
+        <div class="fd-harrow-gap"></div>
+        <div class="fd-ph fd-close flow-item" data-fstep="1">CLOSING</div>
+      </div>
+
+      <div class="fd-row">
+        <div class="fd-track-lbl">Product<br>Team</div>
+        <div class="fd-col">
+          <div class="fd-node flow-item" data-fstep="2">Initiative Canvas</div>
+          <div class="fd-down flow-item" data-fstep="2">↓</div>
+          <div class="fd-node flow-item" data-fstep="2">Product Squad</div>
+          <div class="fd-down flow-item" data-fstep="2">↓</div>
+          <div class="fd-node flow-item" data-fstep="2">Comitato prodotto</div>
+          <div class="fd-down flow-item" data-fstep="2">↓</div>
+          <div class="fd-node flow-item" data-fstep="2">BRD / SRS</div>
+        </div>
+        <div class="fd-harrow flow-item" data-fstep="3" style="align-self:flex-end;padding-bottom:2px;">→</div>
+        <div class="fd-col" style="justify-content:flex-end;align-self:stretch;">
+          <div class="fd-node flow-item" data-fstep="3">Jira Backlog<br><small>Epic / Story</small></div>
+        </div>
+        <div class="fd-harrow flow-item" data-fstep="4">→</div>
+        <div class="fd-col">
+          <div class="fd-node fd-sprint flow-item" data-fstep="4">Sprint<br><small>2 settimane<br>Daily Scrum</small></div>
+          <div class="fd-down flow-item" data-fstep="4">↓</div>
+          <div class="fd-node flow-item" data-fstep="4">Shippable<br>Product</div>
+        </div>
+        <div class="fd-harrow flow-item" data-fstep="5">→</div>
+        <div class="fd-col">
+          <div class="fd-node fd-gate flow-item" data-fstep="5">🏁 Quality<br>Assurance<br>Gate</div>
+        </div>
+      </div>
+
+      <div class="fd-divider"></div>
+
+      <div class="fd-row">
+        <div class="fd-track-lbl fd-qa-lbl">QA<br>Team</div>
+        <div class="fd-col fd-col-empty"></div>
+        <div class="fd-harrow" style="visibility:hidden;">→</div>
+        <div class="fd-col">
+          <div class="fd-node fd-qa flow-item" data-fstep="3">Comprensione<br>Requisiti</div>
+          <div class="fd-down flow-item" data-fstep="3">↓</div>
+          <div class="fd-node fd-qa flow-item" data-fstep="3">QA Feature<br>Backlog</div>
+        </div>
+        <div class="fd-harrow flow-item" data-fstep="4">→</div>
+        <div class="fd-col">
+          <div class="fd-node fd-qa flow-item" data-fstep="4">Impl. Suite TA</div>
+          <div class="fd-down flow-item" data-fstep="4">↓</div>
+          <div class="fd-node fd-qa flow-item" data-fstep="4">Run Suite<br>Automatiche</div>
+        </div>
+        <div class="fd-harrow flow-item" data-fstep="5">→</div>
+        <div class="fd-col">
+          <div class="fd-node fd-qa-gate flow-item" data-fstep="5">✓ / ✗</div>
+        </div>
+      </div>
+    </div><!-- /fd-wrap -->
+
+    <div class="fm-nav">
+      <button class="fm-btn fm-btn-sec" id="fmBtnPrev" onclick="flowStep(-1)" disabled>← Indietro</button>
+      <div class="fm-steps-track" id="fmStepsTrack">
+        <div class="fm-step-dot" data-dot="0"></div>
+        <div class="fm-step-dot" data-dot="1"></div>
+        <div class="fm-step-dot" data-dot="2"></div>
+        <div class="fm-step-dot" data-dot="3"></div>
+        <div class="fm-step-dot" data-dot="4"></div>
+        <div class="fm-step-dot" data-dot="5"></div>
+      </div>
+      <button class="fm-btn fm-btn-pri" id="fmBtnNext" onclick="flowStep(1)">Avanti →</button>
+    </div>
+  </div>
+</div>
+
+<!-- FLOW DIAGRAM MODAL: Branching Model -->
+<div class="flow-modal-overlay" id="branchModalOverlay" onclick="if(event.target===this)closeBranchingModal()">
+  <div class="flow-modal-box" style="max-width:860px;">
+    <button class="modal-close" onclick="closeBranchingModal()">✕</button>
+
+    <div class="fm-step-desc" id="bmStepDesc">
+      <span class="fm-step-num" id="bmStepNum">0 / 6</span>
+      <span class="fm-step-label" id="bmStepLabel">Clicca "Avanti" per iniziare</span>
+    </div>
+
+    <div class="bm-diagram" id="bmDiagram">
+      <div class="bm-row bm-row-main">
+        <div class="bm-track-lbl">main</div>
+        <div class="bm-line-wrap">
+          <div class="bm-node bm-node-main bm-item" data-bstep="1" title="baseline stabile"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="1"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="1"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="1"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="1"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="1"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="1"></div>
+          <div class="bm-merge-point bm-item" data-bstep="5"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="5"></div>
+          <div class="bm-node bm-node-rc bm-item" data-bstep="5" title="rc tag"></div>
+          <div class="bm-seg bm-seg-main bm-item" data-bstep="6"></div>
+          <div class="bm-node bm-node-release bm-item" data-bstep="6" title="Release 🎉"></div>
+        </div>
+      </div>
+
+      <div class="bm-labels-row bm-item" data-bstep="5">
+        <div class="bm-label-spacer"></div>
+        <div class="bm-label bm-label-merge">merge PR</div>
+        <div class="bm-label bm-label-rc">rc tag</div>
+        <div class="bm-label bm-label-rel">Release</div>
+      </div>
+
+      <div class="bm-connectors">
+        <div class="bm-fork bm-item" data-bstep="2"></div>
+        <div class="bm-join bm-item" data-bstep="5"></div>
+      </div>
+
+      <div class="bm-row bm-row-fb">
+        <div class="bm-track-lbl bm-fb-lbl">feature<br>branch</div>
+        <div class="bm-line-wrap">
+          <div class="bm-spacer-2"></div>
+          <div class="bm-node bm-node-fb bm-item" data-bstep="2" title="FB creato"></div>
+          <div class="bm-seg bm-seg-fb bm-item" data-bstep="2"></div>
+          <div class="bm-node bm-node-mock bm-item" data-bstep="3" title="test con mock"></div>
+          <div class="bm-seg bm-seg-fb bm-item" data-bstep="3"></div>
+          <div class="bm-node bm-node-mock bm-item" data-bstep="3" title="test con mock"></div>
+          <div class="bm-seg bm-seg-fb bm-item" data-bstep="3"></div>
+          <div class="bm-node bm-node-dev bm-item" data-bstep="4" title="test in DEV (no mock)"></div>
+          <div class="bm-seg bm-seg-fb bm-item" data-bstep="4"></div>
+          <div class="bm-node bm-node-uat bm-item" data-bstep="5" title="test in UAT → stabilizzazione"></div>
+        </div>
+      </div>
+
+      <div class="bm-sync-row">
+        <div class="bm-sync-spacer"></div>
+        <div class="bm-sync bm-item" data-bstep="2">
+          <div class="bm-sync-dot"></div>
+          <div class="bm-sync-label">FB creato<br><code>PQ-001-fdr_ta-impl</code></div>
+        </div>
+        <div class="bm-sync bm-item" data-bstep="3">
+          <div class="bm-sync-dot" style="background:var(--text-muted)"></div>
+          <div class="bm-sync-label">Suite TA<br>+ mock run</div>
+        </div>
+        <div class="bm-sync bm-item" data-bstep="4">
+          <div class="bm-sync-dot" style="background:var(--cyan)"></div>
+          <div class="bm-sync-label">Sync Point 1<br><strong style="color:var(--cyan)">DEV</strong> (no mock)</div>
+        </div>
+        <div class="bm-sync bm-item" data-bstep="5">
+          <div class="bm-sync-dot" style="background:var(--amber)"></div>
+          <div class="bm-sync-label">Sync Point 2<br><strong style="color:var(--amber)">UAT</strong> stabil.</div>
+        </div>
+        <div class="bm-sync bm-item" data-bstep="6">
+          <div class="bm-sync-dot" style="background:var(--teal)"></div>
+          <div class="bm-sync-label">Sync Point 3<br><strong style="color:var(--teal)">Quality Gate</strong></div>
+        </div>
+      </div>
+
+      <div class="bm-gate-banner bm-item" data-bstep="6">
+        🏁 Quality Gate — QA Lead + Resp. SL → <strong>go / no-go</strong> prima dell'esposizione in produzione
+      </div>
+    </div><!-- /bm-diagram -->
+
+    <div class="fm-nav">
+      <button class="fm-btn fm-btn-sec" id="bmBtnPrev" onclick="branchStep(-1)" disabled>← Indietro</button>
+      <div class="fm-steps-track" id="bmStepsTrack">
+        <div class="fm-step-dot" data-bdot="0"></div>
+        <div class="fm-step-dot" data-bdot="1"></div>
+        <div class="fm-step-dot" data-bdot="2"></div>
+        <div class="fm-step-dot" data-bdot="3"></div>
+        <div class="fm-step-dot" data-bdot="4"></div>
+        <div class="fm-step-dot" data-bdot="5"></div>
+        <div class="fm-step-dot" data-bdot="6"></div>
+      </div>
+      <button class="fm-btn fm-btn-pri" id="bmBtnNext" onclick="branchStep(1)">Avanti →</button>
+    </div>
+  </div>
+</div>
+
+<!-- DQ SOLUTION MODAL: Soluzione Target -->
+<div class="flow-modal-overlay" id="dqSolutionModalOverlay" onclick="if(event.target===this)closeDQSolutionModal()">
+  <div class="flow-modal-box" style="max-width:1200px;width:98vw;max-height:95vh;padding:24px 28px 20px;">
+    <button class="modal-close" onclick="closeDQSolutionModal()">✕</button>
+    <div class="fm-step-desc">
+      <span class="fm-step-num" id="dqsStepNum">0 / 6</span>
+      <span class="fm-step-label" id="dqsStepLabel">Clicca "Avanti" per scoprire il flusso end-to-end</span>
+    </div>
+
+    <div class="dqs-arch">
+      <div class="dqs-top-row">
+        <div class="dqs-zone-src dqs-item" data-dqs="1">
+          <div class="dqs-zone-hdr">Source Systems</div>
+          <div class="dqs-src-box">GPD</div>
+          <div class="dqs-src-box">BIZ</div>
+          <div class="dqs-src-box" style="font-size:9px;">FDR · GEC · WALLET</div>
+        </div>
+
+        <div class="dqs-harr dqs-item" data-dqs="1">→</div>
+
+        <div class="dqs-zone-ingest dqs-item" data-dqs="1">
+          <div class="dqs-zone-hdr">Data Ingestion</div>
+          <div class="dqs-zone-subhdr"><svg width="52" height="14" viewBox="0 0 90 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5" fill="none" stroke="#fff" stroke-width="1.5"/><circle cx="38" cy="5" r="4" fill="none" stroke="#fff" stroke-width="1.5"/><circle cx="38" cy="19" r="4" fill="none" stroke="#fff" stroke-width="1.5"/><line x1="17" y1="10" x2="34" y2="6.5" stroke="#fff" stroke-width="1.2"/><line x1="17" y1="14" x2="34" y2="17.5" stroke="#fff" stroke-width="1.2"/><text x="46" y="17" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="white">Kafka</text></svg></div>
+          <div class="dqs-hub-box">gpd-topic-1 <span class="dqs-hub-diamond">◇</span></div>
+          <div class="dqs-hub-box">gpd-topic-2 <span class="dqs-hub-diamond">◇</span></div>
+          <div style="height:5px;"></div>
+          <div class="dqs-hub-box">biz-topic-1 <span class="dqs-hub-diamond">◇</span></div>
+          <div class="dqs-hub-box">biz-topic-2 <span class="dqs-hub-diamond">◇</span></div>
+        </div>
+
+        <div class="dqs-ingest-arr dqs-item" data-dqs="2">
+          <div class="dqs-ingest-lbl">Ingest →</div>
+          <div class="dqs-ingest-lbl">Ingest →</div>
+        </div>
+
+        <div class="dqs-zone-lake dqs-item" data-dqs="2">
+          <div class="dqs-zone-hdr dqs-lake-hdr">Data Lake</div>
+          <div class="dqs-cloudera-badge dqs-item" data-dqs="4"><svg width="68" height="18" viewBox="0 0 120 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="10" fill="#F96702"/><path fill="#F96702" d="M16 2l2 4.5 4.5-2.5-.5 5 5 .5-3 3.5 3 3.5-5 .5.5 5-4.5-2.5-2 4.5-2-4.5-4.5 2.5.5-5-5-.5 3-3.5-3-3.5 5-.5-.5-5 4.5 2.5z"/><circle cx="16" cy="16" r="6" fill="white"/><circle cx="16" cy="16" r="3.5" fill="#F96702"/><text x="32" y="21" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#F96702">CLOUDERA</text></svg></div>
+
+          <div class="dqs-lake-inner">
+            <div class="dqs-lake-col dqs-item" data-dqs="2">
+              <div class="dqs-col-hdr" style="color:#fbbf24;">Bronze</div>
+              <div class="dqs-entity dqs-entity-bronze">gpd-entity-1</div>
+              <div class="dqs-entity dqs-entity-bronze">gpd-entity-2</div>
+              <div style="height:5px;"></div>
+              <div class="dqs-entity dqs-entity-bronze">biz-entity-1</div>
+              <div class="dqs-entity dqs-entity-bronze">biz-entity-2</div>
+            </div>
+
+            <div class="dqs-dedup-arr dqs-item" data-dqs="3">
+              <div>Dedup→</div>
+              <div>Dedup→</div>
+            </div>
+
+            <div class="dqs-lake-col dqs-item" data-dqs="3">
+              <div class="dqs-col-hdr" style="color:#cbd5e1;">Silver</div>
+              <div class="dqs-entity dqs-entity-silver">gpd-entity-1</div>
+              <div class="dqs-dc-badge">📄 Data Contract</div>
+              <div class="dqs-entity dqs-entity-silver">gpd-entity-2</div>
+              <div class="dqs-dc-badge">📄 Data Contract</div>
+              <div class="dqs-entity dqs-entity-silver">biz-entity-1</div>
+              <div class="dqs-dc-badge">📄 Data Contract</div>
+              <div class="dqs-entity dqs-entity-silver">biz-entity-2</div>
+              <div class="dqs-dc-badge">📄 Data Contract</div>
+              <div class="dqs-check-down dqs-item" data-dqs="5">▼ Check ▼ Check</div>
+            </div>
+
+            <div class="dqs-harr dqs-item" data-dqs="4" style="font-size:14px;padding:0 4px;align-self:center;margin-top:18px;">→</div>
+
+            <div class="dqs-lake-col dqs-gold-col dqs-item" data-dqs="4">
+              <div class="dqs-gold-badge">Data Product<br>Consumer Aligned</div>
+              <div class="dqs-entity dqs-entity-gold">entity-1</div>
+              <div class="dqs-dc-badge">📄 Data Contract</div>
+              <div class="dqs-entity dqs-entity-gold">entity-2</div>
+              <div class="dqs-dc-badge">📄 Data Contract</div>
+              <div class="dqs-check-down dqs-item" data-dqs="5">▼ Check</div>
+            </div>
+          </div><!-- /lake-inner -->
+
+          <div class="dqs-dqf-bar dqs-item" data-dqs="5">
+            <div class="dqs-dqf-title">⚙️ pagoPA Data Quality Framework</div>
+            <div class="dqs-dqf-tech">Apache <strong style="color:#e25a1c;">Spark</strong> + <svg width="46" height="16" viewBox="0 0 80 28" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;"><rect x="0" y="4" width="76" height="20" rx="10" fill="none" stroke="#00d4aa" stroke-width="2"/><text x="10" y="19" font-family="Arial,sans-serif" font-size="14" font-weight="900" fill="#00d4aa">SODA</text></svg></div>
+          </div>
+        </div><!-- /zone-lake -->
+      </div><!-- /top-row -->
+
+      <div class="dqs-bottom-row dqs-item" data-dqs="6">
+        <div style="flex:0 0 260px;"></div>
+        <div class="dqs-results-row">
+          <div class="dqs-storage-box">🗄️ Data Lake<br><span style="font-size:9px;opacity:0.7;">Storage</span></div>
+          <div class="dqs-res-lbl">← Results</div>
+          <div class="dqs-obs-bar">
+            <span class="dqs-obs-title"><svg width="46" height="16" viewBox="0 0 80 28" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:4px;"><rect x="0" y="4" width="76" height="20" rx="10" fill="none" stroke="#00d4aa" stroke-width="2"/><text x="10" y="19" font-family="Arial,sans-serif" font-size="14" font-weight="900" fill="#00d4aa">SODA</text></svg> Cloud · Observability Platform</span>
+            <span style="color:var(--text-muted);font-size:16px;">📊 📈</span>
+          </div>
+          <div class="dqs-res-lbl">Results ↓</div>
+          <div class="dqs-alerts-col">
+            <div class="dqs-alert-box">🔔 Quality Alerts</div>
+            <div class="dqs-slack-box"><svg width="16" height="16" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:5px;"><path d="M19.7.1a5.4 5.4 0 0 0-5.4 5.4 5.4 5.4 0 0 0 5.4 5.4h5.4V5.5A5.4 5.4 0 0 0 19.7.1m0 14.4H5.4A5.4 5.4 0 0 0 0 19.9a5.4 5.4 0 0 0 5.4 5.4h14.3a5.4 5.4 0 0 0 5.4-5.4 5.4 5.4 0 0 0-5.4-5.4" fill="#E01E5A"/><path d="M54 19.9a5.4 5.4 0 0 0-5.4-5.4 5.4 5.4 0 0 0-5.4 5.4v5.4h5.4A5.4 5.4 0 0 0 54 19.9m-14.3 0V5.5A5.4 5.4 0 0 0 34.3.1a5.4 5.4 0 0 0-5.4 5.4v14.4a5.4 5.4 0 0 0 5.4 5.4 5.4 5.4 0 0 0 5.4-5.4" fill="#2EB67D"/><path d="M34.3 54a5.4 5.4 0 0 0 5.4-5.4 5.4 5.4 0 0 0-5.4-5.4h-5.4v5.4A5.4 5.4 0 0 0 34.3 54m0-14.3h14.3A5.4 5.4 0 0 0 54 34.3a5.4 5.4 0 0 0-5.4-5.4H34.3a5.4 5.4 0 0 0-5.4 5.4 5.4 5.4 0 0 0 5.4 5.4" fill="#ECB22E"/><path d="M0 34.3a5.4 5.4 0 0 0 5.4 5.4 5.4 5.4 0 0 0 5.4-5.4v-5.4H5.4A5.4 5.4 0 0 0 0 34.3m14.3 0v14.3A5.4 5.4 0 0 0 19.7 54a5.4 5.4 0 0 0 5.4-5.4V34.3a5.4 5.4 0 0 0-5.4-5.4 5.4 5.4 0 0 0-5.4 5.4" fill="#36C5F0"/></svg>Slack</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dqs-notes dqs-item" data-dqs="6">
+        <div class="dqs-note">📌 Il processo di ingestion non subisce variazioni rispetto all'AS-IS.</div>
+        <div class="dqs-note">📌 Il DQ Framework usa il <strong>Data Contract</strong> come source of truth per i controlli.</div>
+        <div class="dqs-note">📌 I risultati sono esportati su tabelle custom per la console di observability.</div>
+        <div class="dqs-note">📌 Alert automatici e proattivi inviati verso canali <strong>Slack</strong>.</div>
+      </div>
+    </div><!-- /dqs-arch -->
+
+    <div class="fm-nav">
+      <button class="fm-btn fm-btn-sec" id="dqsBtnPrev" onclick="dqsStep(-1)" disabled>← Indietro</button>
+      <div class="fm-steps-track" id="dqsStepsTrack">
+        <div class="fm-step-dot" data-ddot="0"></div>
+        <div class="fm-step-dot" data-ddot="1"></div>
+        <div class="fm-step-dot" data-ddot="2"></div>
+        <div class="fm-step-dot" data-ddot="3"></div>
+        <div class="fm-step-dot" data-ddot="4"></div>
+        <div class="fm-step-dot" data-ddot="5"></div>
+        <div class="fm-step-dot" data-ddot="6"></div>
+      </div>
+      <button class="fm-btn fm-btn-pri" id="dqsBtnNext" onclick="dqsStep(1)">Avanti →</button>
+    </div>
+  </div>
+</div>
+
+<!-- DQ FRAMEWORK MODAL -->
+<div class="flow-modal-overlay" id="dqModalOverlay" onclick="if(event.target===this)closeDQModal()">
+  <div class="flow-modal-box" style="max-width:860px; max-height:92vh; overflow:hidden; display:flex; flex-direction:column;">
+    <button class="modal-close" onclick="closeDQModal()">✕</button>
+    <div class="fm-step-desc" style="flex-shrink:0;">
+      <span class="fm-step-num" id="dqStepNum">0 / 5</span>
+      <span class="fm-step-label" id="dqStepLabel">Clicca "Avanti" per iniziare</span>
+    </div>
+
+    <div style="flex:1; display:flex; align-items:center; justify-content:center; min-height:0;">
+      <svg id="dqSvg" viewBox="0 0 800 340" style="width:100%; height:100%; max-height:340px;" xmlns="http://www.w3.org/2000/svg">
+        <g id="dq-dc" style="opacity:0; transition: opacity 0.4s;">
+          <rect x="270" y="8" width="260" height="50" rx="10" fill="var(--svg-dc-bg)" stroke="var(--svg-dc-border)" stroke-width="1" stroke-dasharray="5,3"/>
+          <text x="300" y="28" fill="var(--svg-text)" font-family="sans-serif" font-size="13" font-weight="700">📄 Data Contract</text>
+          <text x="300" y="46" fill="var(--svg-muted)" font-family="sans-serif" font-size="10">Fonte unica di verità per la configurazione dei check</text>
+          <line x1="330" y1="58" x2="220" y2="100" stroke="rgba(198,40,40,0.5)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-red)"/>
+          <line x1="470" y1="58" x2="580" y2="100" stroke="rgba(171,71,188,0.5)" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr-purple)"/>
+        </g>
+
+        <g id="dq-quality" style="opacity:0; transition: opacity 0.4s 0.1s;">
+          <rect x="30" y="100" width="240" height="180" rx="10" fill="rgba(198,40,40,0.07)" stroke="rgba(198,40,40,0.3)" stroke-width="1.5"/>
+          <text x="46" y="122" fill="#ef9a9a" font-family="sans-serif" font-size="12" font-weight="700">⚙️ Modulo di Quality</text>
+          <rect x="46" y="132" width="208" height="36" rx="6" fill="rgba(198,40,40,0.1)" stroke="rgba(198,40,40,0.2)" stroke-width="1"/>
+          <circle cx="60" cy="150" r="8" fill="rgba(198,40,40,0.3)"/><text x="56" y="154" fill="#ef9a9a" font-family="sans-serif" font-size="9" font-weight="700">1</text>
+          <text x="74" y="146" fill="var(--svg-text)" font-family="sans-serif" font-size="10" font-weight="600">Contract Validator &amp; Parser</text>
+          <text x="74" y="160" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">valida e traduce le regole</text>
+          <text x="144" y="178" fill="var(--svg-muted)" font-family="sans-serif" font-size="11">↓</text>
+          <rect x="46" y="183" width="208" height="36" rx="6" fill="rgba(198,40,40,0.1)" stroke="rgba(198,40,40,0.2)" stroke-width="1"/>
+          <circle cx="60" cy="201" r="8" fill="rgba(198,40,40,0.3)"/><text x="56" y="205" fill="#ef9a9a" font-family="sans-serif" font-size="9" font-weight="700">2</text>
+          <text x="74" y="197" fill="var(--svg-text)" font-family="sans-serif" font-size="10" font-weight="600">Quality Engine</text>
+          <text x="74" y="211" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">SODA + Impala / CDE</text>
+        </g>
+
+        <g id="dq-writer" style="opacity:0; transition: opacity 0.4s;">
+          <text x="144" y="232" fill="var(--svg-muted)" font-family="sans-serif" font-size="11">↓</text>
+          <rect x="46" y="237" width="208" height="36" rx="6" fill="rgba(198,40,40,0.1)" stroke="rgba(198,40,40,0.2)" stroke-width="1"/>
+          <circle cx="60" cy="255" r="8" fill="rgba(198,40,40,0.3)"/><text x="56" y="259" fill="#ef9a9a" font-family="sans-serif" font-size="9" font-weight="700">3</text>
+          <text x="74" y="251" fill="var(--svg-text)" font-family="sans-serif" font-size="10" font-weight="600">Results Writer</text>
+          <text x="74" y="265" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">esiti grezzi → Data Lake</text>
+          <line x1="270" y1="210" x2="530" y2="210" stroke="rgba(171,71,188,0.6)" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+          <text x="370" y="205" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">risultati grezzi</text>
+        </g>
+
+        <g id="dq-obs" style="opacity:0; transition: opacity 0.4s 0.1s;">
+          <rect x="530" y="100" width="240" height="180" rx="10" fill="rgba(171,71,188,0.07)" stroke="rgba(171,71,188,0.3)" stroke-width="1.5"/>
+          <text x="546" y="122" fill="#ce93d8" font-family="sans-serif" font-size="12" font-weight="700">📡 Modulo di Observability</text>
+          <rect x="546" y="132" width="208" height="36" rx="6" fill="rgba(171,71,188,0.1)" stroke="rgba(171,71,188,0.2)" stroke-width="1"/>
+          <circle cx="560" cy="150" r="8" fill="rgba(171,71,188,0.3)"/><text x="556" y="154" fill="#ce93d8" font-family="sans-serif" font-size="9" font-weight="700">4</text>
+          <text x="574" y="146" fill="var(--svg-text)" font-family="sans-serif" font-size="10" font-weight="600">Results Reader</text>
+          <text x="574" y="160" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">legge risultati grezzi</text>
+          <text x="644" y="178" fill="var(--svg-muted)" font-family="sans-serif" font-size="11">↓</text>
+          <rect x="546" y="183" width="208" height="36" rx="6" fill="rgba(171,71,188,0.1)" stroke="rgba(171,71,188,0.2)" stroke-width="1"/>
+          <circle cx="560" cy="201" r="8" fill="rgba(171,71,188,0.3)"/><text x="556" y="205" fill="#ce93d8" font-family="sans-serif" font-size="9" font-weight="700">5</text>
+          <text x="574" y="197" fill="var(--svg-text)" font-family="sans-serif" font-size="10" font-weight="600">Transformer</text>
+          <text x="574" y="211" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">KPI · pass rate · trend</text>
+          <text x="644" y="232" fill="var(--svg-muted)" font-family="sans-serif" font-size="11">↓</text>
+          <rect x="546" y="237" width="208" height="36" rx="6" fill="rgba(171,71,188,0.1)" stroke="rgba(171,71,188,0.2)" stroke-width="1"/>
+          <circle cx="560" cy="255" r="8" fill="rgba(171,71,188,0.3)"/><text x="556" y="259" fill="#ce93d8" font-family="sans-serif" font-size="9" font-weight="700">6</text>
+          <text x="574" y="251" fill="var(--svg-text)" font-family="sans-serif" font-size="10" font-weight="600">Publisher + Alert</text>
+          <text x="574" y="265" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">tabelle refined · Slack / email</text>
+        </g>
+
+        <g id="dq-soda-node" style="opacity:0; transition: opacity 0.4s;">
+          <line x1="650" y1="280" x2="650" y2="300" stroke="rgba(21,101,192,0.5)" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+          <rect x="530" y="300" width="240" height="36" rx="10" fill="rgba(21,101,192,0.12)" stroke="rgba(21,101,192,0.4)" stroke-width="1.5"/>
+          <text x="555" y="316" fill="#90caf9" font-family="sans-serif" font-size="12" font-weight="700">☁️ SODA Cloud</text>
+          <text x="555" y="330" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">Dashboard · Alerting · Governance federata</text>
+        </g>
+
+        <g id="dq-orch-node" style="opacity:0; transition: opacity 0.4s 0.2s;">
+          <rect x="30" y="300" width="240" height="36" rx="10" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.25)" stroke-width="1"/>
+          <text x="50" y="316" fill="#06b6d4" font-family="sans-serif" font-size="11" font-weight="700">🔁 Quality Orchestrator</text>
+          <text x="50" y="330" fill="var(--svg-muted)" font-family="sans-serif" font-size="9">DAG Airflow dedicato · separato dalle pipeline</text>
+        </g>
+
+        <defs>
+          <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="rgba(198,40,40,0.6)"/>
+          </marker>
+          <marker id="arr-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="rgba(171,71,188,0.7)"/>
+          </marker>
+          <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="rgba(21,101,192,0.7)"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="fm-nav" style="flex-shrink:0;">
+      <button class="fm-btn fm-btn-sec" id="dqBtnPrev" onclick="dqStep(-1)" disabled>← Indietro</button>
+      <div class="fm-steps-track">
+        <div class="fm-step-dot" data-ddot="0"></div>
+        <div class="fm-step-dot" data-ddot="1"></div>
+        <div class="fm-step-dot" data-ddot="2"></div>
+        <div class="fm-step-dot" data-ddot="3"></div>
+        <div class="fm-step-dot" data-ddot="4"></div>
+        <div class="fm-step-dot" data-ddot="5"></div>
+      </div>
+      <button class="fm-btn fm-btn-pri" id="dqBtnNext" onclick="dqStep(1)">Avanti →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATALOGO CONTROLLI MODAL -->
+<div class="flow-modal-overlay" id="controlliModalOverlay" onclick="if(event.target===this)closeControlliModal()">
+  <div class="flow-modal-box" style="max-width:860px;">
+    <button class="modal-close" onclick="closeControlliModal()">✕</button>
+
+    <div class="fm-step-desc" style="margin-bottom:20px;">
+      <span class="fm-step-num">🔍</span>
+      <span class="fm-step-label">Catalogo Controlli di Qualità — 3 categorie</span>
+    </div>
+
+    <div class="ctrl-grid">
+      <div class="ctrl-card ctrl-puntuale" id="ctrlCard1">
+        <div class="ctrl-card-header">
+          <div class="ctrl-badge" style="background:rgba(0,212,170,0.15);color:var(--teal);border-color:rgba(0,212,170,0.3);">Puntuali</div>
+          <div class="ctrl-icon">🎯</div>
+        </div>
+        <div class="ctrl-desc">Agiscono sul <strong>singolo campo</strong> di un'entità. Verificano formato, tipo, vincoli e obbligatorietà.</div>
+        <div class="ctrl-examples">
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.1s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">GPD</span>
+              <span class="ctrl-field">payment_date</span>
+              <span class="ctrl-result ctrl-pass">✓ PASS</span>
+            </div>
+            <div class="ctrl-ex-rule">not_null · is_not_empty</div>
+            <div class="ctrl-ex-val">valore: <code>2026-05-14</code></div>
+          </div>
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.25s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">FDR</span>
+              <span class="ctrl-field">amount</span>
+              <span class="ctrl-result ctrl-fail">✗ FAIL</span>
+            </div>
+            <div class="ctrl-ex-rule">is_positive · max_value(9999999)</div>
+            <div class="ctrl-ex-val">valore: <code>-150.00</code> ← negativo</div>
+          </div>
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.4s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">GEC</span>
+              <span class="ctrl-field">status_code</span>
+              <span class="ctrl-result ctrl-warn">⚠ WARN</span>
+            </div>
+            <div class="ctrl-ex-rule">is_in_set(['OK','KO','PENDING'])</div>
+            <div class="ctrl-ex-val">valore: <code>null</code> → soglia warn 5%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ctrl-card ctrl-intra" id="ctrlCard2">
+        <div class="ctrl-card-header">
+          <div class="ctrl-badge" style="background:rgba(6,182,212,0.15);color:var(--cyan);border-color:rgba(6,182,212,0.3);">Intra-entità</div>
+          <div class="ctrl-icon">🔗</div>
+        </div>
+        <div class="ctrl-desc">Valutano la <strong>coerenza interna</strong> tra attributi della stessa entità o tabella.</div>
+        <div class="ctrl-examples">
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.15s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">GPD</span>
+              <span class="ctrl-field">date range</span>
+              <span class="ctrl-result ctrl-pass">✓ PASS</span>
+            </div>
+            <div class="ctrl-ex-rule">end_date &gt; start_date</div>
+            <div class="ctrl-ex-val"><code>2026-06-01</code> &gt; <code>2026-01-15</code> ✓</div>
+          </div>
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.3s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">FDR</span>
+              <span class="ctrl-field">totale</span>
+              <span class="ctrl-result ctrl-fail">✗ FAIL</span>
+            </div>
+            <div class="ctrl-ex-rule">total = sum(line_items)</div>
+            <div class="ctrl-ex-val">atteso: <code>1500.00</code> — trovato: <code>1480.00</code></div>
+          </div>
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.45s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">GEC</span>
+              <span class="ctrl-field">stato</span>
+              <span class="ctrl-result ctrl-pass">✓ PASS</span>
+            </div>
+            <div class="ctrl-ex-rule">if status=CLOSED → closed_at not null</div>
+            <div class="ctrl-ex-val">closed_at: <code>2026-04-30</code> ✓</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ctrl-card ctrl-cross" id="ctrlCard3">
+        <div class="ctrl-card-header">
+          <div class="ctrl-badge" style="background:rgba(236,72,153,0.15);color:var(--pink);border-color:rgba(236,72,153,0.3);">Cross-entità</div>
+          <div class="ctrl-icon">🔀</div>
+        </div>
+        <div class="ctrl-desc">Confrontano dati tra <strong>tabelle o domini diversi</strong>. I più complessi, i più preziosi.</div>
+        <div class="ctrl-examples">
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.2s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">GPD × FDR</span>
+              <span class="ctrl-field">riconciliazione</span>
+              <span class="ctrl-result ctrl-pass">✓ PASS</span>
+            </div>
+            <div class="ctrl-ex-rule">gpd.debt_id must exist in fdr.debt_id</div>
+            <div class="ctrl-ex-val">referential integrity: <code>100%</code> match</div>
+          </div>
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.35s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">GPD × GEC</span>
+              <span class="ctrl-field">importo</span>
+              <span class="ctrl-result ctrl-fail">✗ FAIL</span>
+            </div>
+            <div class="ctrl-ex-rule">gpd.amount = gec.notified_amount</div>
+            <div class="ctrl-ex-val">disallineamento su <code>23</code> record</div>
+          </div>
+          <div class="ctrl-example ctrl-ex-anim" style="animation-delay:0.5s">
+            <div class="ctrl-ex-header">
+              <span class="ctrl-entity">Silver × Bronze</span>
+              <span class="ctrl-field">completezza</span>
+              <span class="ctrl-result ctrl-warn">⚠ WARN</span>
+            </div>
+            <div class="ctrl-ex-rule">row_count(silver) = row_count(bronze)</div>
+            <div class="ctrl-ex-val">silver: <code>99.7%</code> — soglia: <code>99.9%</code></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /ctrl-grid -->
+
+    <div class="ctrl-legend">
+      <span class="ctrl-result ctrl-pass" style="padding:4px 10px;border-radius:6px;">✓ PASS</span>
+      <span style="font-size:12px;color:var(--text-muted);">check superato</span>
+      <span class="ctrl-result ctrl-warn" style="padding:4px 10px;border-radius:6px;margin-left:16px;">⚠ WARN</span>
+      <span style="font-size:12px;color:var(--text-muted);">soglia warning superata</span>
+      <span class="ctrl-result ctrl-fail" style="padding:4px 10px;border-radius:6px;margin-left:16px;">✗ FAIL</span>
+      <span style="font-size:12px;color:var(--text-muted);">check fallito — alert inviato</span>
+    </div>
+  </div>
+</div>
+
+<script>
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-theme-val') === theme);
+  });
+}
+
+// MODAL SYSTEM — approfondimenti opzionali, a discrezione del presentatore
+const modalData = {
+  confluence: {
+    title: '📚 Spazio Confluence QA TS300',
+    items: [
+      { num: '01', title: 'Visione e Strategia (Il "Perché")', desc: 'Manifesto della Qualità, QAdro (modello valutazione pratiche QA), checklist di readiness per adozione qualità.' },
+      { num: '02', title: 'Governance e Organizzazione (Il "Chi")', desc: 'Struttura organizzativa con RACI, responsabilità QA/QE Lead, modalità di ingaggio, elenco team, stakeholder Data Quality.' },
+      { num: '03', title: 'Processo e Operatività (Il "Come")', desc: 'Checklist governance, processo QA, cadence Kanban, organizzazione Jira, branching model, linee guida release, CI/CD, ISO 9001.' },
+      { num: '04', title: 'Metriche, Report e Data Quality (I "Risultati")', desc: 'Dashboard dimensioni e metriche, Dashboard One, catalogo controlli Data Quality, Solution Blueprint.' },
+      { num: '05', title: 'Standard, Template e Checklist', desc: 'Release QA CheckList template, template analisi RUN, documentazione valorizzazione card Jira.' }
+    ]
+  },
+  pilastri: {
+    title: '🧭 Due Pilastri',
+    body: '<p><strong>Testing</strong>: processo QA integrato nell\'SDLC, automazione CI/CD tramite il Test Automation Service, team con ruoli strutturati.</p><p><strong>Data Quality</strong>: governance del dato nel Data Lake, controlli automatici su SODA Cloud, Data Contract come interfaccia produttore/consumatore.</p><p>Due aree distinte, complementari, sotto un unico Centro di Competenza.</p>'
+  },
+  manifesto: {
+    title: '🏛️ Quality Manifesto — I 6 Principi',
+    type: 'cards',
+    items: [
+      { icon: '📣', over: 'Quality Advocacy', under: 'Quality Assurance', desc: 'Diffondere la consapevolezza della qualità in tutta l\'organizzazione, dall\'ideazione fino all\'uso del prodotto.' },
+      { icon: '❤️', over: 'Customer Needs', under: 'Requirement Specifications', desc: 'Le esigenze del cliente sempre in primo piano: "Il prodotto sta offrendo valore reale?"' },
+      { icon: '🤝', over: 'Team Responsibility for Quality', under: 'Tester\'s Responsibility', desc: 'L\'intero team è responsabile della qualità. Cultura della retrospettiva, non della colpa.' },
+      { icon: '🔭', over: 'Exploratory Testing', under: 'Scripted Testing', desc: 'Il valore del QA è nella mente creativa: investigare, esplorare, scoprire l\'ignoto e i casi limite.' },
+      { icon: '🧱', over: 'Bake Quality In', under: 'Breaking It', desc: 'Integrare la qualità fin dall\'inizio. Coinvolgimento precoce, testing continuo, feedback rapidi.' },
+      { icon: '🤖', over: 'Automated Checking', under: 'Manual Testing', desc: 'L\'automazione libera tempo per scoprire ciò che le macchine non possono vedere.' }
+    ]
+  },
+  team: {
+    title: '👥 Composizione del Team',
+    items: [
+      { num: 'x3', title: 'QA Engineer', desc: 'Sviluppo e manutenzione delle suite automatiche, esecuzione test automatici, integrazione CI/CD tramite il Test Automation Service.' },
+      { num: 'x1', title: 'QA Analyst', desc: 'Comprensione requisiti, progettazione scenari e casi di test, esecuzione test manuali, analisi e reportistica.' },
+      { num: 'x1', title: 'QA Data Analyst', desc: 'Supporto al pilastro Data Quality: controlli sul dato, gestione Data Contract, collaborazione con il Data Lake su Cloudera.' }
+    ]
+  },
+  tas: {
+    title: '🤖 Test Automation Service',
+    body: '<p>Infrastruttura centralizzata che rende le suite di test richiamabili da qualsiasi pipeline CI/CD esterna, senza gestione di segreti lato chiamante.</p><p>Costruito e operativo, in adozione sul primo progetto pilota: <strong>Checkout</strong>. Approfondimento dedicato nei prossimi 5 minuti.</p>'
+  },
+  centralhub: {
+    title: '🖥️ Central Hub QA',
+    body: '<p>Portale unico (frontend + backend) che consolida gli strumenti prima sparsi tra Dashboard One e Portale NRT.</p><ul><li>Generatore BDD/Gherkin assistito da AI</li><li>Dashboard suite E2E</li><li>KPI Jira (Testing, SANP, Data)</li><li>Data Hub: catalogo PSP e posizioni debitorie GPD</li><li>Knowledge base e gestione utenti/ruoli</li></ul>'
+  },
+  ai: {
+    title: '🧩 6 Agenti AI nel workflow QA',
+    body: '<p>Un sistema di agenti governati, ognuno con un ruolo preciso:</p><ul><li><strong>Orchestrator</strong> — coordina il ciclo end-to-end</li><li><strong>Analyst</strong> — produce e rivede scenari Gherkin</li><li><strong>Engineer</strong> — implementa gli step di test</li><li><strong>Runner</strong> — esegue i test e diagnostica i fallimenti</li><li><strong>Closer</strong> — aggiorna documentazione, commit e pull request</li><li><strong>Python Utility Engineer</strong> — cura le utility condivise</li></ul>'
+  },
+  jira: {
+    title: '📋 Board Jira Strutturate',
+    items: [
+      { num: '01', title: 'Testing Board (Kanban)', desc: 'Board principale per tutte le attività di testing: epic per evolutive, bug fixing, NRT, manutenzione codebase. 6 categorie di epic con task type dedicati.' },
+      { num: '02', title: 'Internal Task Board', desc: 'Board per i progetti interni di sviluppo dell\'ecosistema QA: analisi, progettazione e implementazione deliverable, knowledge transfer.' },
+      { num: '03', title: 'Data Quality Board', desc: 'Board dedicata alle attività di Data Quality: controlli di qualità, Data Contract, Data Product, monitoraggio e governance del dato.' },
+      { num: '04', title: 'Data Support CAB', desc: 'Board dedicata ai ticket di supporto in merito alle richieste sui tema "Data".' }
+    
+    ]
+  },
+  adr: {
+    title: '📄 Decision Record Documentati',
+    items: [
+      { num: 'ADR', title: 'ADR-001 Data Product', desc: 'Definizione dei Data Product e delle relative responsabilità. Un Data Product rappresenta la più piccola unità di deployment all\'interno della data platform.' },
+      { num: 'ADR', title: 'ADR-002 Data Quality Framework', desc: 'Architettura del framework con Modulo Quality (SODA + Impala) e Modulo Observability. Contract-driven quality, orchestrazione Airflow.' },
+      { num: 'ADR', title: 'ADR-003 Observability Platform', desc: 'Il Modulo di Observability del Data Quality Framework pubblica i risultati di Quality verso l\'Observability Platform, componente centralizzato che colleziona i dati di qualità di tutti i sistemi della piattaforma.' },
+      { num: 'ADR', title: 'ADR-004 Struttura risultati Quality', desc: 'Tabelle di salvataggio dei risultati di quality all\'interno del Data Lake.' },
+      { num: 'GDR', title: 'GDR-001 Modello Operativo', desc: 'Definizione dei 3 stream (Platform, Governance, Prodotto), unità esecutive inter-funzionali e cadence di coordinamento.' },
+      { num: 'GDR', title: 'GDR-002 Utilizzo dei Data Contract', desc: 'Utilizzo dei Data Contract come strumento di governance per il consumo dei dati esposti sui diversi layer del Data Lake.' },
+      { num: 'GDR', title: 'GDR-003 Naming Convention', desc: 'Utilizzo della naming convention all\'interno dei processi di sviluppo e per le risorse infrastrutturali necessarie agli use-case in ambito dati.' },
+      { num: 'RFC', title: 'RFC — Stack Tecnologico QA', desc: 'Standardizzazione dello stack per la QA Automation a livello dipartimentale.' },
+      { num: 'RFC', title: 'RFC — Lingua Ufficiale dei Test', desc: 'Definizione della lingua ufficiale con cui scrivere i test case e i feature file Gherkin.' }
+    ]
+  },
+  raci: {
+    title: '🏛️ Struttura Organizzativa & RACI',
+    items: [
+      { num: 'MGR', title: 'QA Manager', desc: 'Supervisione strategica, escalation decisioni critiche, validazione Go/No-Go su rilasci ad alto rischio, interfaccia con il senior management.' },
+      { num: 'LDR', title: 'QA Lead', desc: 'Responsabile operativo del team. Guida la board Kanban, coordina i QA Analyst e Engineer, è Accountable per quasi tutte le attività di testing.' },
+      { num: 'ANL', title: 'QA Analyst', desc: 'Comprensione requisiti, progettazione scenari e casi di test, scrittura test manuali, esecuzione e analisi reportistica.' },
+      { num: 'ENG', title: 'QA Engineer', desc: 'Sviluppo e manutenzione suite automatiche, esecuzione test automatici, analisi reportistica automatizzata, manutenzione codebase.' },
+      { num: 'RACI', title: 'Matrice di Responsabilità', desc: '9 attività coperte: comprensione requisiti, test manuali/automatici, esecuzione, analisi, Go/No-Go, checklist di rilascio. Responsabilità condivise con Product Team e SL Product Manager.' }
+    ]
+  },
+  jiraorg: {
+    title: '📋 Board Jira Strutturate',
+    items: [
+      { num: '01', title: 'Testing Board (Kanban)', desc: 'Board principale per tutte le attività di testing: epic per evolutive, bug fixing, NRT, manutenzione codebase. 6 categorie di epic con task type dedicati.' },
+      { num: '02', title: 'Internal Task Board', desc: 'Board per i progetti interni di sviluppo dell\'ecosistema QA: analisi, progettazione e implementazione deliverable, knowledge transfer.' },
+      { num: '03', title: 'Data Quality Board', desc: 'Board dedicata alle attività di Data Quality: controlli di qualità, Data Contract, Data Product, monitoraggio e governance del dato.' }
+    ]
+  },
+  cadence: {
+    title: '🔄 Le 6 Cadence per la Qualità',
+    items: [
+      { num: '01', title: 'Release Strategy Review — Trimestrale', desc: 'Definisce i cambiamenti strategici per l\'evoluzione del team, dell\'architettura e degli strumenti.' },
+      { num: '02', title: 'Release Operations Review — Mensile', desc: 'Analizza il flusso per identificare problemi sistemici e colli di bottiglia da risolvere.' },
+      { num: '03', title: 'Release Service Delivery Review — Bisettimanale', desc: 'Monitora le metriche di performance del team QA (es. Lead Time, Defect Rate).' },
+      { num: '04', title: 'Release Replenishment Meeting — Settimanale', desc: 'Pianifica il lavoro della settimana, allineando la capacità del team con le roadmap di prodotto. Corrisponde agli eventi di Sprint Refinement con i team di Prodotto.' },
+      { num: '05', title: 'Kanban Delivery Critique Meeting — 2-4x settimana', desc: 'Valida la solidità tecnica del lavoro in corso tramite revisioni e critiche costruttive.' },
+      { num: '06', title: 'Daily QA — Giornaliero', desc: 'Allineamento tattico per gestire il flusso, rimuovere blocchi e pianificare la giornata.' }
+    ]
+  },
+  dashboard: {
+    title: '📊 Dashboard One — KPI di Qualità',
+    items: [
+      { num: '01', title: 'Monitoraggio Operativo', desc: 'Lead Time per tipo di attività, throughput del team, Work In Progress per swim lane, velocity sprint-over-sprint. Tutto live su Jira.' },
+      { num: '02', title: 'Qualità & Bug Detection', desc: 'Defect Rate per sprint, bug trovati in QA vs trovati in prod, severity distribution, reopen rate. Tendenza al miglioramento misurabile.' },
+      { num: '03', title: 'Insights & Trend', desc: 'Analisi storica dei trend qualità, copertura test per progetto, pass rate delle suite automatiche, tempo medio di risoluzione anomalie.' }
+    ]
+  },
+  datacontract: {
+    title: '📄 Data Contract',
+    items: [
+      { num: '01', title: 'Cos\'è', desc: 'Interfaccia formale tra chi produce e chi consuma i dati. Descrive struttura, semantica degli eventi e configurazione dei controlli di qualità. Non solo documentazione: artefatto attivo.' },
+      { num: '02', title: 'Data Contract sui Topic Kafka', desc: 'Il Team Core & Touchpoint redige un contratto per ogni entità estratta dalla sorgente. Definisce campi, tipi e semantica degli eventi pubblicati sul topic.' },
+      { num: '03', title: 'Data Contract sulle tabelle Silver', desc: 'Eredita la struttura dal topic e aggiunge la sezione di quality: qui vengono dichiarati i controlli da eseguire sul dato atterrato nel lake.' },
+      { num: '04', title: 'Data Contract sui Data Product', desc: 'Ogni Data Product consumer-aligned ha il proprio contratto che descrive le entità esposte e i controlli di qualità applicati a quel livello.' },
+      { num: '05', title: 'Artefatto attivo', desc: 'Il Data Quality Framework legge la configurazione dei controlli direttamente dal Data Contract a runtime. Qualità e contratto sono sempre allineati (contract-driven quality).' }
+    ]
+  },
+  sodacloud: {
+    title: '☁️ SODA Cloud',
+    body: '<p>La piattaforma di Observability scelta per eseguire ed esporre i controlli di qualità. I controlli su GPD sono pronti: il passaggio in produzione è l\'attività in corso in questo momento.</p>'
+  },
+  coordinamento: {
+    title: '🤝 Coordinamento Inter-team',
+    items: [
+      { num: '01', title: 'QA Internal Sync — Settimanale', desc: 'Review avanzamento Data Quality e Data Strategy all\'interno del Team QA pagoPA. Discussione evolutive, prioritizzazione portfolio, decisioni via ADR/GDR.' },
+      { num: '02', title: 'Data Lake Sync — Sett. → Bisettimanale', desc: 'Tavolo tra Team Data Lake, Team QA pagoPA e Team Strategic Coordination. Nuovi requisiti di business, issue su servizi di piattaforma, policy e standard globali.' },
+      { num: '03', title: 'Federated DQ Committee — Bisettimanale', desc: 'Organo di coordinamento dedicato alla Data Quality. Definisce i controlli da implementare, raccoglie requisiti di qualità dai team a valle, raccorda con il Data Lake.' }
+    ]
+  },
+  bdd: {
+    title: '✍️ Generatore BDD/Gherkin',
+    body: '<p>Modulo del Central Hub QA che assiste, con l\'AI, la scrittura di scenari Gherkin a partire da requisiti o documentazione esistente, mantenendo storico e tracciabilità per progetto.</p>'
+  },
+  e2edash: {
+    title: '🧪 Dashboard Suite E2E',
+    body: '<p>Vista centralizzata sulle suite di test end-to-end: elenco esecuzioni, esiti, e collegamento diretto ai report di dettaglio.</p>'
+  },
+  jirakpi: {
+    title: '📈 KPI Jira',
+    body: '<p>Indicatori aggregati dalle tre board Jira (Testing, SANP, Data): andamento nel tempo, non solo stato puntuale, per capire la direzione oltre alla fotografia attuale.</p>'
+  },
+  datahub: {
+    title: '🗄️ Data Hub',
+    body: '<p>Sezione dedicata ai dati di dominio pagamenti: catalogo PSP e servizi pagoPA, e monitoraggio delle posizioni debitorie GPD (KPI, trend, confronto periodi).</p>'
+  },
+  kb: {
+    title: '📚 Knowledge Base',
+    body: '<p>Documentazione operativa consultabile direttamente nel portale, senza dover saltare tra strumenti diversi.</p>'
+  },
+  roles: {
+    title: '🔐 Utenti & Ruoli',
+    body: '<p>Accesso governato tramite Google SSO e ruoli dedicati (superadmin, QA manager, QA analyst, QA engineer, guest), ognuno con permessi coerenti sulle diverse sezioni del portale.</p>'
+  }
+};
+
+function openModal(key) {
+  const d = modalData[key];
+  if (!d) return;
+  let html = '<h3 style="margin-bottom:24px;">' + d.title + '</h3>';
+  if (d.type === 'cards') {
+    html += '<div class="modal-cards-grid">';
+    d.items.forEach(item => {
+      html += '<div class="modal-card">' +
+        '<div class="mc-icon">' + item.icon + '</div>' +
+        '<div class="mc-over">' + item.over + '</div>' +
+        '<div class="mc-vs">over</div>' +
+        '<div class="mc-under">' + item.under + '</div>' +
+        '<div class="mc-desc">' + item.desc + '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+  } else if (d.items) {
+    d.items.forEach(item => {
+      html += '<div class="modal-item"><div class="modal-item-num">' + item.num + '</div><div class="modal-item-body"><h4>' + item.title + '</h4><p>' + item.desc + '</p></div></div>';
+    });
+  } else {
+    html += d.body;
+  }
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+// FLOW MODAL — Processo QA & SDLC
+const FLOW_STEPS_LABELS = [
+  'Clicca "Avanti" per iniziare',
+  '📐 Le fasi del progetto e il Monitoring & Control trasversale',
+  '🚀 INIT — Allineamento stakeholder, kickoff e definizione requisiti',
+  '📋 PLANNING — QA entra in gioco fin dalla scrittura degli artifact Jira',
+  '⚙️ EXECUTION — Sprint iterativi con QA in parallelo: suite TA e run automatici',
+  '🏁 CLOSING — Quality Assurance Gate: go / no-go prima del rilascio'
+];
+let currentFlowStep = 0;
+const FLOW_MAX = 5;
+
+function openFlowModal() {
+  currentFlowStep = 0;
+  document.getElementById('flowModalOverlay').classList.add('open');
+  renderFlowDiagram();
+}
+function closeFlowModal() {
+  document.getElementById('flowModalOverlay').classList.remove('open');
+}
+function flowStep(dir) {
+  const next = currentFlowStep + dir;
+  if (next < 0 || next > FLOW_MAX) return;
+  currentFlowStep = next;
+  renderFlowDiagram();
+}
+function renderFlowDiagram() {
+  const items = document.querySelectorAll('#flowDiagram .flow-item');
+  let delay = 0;
+  items.forEach(el => {
+    const s = parseInt(el.dataset.fstep || '99');
+    if (s <= currentFlowStep) {
+      if (!el.classList.contains('fi-visible')) {
+        el.style.transitionDelay = delay + 'ms';
+        delay += 55;
+        el.classList.add('fi-visible');
+      }
+    } else {
+      el.style.transitionDelay = '0ms';
+      el.classList.remove('fi-visible');
+    }
+  });
+  document.getElementById('fmStepNum').textContent = currentFlowStep + ' / ' + FLOW_MAX;
+  document.getElementById('fmStepLabel').textContent = FLOW_STEPS_LABELS[currentFlowStep];
+  document.getElementById('fmBtnPrev').disabled = currentFlowStep === 0;
+  document.getElementById('fmBtnNext').disabled = currentFlowStep === FLOW_MAX;
+  document.querySelectorAll('#fmStepsTrack .fm-step-dot').forEach(dot => {
+    dot.classList.toggle('active', parseInt(dot.dataset.dot) === currentFlowStep);
+  });
+}
+
+// BRANCHING MODAL
+const BM_STEPS_LABELS = [
+  'Clicca "Avanti" per iniziare',
+  '🌿 Il branch main contiene la baseline stabile delle suite automatiche',
+  '🔀 Si crea un feature branch (FB) dal main — naming: <ISSUE_ID>-<SUITE_NAME>-<DESC>',
+  '🤖 Implementazione suite TA sul FB — i run usano mock che simulano il Test Object',
+  '🔵 Sync Point 1 — il TO è deployato in DEV: si eseguono i test reali (no mock)',
+  '🟡 Sync Point 2 — TO in UAT: stabilizzazione suite, merge PR su main, tag release candidate',
+  '🏁 Sync Point 3 — Quality Gate: go/no-go definitivo → tag release finale'
+];
+const BM_MAX = 6;
+let currentBMStep = 0;
+
+function openBranchingModal() {
+  currentBMStep = 0;
+  document.getElementById('branchModalOverlay').classList.add('open');
+  renderBranchDiagram();
+}
+function closeBranchingModal() {
+  document.getElementById('branchModalOverlay').classList.remove('open');
+}
+function branchStep(dir) {
+  const next = currentBMStep + dir;
+  if (next < 0 || next > BM_MAX) return;
+  currentBMStep = next;
+  renderBranchDiagram();
+}
+function renderBranchDiagram() {
+  let delay = 0;
+  document.querySelectorAll('#bmDiagram .bm-item').forEach(el => {
+    const s = parseInt(el.dataset.bstep || '99');
+    if (s <= currentBMStep) {
+      if (!el.classList.contains('bm-visible')) {
+        el.style.transitionDelay = delay + 'ms';
+        delay += 40;
+        el.classList.add('bm-visible');
+      }
+    } else {
+      el.style.transitionDelay = '0ms';
+      el.classList.remove('bm-visible');
+    }
+  });
+  document.getElementById('bmStepNum').textContent = currentBMStep + ' / ' + BM_MAX;
+  document.getElementById('bmStepLabel').textContent = BM_STEPS_LABELS[currentBMStep];
+  document.getElementById('bmBtnPrev').disabled = currentBMStep === 0;
+  document.getElementById('bmBtnNext').disabled = currentBMStep === BM_MAX;
+  document.querySelectorAll('#bmStepsTrack .fm-step-dot').forEach(dot => {
+    dot.classList.toggle('active', parseInt(dot.dataset.bdot) === currentBMStep);
+  });
+}
+
+// DQ SOLUTION MODAL — Soluzione Target
+const DQS_LABELS = [
+  'Clicca "Avanti" per scoprire il flusso',
+  'I sistemi sorgente inviano eventi agli Event Hubs (Kafka)',
+  'I dati vengono caricati nel layer Bronze del Data Lake',
+  'Deduplication → layer Silver con Data Contract allegato a ogni entità',
+  'Il DQ Framework (Spark + SODA) esegue i Check e pubblica i risultati',
+  'Il dato certificato raggiunge il Gold layer · Data Product Consumer Aligned',
+  'Note architetturali: invarianza ingestion · Data Contract come source of truth · alert Slack'
+];
+let currentDqsStep = 0;
+const DQS_MAX = 6;
+function openDQSolutionModal() {
+  currentDqsStep = 0;
+  document.getElementById('dqSolutionModalOverlay').classList.add('open');
+  document.querySelectorAll('#dqSolutionModalOverlay .dqs-item').forEach(el => el.classList.remove('dqs-visible'));
+  updateDqsStep();
+}
+function closeDQSolutionModal() { document.getElementById('dqSolutionModalOverlay').classList.remove('open'); }
+function dqsStep(dir) {
+  const next = currentDqsStep + dir;
+  if (next < 0 || next > DQS_MAX) return;
+  currentDqsStep = next;
+  updateDqsStep();
+}
+function updateDqsStep() {
+  document.querySelectorAll('#dqSolutionModalOverlay .dqs-item').forEach(el => {
+    const s = parseInt(el.dataset.dqs || '0');
+    el.classList.toggle('dqs-visible', s <= currentDqsStep);
+  });
+  document.getElementById('dqsStepNum').textContent = currentDqsStep + ' / ' + DQS_MAX;
+  document.getElementById('dqsStepLabel').textContent = DQS_LABELS[currentDqsStep];
+  document.getElementById('dqsBtnPrev').disabled = currentDqsStep === 0;
+  document.getElementById('dqsBtnNext').disabled = currentDqsStep === DQS_MAX;
+  document.querySelectorAll('#dqSolutionModalOverlay .fm-step-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === currentDqsStep);
+    dot.classList.toggle('done', i < currentDqsStep);
+  });
+}
+
+// DQ FRAMEWORK MODAL
+const DQ_LABELS = [
+  'Clicca "Avanti" per iniziare',
+  '📄 Il Data Contract è la fonte unica di verità — definisce le regole di qualità a runtime',
+  '⚙️ Il Modulo di Quality legge le regole, esegue i check con SODA + Impala, scrive i risultati',
+  '💾 Il Results Writer persiste gli esiti grezzi nel Data Lake (pass / warning / fail per check)',
+  '📡 Il Modulo di Observability aggrega i risultati, calcola KPI e pubblica alert verso i team',
+  '☁️ SODA Cloud centralizza dashboard, alerting e governance · Orchestrator Airflow coordina tutto'
+];
+const DQ_SVG_STEPS = {
+  1: ['dq-dc'],
+  2: ['dq-quality'],
+  3: ['dq-writer'],
+  4: ['dq-obs'],
+  5: ['dq-soda-node', 'dq-orch-node']
+};
+const DQ_MAX = 5;
+let currentDQStep = 0;
+function openDQModal() {
+  currentDQStep = 0;
+  document.getElementById('dqModalOverlay').classList.add('open');
+  renderDQDiagram();
+}
+function closeDQModal() { document.getElementById('dqModalOverlay').classList.remove('open'); }
+function dqStep(dir) {
+  const next = currentDQStep + dir;
+  if (next < 0 || next > DQ_MAX) return;
+  currentDQStep = next;
+  renderDQDiagram();
+}
+function renderDQDiagram() {
+  for (let s = 1; s <= DQ_MAX; s++) {
+    const ids = DQ_SVG_STEPS[s] || [];
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.opacity = s <= currentDQStep ? '1' : '0';
+    });
+  }
+  document.getElementById('dqStepNum').textContent = currentDQStep + ' / ' + DQ_MAX;
+  document.getElementById('dqStepLabel').textContent = DQ_LABELS[currentDQStep];
+  document.getElementById('dqBtnPrev').disabled = currentDQStep === 0;
+  document.getElementById('dqBtnNext').disabled = currentDQStep === DQ_MAX;
+  document.querySelectorAll('#dqModalOverlay .fm-step-dot').forEach(dot => {
+    dot.classList.toggle('active', parseInt(dot.dataset.ddot) === currentDQStep);
+  });
+}
+
+// CATALOGO CONTROLLI MODAL
+function openControlliModal() {
+  document.getElementById('controlliModalOverlay').classList.add('open');
+  document.querySelectorAll('.ctrl-ex-anim').forEach(el => {
+    el.style.animation = 'none';
+    void el.offsetHeight;
+    el.style.animation = '';
+  });
+}
+function closeControlliModal() {
+  document.getElementById('controlliModalOverlay').classList.remove('open');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeModal(); closeFlowModal(); closeBranchingModal(); closeDQSolutionModal(); closeDQModal(); closeControlliModal(); }
+});
+
+(function() {
+  const deck = document.getElementById('deck');
+  const slides = deck.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let transitioning = false;
+
+  const navDots = document.getElementById('navDots');
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    navDots.appendChild(dot);
+  });
+
+  function updateUI() {
+    document.getElementById('progressBar').style.width = ((current / (total - 1)) * 100) + '%';
+    document.getElementById('slideCounter').textContent = (current + 1) + ' / ' + total;
+    navDots.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    document.getElementById('scrollHint').style.display = current === 0 ? '' : 'none';
+  }
+
+  function goTo(idx) {
+    if (idx === current || idx < 0 || idx >= total || transitioning) return;
+    transitioning = true;
+    const dir = idx > current ? 1 : -1;
+    const prev = slides[current];
+    const next = slides[idx];
+
+    prev.classList.remove('active');
+    prev.classList.add(dir > 0 ? 'exit-up' : 'exit-down');
+
+    next.classList.add('no-transition');
+    next.style.transform = dir > 0 ? 'translateY(40px)' : 'translateY(-40px)';
+    next.style.opacity = '0';
+
+    void next.offsetHeight;
+    next.classList.remove('no-transition');
+    next.classList.add('active');
+    next.style.transform = '';
+    next.style.opacity = '';
+
+    setTimeout(() => {
+      prev.classList.remove('exit-up', 'exit-down');
+      prev.style.transform = '';
+      prev.style.opacity = '';
+      transitioning = false;
+    }, 700);
+
+    current = idx;
+    updateUI();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (document.getElementById('modalOverlay').classList.contains('open')) return;
+    if (document.getElementById('flowModalOverlay').classList.contains('open')) return;
+    if (document.getElementById('branchModalOverlay').classList.contains('open')) return;
+    if (document.getElementById('dqSolutionModalOverlay').classList.contains('open')) return;
+    if (document.getElementById('dqModalOverlay').classList.contains('open')) return;
+    if (document.getElementById('controlliModalOverlay').classList.contains('open')) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault(); goTo(current + 1);
+    }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault(); goTo(current - 1);
+    }
+    if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+  });
+
+  let wheelTimeout;
+  deck.addEventListener('wheel', e => {
+    const activeSlide = slides[current];
+    const scrollEl = activeSlide.querySelector('.slide-scroll');
+    if (scrollEl) {
+      const atTop = scrollEl.scrollTop <= 0;
+      const atBottom = scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 5;
+      if ((e.deltaY > 0 && !atBottom) || (e.deltaY < 0 && !atTop)) return;
+    }
+    e.preventDefault();
+    clearTimeout(wheelTimeout);
+    wheelTimeout = setTimeout(() => {
+      if (e.deltaY > 0) goTo(current + 1);
+      else goTo(current - 1);
+    }, 80);
+  }, { passive: false });
+
+  let touchY;
+  deck.addEventListener('touchstart', e => { touchY = e.touches[0].clientY; });
+  deck.addEventListener('touchend', e => {
+    const dy = touchY - e.changedTouches[0].clientY;
+    if (Math.abs(dy) > 50) {
+      dy > 0 ? goTo(current + 1) : goTo(current - 1);
+    }
+  });
+
+  updateUI();
+})();
+</script>
+</body>
+</html>
