@@ -746,7 +746,7 @@ h3 {
   <div class="fade-in"><div class="kicker">AllHands di Dipartimento · Luglio 2026</div></div>
   <h1 class="fade-in glow-teal">Centro di Competenza<br><span class="accent">Quality Assurance</span></h1>
   <div class="fade-in">
-    <p class="subtitle">Un anno dopo il via: framework operativo, primi risultati in produzione e le novità che stiamo portando ai team prodotto.</p>
+    <p class="subtitle">Sei mesi dopo il via: framework operativo, primi risultati in produzione e le novità che stiamo portando ai team prodotto.</p>
   </div>
   <div class="cover-meta fade-in">
     <span>📅 Kick-off Feb 2026 → Target Giu 2027</span>
@@ -756,7 +756,7 @@ h3 {
 </div>
 
 <!-- ==================== SLIDE 1: MOMENTUM ==================== -->
-<div class="slide" data-idx="1">
+<!-- <div class="slide" data-idx="1">
   <div class="fade-in kicker">Il Contesto</div>
   <h2 class="fade-in">Uno dei progetti su cui il Dipartimento ha <span class="accent">investito di più</span></h2>
   <p class="subtitle fade-in" style="margin-bottom:32px;">Come raccontato nello scorso AllHands, il Centro di Competenza QA è un'iniziativa strategica del Dipartimento. Da allora il framework è stato costruito, il pilota è partito, e i primi risultati sono già in produzione.</p>
@@ -769,8 +769,8 @@ h3 {
     </div>
     <div class="card" style="border-top:3px solid var(--amber);">
       <div class="card-icon" style="background:rgba(245,158,11,0.12);">🚀</div>
-      <h3 style="font-size:15px;">In produzione</h3>
-      <p>Test Automation Service e Data Quality Framework già operativi sui primi progetti.</p>
+      <h3 style="font-size:15px;">Pronti per la produzione</h3>
+      <p>Data Quality Framework e Test Automation Service pronti per essere attivati in produzione sui primi progetti.</p>
     </div>
     <div class="card" style="border-top:3px solid var(--pink);">
       <div class="card-icon" style="background:rgba(236,72,153,0.12);">🤝</div>
@@ -778,14 +778,14 @@ h3 {
       <p>Scambio continuo con SEND & Interop e, da poco, IO-Wallet-Multicanalità.</p>
     </div>
   </div>
-</div>
+</div> -->
 
 <!-- ==================== SLIDE 2: DUE PILASTRI ==================== -->
 <div class="slide" data-idx="2">
   <div class="slide-scroll">
-    <div class="fade-in kicker">La Nostra Risposta</div>
+    <div class="fade-in kicker">Il contesto</div>
     <h2 class="fade-in">Due Pilastri,<br>un unico <span class="accent">Centro di Competenza</span></h2>
-
+    <p class="subtitle fade-in" style="margin-bottom:32px;">Come raccontato nello scorso AllHands, il Centro di Competenza QA è un'iniziativa strategica del Dipartimento. Da allora il framework è stato costruito, il pilota è partito, e i primi risultati sono già in produzione.</p>
     <div class="two-col fade-in" style="margin-top:32px;">
       <div class="pillar pillar-testing">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
@@ -862,8 +862,8 @@ h3 {
         <div class="ach-label">Ticketing Systems Strutturato su Diverse Board Jira<br>strutturate</div>
       </div>
       <div class="ach-item clickable" onclick="openModal('adr')">
-        <div class="ach-num">9</div>
-        <div class="ach-label">ADR/GDR<br>documentati</div>
+        <div class="ach-num">13</div>
+        <div class="ach-label">DR/RFC<br>documentati</div>
       </div>
       <div class="ach-item clickable" onclick="openModal('team')">
         <div class="ach-num">5</div>
@@ -891,6 +891,42 @@ h3 {
         <div class="flow-step" style="border-color:var(--amber);color:var(--amber);">Pilota</div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 8: SINERGIA ==================== -->
+<div class="slide" data-idx="8">
+  <div class="fade-in kicker">Sinergia tra Dipartimenti</div>
+  <h2 class="fade-in" style="margin-bottom:6px;">Pagamenti <span class="accent">⇄</span> SEND & Interop</h2>
+  <p class="fade-in" style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Ora in espansione anche a IO-Wallet-Multicanalità</p>
+
+  <div class="syn-panel fade-in">
+    <div class="syn-row">
+      <div class="syn-col syn-col-pag">
+        <div class="syn-col-hdr">Pagamenti porta</div>
+        <div class="syn-bullet">DQ Framework & Data Contract</div>
+        <div class="syn-bullet">Test Automation Service & automazione CI/CD</div>
+        <div class="syn-bullet">BDD Gherkin & Quality Gate</div>
+        <div class="syn-bullet">Stack AI agentico per il workflow QA</div>
+      </div>
+      <div class="syn-plus">+</div>
+      <div class="syn-col syn-col-send">
+        <div class="syn-col-hdr">SEND porta</div>
+        <div class="syn-bullet">Ambiente di test dedicato e isolato</div>
+        <div class="syn-bullet">Release Management strutturato</div>
+        <div class="syn-bullet">QA + Operations integrati</div>
+        <div class="syn-bullet">Team consolidato e metodologia matura</div>
+      </div>
+    </div>
+    <div class="syn-result">
+      <span class="syn-result-icon">🔗</span>
+      <span class="syn-result-text"><strong>Nessuna sovrapposizione, nessun conflitto</strong> — i due approcci coprono dimensioni diverse e complementari del ciclo di qualità.</span>
+      <span class="syn-result-tag">moltiplicatore di valore</span>
+    </div>
+  </div>
+
+  <div class="fade-in" style="margin-top:18px;font-size:13px;color:var(--text-dim);">
+    🤝 Il Quality Manifesto, nato nel Team Pagamenti, è stato adottato anche da SL QA&OPS · Sync regolari attivi con entrambi i dipartimenti.
   </div>
 </div>
 
@@ -1113,44 +1149,8 @@ h3 {
   </div>
 </div>
 
-<!-- ==================== SLIDE 8: SINERGIA ==================== -->
-<div class="slide" data-idx="8">
-  <div class="fade-in kicker">Sinergia tra Dipartimenti</div>
-  <h2 class="fade-in" style="margin-bottom:6px;">Pagamenti <span class="accent">⇄</span> SEND & Interop</h2>
-  <p class="fade-in" style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">Ora in espansione anche a IO-Wallet-Multicanalità</p>
-
-  <div class="syn-panel fade-in">
-    <div class="syn-row">
-      <div class="syn-col syn-col-pag">
-        <div class="syn-col-hdr">Pagamenti porta</div>
-        <div class="syn-bullet">DQ Framework & Data Contract</div>
-        <div class="syn-bullet">Test Automation Service & automazione CI/CD</div>
-        <div class="syn-bullet">BDD Gherkin & Quality Gate</div>
-        <div class="syn-bullet">Stack AI agentico per il workflow QA</div>
-      </div>
-      <div class="syn-plus">+</div>
-      <div class="syn-col syn-col-send">
-        <div class="syn-col-hdr">SEND porta</div>
-        <div class="syn-bullet">Ambiente di test dedicato e isolato</div>
-        <div class="syn-bullet">Release Management strutturato</div>
-        <div class="syn-bullet">QA + Operations integrati</div>
-        <div class="syn-bullet">Team consolidato e metodologia matura</div>
-      </div>
-    </div>
-    <div class="syn-result">
-      <span class="syn-result-icon">🔗</span>
-      <span class="syn-result-text"><strong>Nessuna sovrapposizione, nessun conflitto</strong> — i due approcci coprono dimensioni diverse e complementari del ciclo di qualità.</span>
-      <span class="syn-result-tag">moltiplicatore di valore</span>
-    </div>
-  </div>
-
-  <div class="fade-in" style="margin-top:18px;font-size:13px;color:var(--text-dim);">
-    🤝 Il Quality Manifesto, nato nel Team Pagamenti, è stato adottato anche da SL QA&OPS · Sync regolari attivi con entrambi i dipartimenti.
-  </div>
-</div>
-
 <!-- ==================== SLIDE 9: COSA STIAMO FACENDO ORA ==================== -->
-<div class="slide" data-idx="9">
+<!-- <div class="slide" data-idx="9">
   <div class="slide-scroll">
     <div class="fade-in kicker">Stato Corrente</div>
     <h2 class="fade-in">Cosa Stiamo <span class="accent">Facendo Ora</span></h2>
@@ -1201,14 +1201,14 @@ h3 {
           <div class="pill-grid">
             <div class="pill wip" style="font-size:14px;padding:8px 18px;">Checkout</div>
             <div class="pill wip" style="font-size:14px;padding:8px 18px;">Canone Unico Patrimoniale</div>
-            <div class="pill wip" style="font-size:14px;padding:8px 18px;">FdR</div>
             <div class="pill wip" style="font-size:14px;padding:8px 18px;">Dismissione WISP</div>
+            <div class="pill wip" style="font-size:14px;padding:8px 18px;">FdR</div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+</div> -->
 
 <!-- ==================== SLIDE 10: ROADMAP ==================== -->
 <div class="slide" data-idx="10">
@@ -1279,9 +1279,18 @@ h3 {
             <span>Scale-up sinergia 3 dipartimenti</span>
             <span>Assessment TO-BE</span>
           </div>
-        </div>
+        </div>        
+        <div style="margin-top:24px;padding:20px;background:var(--surface);border-radius:12px;">
+            <h3 style="font-size:14px;color:var(--teal);margin-bottom:10px;">🎯 Progetti Pilota</h3>
+            <div class="pill-grid">
+              <div class="pill wip" style="font-size:14px;padding:8px 18px;">Checkout</div>
+              <div class="pill wip" style="font-size:14px;padding:8px 18px;">Canone Unico Patrimoniale</div>
+              <div class="pill wip" style="font-size:14px;padding:8px 18px;">Dismissione WISP</div>
+              <div class="pill wip" style="font-size:14px;padding:8px 18px;">FdR</div>
+            </div>
+          </div>
       </div>
-    </div>
+      </div>
   </div>
 </div>
 
@@ -1332,7 +1341,7 @@ h3 {
 <!-- ==================== SLIDE 13: TAS · COME SI INTEGRA ==================== -->
 <div class="slide" data-idx="13">
   <div class="dd-separator fade-in"><span class="dd-badge">Deep Dive · Test Automation Service</span></div>
-  <h2 class="fade-in">Due percorsi pronti, <span class="accent">zero complessità</span></h2>
+  <h2 class="fade-in">Due templati pronti, <span class="accent">zero complessità</span></h2>
   <p class="subtitle fade-in" style="margin-bottom:28px;">Per i due strumenti più diffusi in Dipartimento esistono template ufficiali, pronti all'uso: pochissima configurazione, tutta la complessità resta nascosta dentro il TAS.</p>
 
   <div class="two-col fade-in">
@@ -1389,6 +1398,11 @@ h3 {
       <div class="tl-date">Completato</div>
       <h4>TAS costruito e operativo</h4>
       <p>Infrastruttura centralizzata di test di integrazione, con template ufficiali per Azure DevOps e GitHub Actions</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">In corso</div>
+      <h4>Condivisione con i team di prodotto</h4>
+      <p>Nei prossimi giorni è previsto un workshop con i team di prodotto per presentare il TAS e raccogliere feedback</p>
     </div>
     <div class="tl-item">
       <div class="tl-date">In corso</div>
