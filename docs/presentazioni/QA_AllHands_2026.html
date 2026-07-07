@@ -841,6 +841,14 @@ h3 {
         <div class="ach-num">70+</div>
         <div class="ach-label">Pagine Confluence<br>documentazione QA</div>
       </div>
+      <div class="ach-item clickable" onclick="openModal('adr')">
+        <div class="ach-num">13</div>
+        <div class="ach-label">DR/RFC<br>documentati</div>
+      </div>
+      <div class="ach-item clickable" onclick="openModal('jira')">
+        <div class="ach-num">3</div>
+        <div class="ach-label">Ticketing Systems Strutturato su Diverse Board Jira<br>strutturate</div>
+      </div>
       <div class="ach-item clickable" onclick="openModal('pilastri')">
         <div class="ach-num">2</div>
         <div class="ach-label">Pilastri operativi<br>Testing & Data Quality</div>
@@ -856,14 +864,6 @@ h3 {
       <div class="ach-item clickable" onclick="openModal('manifesto')">
         <div class="ach-num">6</div>
         <div class="ach-label">Principi nel<br>Quality Manifesto</div>
-      </div>
-      <div class="ach-item clickable" onclick="openModal('jira')">
-        <div class="ach-num">4</div>
-        <div class="ach-label">Ticketing Systems Strutturato su Diverse Board Jira<br>strutturate</div>
-      </div>
-      <div class="ach-item clickable" onclick="openModal('adr')">
-        <div class="ach-num">13</div>
-        <div class="ach-label">DR/RFC<br>documentati</div>
       </div>
       <div class="ach-item clickable" onclick="openModal('team')">
         <div class="ach-num">5</div>
@@ -961,6 +961,14 @@ h3 {
       </div>
       <div class="fw-tile-arrow">▶</div>
     </div>
+    <div class="fw-tile clickable" onclick="openModal('tas')">
+      <div class="fw-tile-icon">🤖</div>
+      <div class="fw-tile-body">
+        <div class="fw-tile-title">Test Automation Service</div>
+        <div class="fw-tile-sub">Automazione CI/CD centralizzata</div>
+      </div>
+      <div class="fw-tile-arrow">↗</div>
+    </div>
     <div class="fw-tile clickable" onclick="openModal('jiraorg')">
       <div class="fw-tile-icon">📋</div>
       <div class="fw-tile-body">
@@ -974,14 +982,6 @@ h3 {
       <div class="fw-tile-body">
         <div class="fw-tile-title">Cadence QA</div>
         <div class="fw-tile-sub">Da trimestrale a giornaliera</div>
-      </div>
-      <div class="fw-tile-arrow">↗</div>
-    </div>
-    <div class="fw-tile clickable" onclick="openModal('tas')">
-      <div class="fw-tile-icon">🤖</div>
-      <div class="fw-tile-body">
-        <div class="fw-tile-title">Test Automation Service</div>
-        <div class="fw-tile-sub">Automazione CI/CD centralizzata</div>
       </div>
       <div class="fw-tile-arrow">↗</div>
     </div>
@@ -1004,7 +1004,128 @@ h3 {
     </div>
   </div>
 </div>
+<!-- ==================== SLIDE 11: CHIUSURA ==================== -->
+<!-- <div class="slide" data-idx="11">
+  <div class="fade-in" style="text-align:center;width:100%;">
+    <p style="font-family:var(--font-display);font-size:30px;color:var(--teal);font-weight:700;font-style:italic;margin-bottom:20px;">"Build Quality Together!"</p>
+    <p class="subtitle" style="margin:0 auto 32px;text-align:center;">Nei prossimi 5 minuti: un approfondimento sul Test Automation Service.</p>
+    <span class="dd-badge" style="display:inline-block;">Deep Dive · TAS</span>
+  </div>
+</div> -->
 
+<!-- ==================== SLIDE 12: TAS · COS'È ==================== -->
+<div class="slide" data-idx="12">
+  <div class="dd-separator fade-in"><span class="dd-badge">Deep Dive · Test Automation Service</span></div>
+  <h2 class="fade-in">Un motore per l'esecuzione dei test <span class="accent">condiviso</span> per tutta la piattaforma</h2>
+  <p class="subtitle fade-in" style="margin-bottom:28px;">Il nostro team scrive suite di test su componenti sviluppate da team diversi. Il TAS le rende richiamabili da qualunque pipeline, senza che chi lo usa debba conoscerne i dettagli.</p>
+
+  <div class="flow fade-in" style="margin-bottom:28px;">
+    <div class="flow-step">Team esterno</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step" style="border-color:var(--teal);color:var(--teal);">Invoca il TAS</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step" style="border-color:var(--teal);color:var(--teal);">Suite eseguita centralmente</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step">Esito chiaro</div>
+  </div>
+
+  <div class="three-col fade-in">
+    <div class="card">
+      <div class="card-icon" style="background:rgba(0,212,170,0.12);">⚙️</div>
+      <h3 style="font-size:14px;">Secrets e configurazioni gestite centralmente</h3>
+      <p>Chi chiama il TAS non deve configurare credenziali o endpoint di test.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:rgba(0,212,170,0.12);">🔌</div>
+      <h3 style="font-size:14px;">Qualsiasi pipeline CI/CD</h3>
+      <p>GitHub Actions, Azure DevOps o qualunque altro strumento.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="background:rgba(0,212,170,0.12);">✅</div>
+      <h3 style="font-size:14px;">Esito strutturato</h3>
+      <p>Un resoconto chiaro, pronto per decidere se bloccare un rilascio.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 13: TAS · COME SI INTEGRA ==================== -->
+<div class="slide" data-idx="13">
+  <div class="dd-separator fade-in"><span class="dd-badge">Deep Dive · Test Automation Service</span></div>
+  <h2 class="fade-in">Due template pronti, <span class="accent">complessità ridotta</span></h2>
+  <p class="subtitle fade-in" style="margin-bottom:28px;">Per i due strumenti più diffusi in Dipartimento esistono template ufficiali, pronti all'uso: pochissima configurazione, tutta la complessità resta nascosta dentro il TAS.</p>
+
+  <div class="two-col fade-in">
+    <div class="card" style="border-top:3px solid var(--cyan);">
+      <div class="card-icon" style="background:rgba(6,182,212,0.12);">🔷</div>
+      <h3>Azure DevOps</h3>
+      <p>Un unico riferimento al repository TAS nella pipeline. Il risultato dei test compare direttamente nel tab "Tests" nativo di ADO.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--teal);">
+      <div class="card-icon" style="background:rgba(0,212,170,0.12);">🐙</div>
+      <h3>GitHub Actions</h3>
+      <p>Un singolo step nel workflow. Le metriche dei test (passati, falliti, tempo) sono subito disponibili senza parsing manuale.</p>
+    </div>
+  </div>
+
+  <div class="fade-in" style="margin-top:24px;font-size:13px;color:var(--text-muted);">
+    Esistono anche opzioni più avanzate per casi particolari (es. testare un branch non ancora sul ramo principale), ma per la maggior parte dei team i template ufficiali bastano.
+  </div>
+</div>
+
+<!-- ==================== SLIDE 14: TAS · COSA RESTITUISCE ==================== -->
+<div class="slide" data-idx="14">
+  <div class="dd-separator fade-in"><span class="dd-badge">Deep Dive · Test Automation Service</span></div>
+  <h2 class="fade-in">Un responso chiaro per <span class="accent">decidere se rilasciare</span></h2>
+  <p class="subtitle fade-in" style="margin-bottom:28px;">Al termine di ogni esecuzione, il TAS restituisce un resoconto strutturato: le pipeline lo usano per bloccare automaticamente un rilascio in caso di problemi.</p>
+
+  <div class="four-col fade-in">
+    <div class="card" style="text-align:center;">
+      <div class="ach-num" style="font-size:28px;">🚦</div>
+      <div class="ach-label">Esito finale<br>successo / fallimento</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="ach-num" style="font-size:28px;">✓ / ✕</div>
+      <div class="ach-label">Test passati,<br>falliti, saltati</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="ach-num" style="font-size:28px;">⏱️</div>
+      <div class="ach-label">Tempo totale<br>di esecuzione</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="ach-num" style="font-size:28px;">🔗</div>
+      <div class="ach-label">Identificativo<br>per la tracciabilità</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 15: TAS · STATO & ADOZIONE ==================== -->
+<div class="slide" data-idx="15">
+  <div class="dd-separator fade-in"><span class="dd-badge">Deep Dive · Test Automation Service</span></div>
+  <h2 class="fade-in">Dove siamo <span class="accent">oggi</span></h2>
+
+  <div class="timeline fade-in" style="margin-top:28px;">
+    <div class="tl-item">
+      <div class="tl-date">Completato</div>
+      <h4>TAS costruito e operativo</h4>
+      <p>Infrastruttura centralizzata di test di integrazione, con template ufficiali per Azure DevOps e GitHub Actions</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">In corso</div>
+      <h4>Condivisione con i team di prodotto</h4>
+      <p>Nei prossimi giorni è previsto un workshop con i team di prodotto per presentare il TAS e raccogliere feedback</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-date">In corso</div>
+      <h4>Primo team pilota: Checkout</h4>
+      <p>Adozione in corso sul primo progetto prodotto, per validare l'integrazione end-to-end</p>
+    </div>
+    <div class="tl-item dim">
+      <div class="tl-date">Prossimi passi</div>
+      <h4>Rollout progressivo</h4>
+      <p>Estensione del TAS agli altri team prodotto, seguendo lo stesso percorso di adozione</p>
+    </div>
+  </div>
+</div>
 <!-- ==================== SLIDE 5: FRAMEWORK DATA QUALITY (SINTESI) ==================== -->
 <div class="slide" data-idx="5">
   <div class="fade-in kicker">Pilastro 2 · Data Quality & Strategy</div>
@@ -1291,129 +1412,6 @@ h3 {
         </div>        
       </div>
       </div>
-  </div>
-</div>
-
-<!-- ==================== SLIDE 11: CHIUSURA ==================== -->
-<div class="slide" data-idx="11">
-  <div class="fade-in" style="text-align:center;width:100%;">
-    <p style="font-family:var(--font-display);font-size:30px;color:var(--teal);font-weight:700;font-style:italic;margin-bottom:20px;">"Build Quality Together!"</p>
-    <p class="subtitle" style="margin:0 auto 32px;text-align:center;">Nei prossimi 5 minuti: un approfondimento sul Test Automation Service.</p>
-    <span class="dd-badge" style="display:inline-block;">Deep Dive · TAS</span>
-  </div>
-</div>
-
-<!-- ==================== SLIDE 12: TAS · COS'È ==================== -->
-<div class="slide" data-idx="12">
-  <div class="dd-separator fade-in"><span class="dd-badge">Deep Dive · Test Automation Service</span></div>
-  <h2 class="fade-in">Un motore per l'esecuzione dei test <span class="accent">condiviso</span> per tutta la piattaforma</h2>
-  <p class="subtitle fade-in" style="margin-bottom:28px;">Il nostro team scrive suite di test su componenti sviluppate da team diversi. Il TAS le rende richiamabili da qualunque pipeline, senza che chi lo usa debba conoscerne i dettagli.</p>
-
-  <div class="flow fade-in" style="margin-bottom:28px;">
-    <div class="flow-step">Team esterno</div>
-    <span class="flow-arrow">→</span>
-    <div class="flow-step" style="border-color:var(--teal);color:var(--teal);">Invoca il TAS</div>
-    <span class="flow-arrow">→</span>
-    <div class="flow-step" style="border-color:var(--teal);color:var(--teal);">Suite eseguita centralmente</div>
-    <span class="flow-arrow">→</span>
-    <div class="flow-step">Esito chiaro</div>
-  </div>
-
-  <div class="three-col fade-in">
-    <div class="card">
-      <div class="card-icon" style="background:rgba(0,212,170,0.12);">⚙️</div>
-      <h3 style="font-size:14px;">Secrets e configurazioni gestite centralmente</h3>
-      <p>Chi chiama il TAS non deve configurare credenziali o endpoint di test.</p>
-    </div>
-    <div class="card">
-      <div class="card-icon" style="background:rgba(0,212,170,0.12);">🔌</div>
-      <h3 style="font-size:14px;">Qualsiasi pipeline CI/CD</h3>
-      <p>GitHub Actions, Azure DevOps o qualunque altro strumento.</p>
-    </div>
-    <div class="card">
-      <div class="card-icon" style="background:rgba(0,212,170,0.12);">✅</div>
-      <h3 style="font-size:14px;">Esito strutturato</h3>
-      <p>Un resoconto chiaro, pronto per decidere se bloccare un rilascio.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== SLIDE 13: TAS · COME SI INTEGRA ==================== -->
-<div class="slide" data-idx="13">
-  <div class="dd-separator fade-in"><span class="dd-badge">Deep Dive · Test Automation Service</span></div>
-  <h2 class="fade-in">Due templati pronti, <span class="accent">complessità ridotta</span></h2>
-  <p class="subtitle fade-in" style="margin-bottom:28px;">Per i due strumenti più diffusi in Dipartimento esistono template ufficiali, pronti all'uso: pochissima configurazione, tutta la complessità resta nascosta dentro il TAS.</p>
-
-  <div class="two-col fade-in">
-    <div class="card" style="border-top:3px solid var(--cyan);">
-      <div class="card-icon" style="background:rgba(6,182,212,0.12);">🔷</div>
-      <h3>Azure DevOps</h3>
-      <p>Un unico riferimento al repository TAS nella pipeline. Il risultato dei test compare direttamente nel tab "Tests" nativo di ADO.</p>
-    </div>
-    <div class="card" style="border-top:3px solid var(--teal);">
-      <div class="card-icon" style="background:rgba(0,212,170,0.12);">🐙</div>
-      <h3>GitHub Actions</h3>
-      <p>Un singolo step nel workflow. Le metriche dei test (passati, falliti, tempo) sono subito disponibili senza parsing manuale.</p>
-    </div>
-  </div>
-
-  <div class="fade-in" style="margin-top:24px;font-size:13px;color:var(--text-muted);">
-    Esistono anche opzioni più avanzate per casi particolari (es. testare un branch non ancora sul ramo principale), ma per la maggior parte dei team i template ufficiali bastano.
-  </div>
-</div>
-
-<!-- ==================== SLIDE 14: TAS · COSA RESTITUISCE ==================== -->
-<div class="slide" data-idx="14">
-  <div class="dd-separator fade-in"><span class="dd-badge">Deep Dive · Test Automation Service</span></div>
-  <h2 class="fade-in">Un responso chiaro per <span class="accent">decidere se rilasciare</span></h2>
-  <p class="subtitle fade-in" style="margin-bottom:28px;">Al termine di ogni esecuzione, il TAS restituisce un resoconto strutturato: le pipeline lo usano per bloccare automaticamente un rilascio in caso di problemi.</p>
-
-  <div class="four-col fade-in">
-    <div class="card" style="text-align:center;">
-      <div class="ach-num" style="font-size:28px;">🚦</div>
-      <div class="ach-label">Esito finale<br>successo / fallimento</div>
-    </div>
-    <div class="card" style="text-align:center;">
-      <div class="ach-num" style="font-size:28px;">✓ / ✕</div>
-      <div class="ach-label">Test passati,<br>falliti, saltati</div>
-    </div>
-    <div class="card" style="text-align:center;">
-      <div class="ach-num" style="font-size:28px;">⏱️</div>
-      <div class="ach-label">Tempo totale<br>di esecuzione</div>
-    </div>
-    <div class="card" style="text-align:center;">
-      <div class="ach-num" style="font-size:28px;">🔗</div>
-      <div class="ach-label">Identificativo<br>per la tracciabilità</div>
-    </div>
-  </div>
-</div>
-
-<!-- ==================== SLIDE 15: TAS · STATO & ADOZIONE ==================== -->
-<div class="slide" data-idx="15">
-  <div class="dd-separator fade-in"><span class="dd-badge">Deep Dive · Test Automation Service</span></div>
-  <h2 class="fade-in">Dove siamo <span class="accent">oggi</span></h2>
-
-  <div class="timeline fade-in" style="margin-top:28px;">
-    <div class="tl-item">
-      <div class="tl-date">Completato</div>
-      <h4>TAS costruito e operativo</h4>
-      <p>Infrastruttura centralizzata di test di integrazione, con template ufficiali per Azure DevOps e GitHub Actions</p>
-    </div>
-    <div class="tl-item">
-      <div class="tl-date">In corso</div>
-      <h4>Condivisione con i team di prodotto</h4>
-      <p>Nei prossimi giorni è previsto un workshop con i team di prodotto per presentare il TAS e raccogliere feedback</p>
-    </div>
-    <div class="tl-item">
-      <div class="tl-date">In corso</div>
-      <h4>Primo team pilota: Checkout</h4>
-      <p>Adozione in corso sul primo progetto prodotto, per validare l'integrazione end-to-end</p>
-    </div>
-    <div class="tl-item dim">
-      <div class="tl-date">Prossimi passi</div>
-      <h4>Rollout progressivo</h4>
-      <p>Estensione del TAS agli altri team prodotto, seguendo lo stesso percorso di adozione</p>
-    </div>
   </div>
 </div>
 
@@ -2049,7 +2047,7 @@ const modalData = {
       { num: '01', title: 'Testing Board (Kanban)', desc: 'Board principale per tutte le attività di testing: epic per evolutive, bug fixing, NRT, manutenzione codebase. 6 categorie di epic con task type dedicati.' },
       { num: '02', title: 'Internal Task Board', desc: 'Board per i progetti interni di sviluppo dell\'ecosistema QA: analisi, progettazione e implementazione deliverable, knowledge transfer.' },
       { num: '03', title: 'Data Quality Board', desc: 'Board dedicata alle attività di Data Quality: controlli di qualità, Data Contract, Data Product, monitoraggio e governance del dato.' },
-      { num: '04', title: 'Data Support CAB', desc: 'Board dedicata ai ticket di supporto in merito alle richieste sui tema "Data".' }
+      <!-- { num: '04', title: 'Data Support CAB', desc: 'Board dedicata ai ticket di supporto in merito alle richieste sui tema "Data".' } -->
     
     ]
   },
