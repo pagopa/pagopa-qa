@@ -1,0 +1,38 @@
+id: qa-runner
+kind: agent
+name: QA Runner
+version: 1.0.0
+description: >
+  Use when: QA tests need to be executed, validated, failures diagnosed, and
+  fixes delegated to the QA Engineer.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/agents/QA-runner.agent.md
+
+# --- agent-specific fields ---
+# No `model` field: the agent is a DEFINITION orchestrated client-side by the
+# consumer's LOCAL model. The server does not run it and calls no model.
+body_file: agents/agent.qa-runner.md
+install:
+  target_path: .github/agents/QA-runner.agent.md
+  files: []
+  frontmatter_anchor: true
+user_invocable: false
+tools:
+  - execute
+  - execute/runInTerminal
+  - read/terminalLastCommand
+  - read/readFile
+  - search/fileSearch
+  - edit/createFile
+  - vscode/askQuestions
+  - execute/getTerminalOutput
+  - agent
+subagents:
+  - qa-engineer
+dependencies: []

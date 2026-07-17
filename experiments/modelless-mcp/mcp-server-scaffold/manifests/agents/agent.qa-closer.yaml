@@ -1,0 +1,36 @@
+id: qa-closer
+kind: agent
+name: QA Closer
+version: 1.0.0
+description: >
+  Use when: tests pass and the suite needs documentation, HTML report,
+  gitignore update, and git push.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/agents/QA-closer.agent.md
+
+# --- agent-specific fields ---
+# No `model` field: the agent is a DEFINITION orchestrated client-side by the
+# consumer's LOCAL model. The server does not run it and calls no model.
+body_file: agents/agent.qa-closer.md
+install:
+  target_path: .github/agents/QA-closer.agent.md
+  files: []
+  frontmatter_anchor: true
+user_invocable: false
+tools:
+  - read/readFile
+  - edit/createFile
+  - edit/editFiles
+  - search/fileSearch
+  - read/terminalLastCommand
+  - execute/runInTerminal
+  - execute/getTerminalOutput
+  - vscode/askQuestions
+subagents: []
+dependencies: []

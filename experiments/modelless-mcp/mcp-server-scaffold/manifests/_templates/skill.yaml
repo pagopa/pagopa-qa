@@ -1,0 +1,49 @@
+# Template: SKILL manifest.
+# Copy this file into ../skills/ as `skill.<id>.yaml`, fill in the
+# placeholders, and add a content file under assets/skills/ (see body_file below).
+# Files in _templates/ are NOT loaded by AssetCatalog.load_dir (excluded explicitly).
+
+id: my-skill                     # kebab-case, unique within kind
+kind: skill
+name: My Skill
+version: 1.0.0                   # semver, immutable once registered
+description: >
+  One or two sentences: what the skill does and when the local model should use it.
+visibility: public                # public | private
+owner: your-team
+provenance:
+  publisher: your-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/skills/my-skill/SKILL.md   # informational provenance only
+  applyTo: docs/**                            # optional, mirrors SKILL.md frontmatter
+
+# --- skill-specific fields ---
+# Distributed asset: the catalog delivers it (load or install); the client's LOCAL
+# model executes it. No model is called and the server runs nothing: no
+# entrypoint, no isolation, no resource_limits, no timeout, no network.
+body_file: skills/skill.my-skill.md     # resolved under assets/ — put the real SKILL.md content there
+# body: |                        # alternative to body_file: inline content (short skills only)
+install:
+  target_path: .github/skills/my-skill/SKILL.md
+  files: []
+  frontmatter_anchor: true
+dependencies: []                 # documented local prerequisites, if any
+
+inputs:
+  - name: source_markdown
+    type: string
+    required: true
+    description: Raw Markdown content of the source asset
+
+outputs:
+  - name: result
+    type: string
+    description: What the local model is expected to produce
+
+custom_params:
+  - name: max_nodes
+    type: integer
+    required: false
+    default: 15
+    description: Example tenant/request-overridable parameter

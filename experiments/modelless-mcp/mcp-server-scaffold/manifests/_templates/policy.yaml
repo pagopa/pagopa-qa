@@ -1,0 +1,31 @@
+# Template: POLICY manifest.
+#
+# NOTE on naming: "policy" is the catalog's single kind for grounding/convention
+# documents. It is the exact counterpart of a repo `.github/instructions/*.instructions.md`
+# file — there is intentionally NO separate "instruction" kind. Use `policy` for
+# anything that would otherwise be an "instruction" file: conventions, style
+# rules, guardrails injected as context (never executed).
+#
+# Copy this file into ../policies/ as `policy.<id>.yaml` and fill in
+# the placeholders. Files in _templates/ are NOT loaded by AssetCatalog.load_dir
+# (excluded explicitly).
+
+id: my-policy
+kind: policy
+name: My Policy
+version: 1.0.0
+description: >
+  What convention/rule this policy encodes and where it applies.
+visibility: public
+owner: your-team
+metadata:
+  source: .github/instructions/my-policy.instructions.md   # informational provenance only
+
+# --- policy-specific fields ---
+apply_to: "src/**/*.ext"         # glob pattern that scopes the policy (mirrors applyTo)
+injectable: true                 # whether it can be injected as grounding context
+# Inline body (policies are typically short/medium). Use body_file instead if the
+# real instructions file is long — resolved under assets/.
+body: |
+  Replace this placeholder with the real convention text (or reference a
+  body_file under assets/ for longer content).

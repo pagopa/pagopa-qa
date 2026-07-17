@@ -1,0 +1,27 @@
+id: git-commit
+kind: policy
+name: Commit Guidelines
+version: 1.0.0
+description: >
+  Canonical commit prefixes and workflow conventions used by the /commit
+  prompt and the QA-closer agent.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/instructions/git-commit.instructions.md
+
+# --- policy-specific fields ---
+# Distributed asset: catalog delivers it, LOCAL model applies it. No model
+# call, no execution surface. No `applyTo` in the source: loaded explicitly
+# by the /commit prompt and QA-closer, not matched by file glob.
+body_file: policies/policy.git-commit.md
+install:
+  target_path: .github/instructions/git-commit.instructions.md
+  files: []
+  frontmatter_anchor: true
+injectable: true
+dependencies: []

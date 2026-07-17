@@ -1,0 +1,34 @@
+id: python-utility-engineer
+kind: agent
+name: Python Utility Engineer
+version: 1.0.0
+description: >
+  Use when: Python utility modules must be written, maintained, or refactored.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/agents/Python-utility-engineer.agent.md
+
+# --- agent-specific fields ---
+# No `model` field: the agent is a DEFINITION orchestrated client-side by the
+# consumer's LOCAL model. The server does not run it and calls no model.
+body_file: agents/agent.python-utility-engineer.md
+install:
+  target_path: .github/agents/Python-utility-engineer.agent.md
+  files: []
+  frontmatter_anchor: true
+user_invocable: true
+tools:
+  - read/readFile
+  - edit/createFile
+  - edit/createDirectory
+  - edit/editFiles
+  - edit/rename
+  - search/fileSearch
+  - vscode/askQuestions
+subagents: []
+dependencies: []

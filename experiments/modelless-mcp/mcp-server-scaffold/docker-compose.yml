@@ -1,0 +1,11 @@
+services:
+  mcp-server:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      MCP_AUTH_DISABLED: "1"   # DEV ONLY. Never set in shared/prod environments.
+    volumes:
+      - ./manifests:/app/manifests   # dev convenience: edit manifests on the host and `docker compose restart` (no rebuild) to reload them
+      - ./assets:/app/assets         # dev convenience: edit body files on the host and `docker compose restart` (no rebuild) to reload them
+    # This server hosts no model: no provider endpoints or keys are needed.

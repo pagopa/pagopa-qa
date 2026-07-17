@@ -1,0 +1,41 @@
+# Template: AGENT manifest.
+# Copy this file into ../agents/ as `agent.<id>.yaml`, fill in the
+# placeholders, and add a content file under assets/agents/ (see body_file below).
+# Files in _templates/ are NOT loaded by AssetCatalog.load_dir (excluded explicitly).
+
+id: my-agent
+kind: agent
+name: My Agent
+version: 1.0.0
+description: >
+  What this agent orchestrates and when a user/other agent should hand off to it.
+visibility: public
+owner: your-team
+permissions:
+  - agent:handoff
+metadata:
+  source: .github/agents/My-agent.agent.md   # informational provenance only
+
+# --- agent-specific fields ---
+# No `model` field: the agent is a DEFINITION orchestrated client-side by the
+# consumer's LOCAL model. The server does not run it and calls no model.
+body_file: agents/agent.my-agent.md     # resolved under assets/ — the agent's instructions body
+user_invocable: true
+tools:
+  - readFile
+instructions_ref:
+  - policy:gherkin               # ids of `policy` assets to inject as grounding context
+subagents: []                    # agent ids reachable via handoff
+
+handoffs:
+  - label: Example handoff
+    agent: some-other-agent
+    prompt: "Do the next step."
+    auto: true
+
+custom_params:
+  - name: create_pr
+    type: boolean
+    required: false
+    default: false
+    description: Example tenant/request-overridable parameter

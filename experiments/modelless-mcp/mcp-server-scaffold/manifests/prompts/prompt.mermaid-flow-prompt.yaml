@@ -1,0 +1,38 @@
+id: mermaid-flow-prompt
+kind: prompt
+name: Mermaid Flow
+version: 1.0.0
+description: >
+  Generate or refresh Mermaid workflow diagrams (Markdown, optional SVG) for
+  one or more source files.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/prompts/mermaid-flow.prompt.md
+  note: >
+    id disambiguated with a -prompt suffix because the bare id
+    'mermaid-flow' is already used by the existing skill.mermaid-flow
+    manifest (AssetCatalog ids are unique across all kinds).
+
+# --- prompt-specific fields ---
+# Distributed asset: catalog delivers the template, LOCAL model executes it.
+# No model call by the server.
+target_agent: Mermaid-flow-engineer
+fallback_to_context: false
+body_file: prompts/prompt.mermaid-flow-prompt.md
+install:
+  target_path: .github/prompts/mermaid-flow.prompt.md
+  files: []
+  frontmatter_anchor: true
+arguments:
+  - name: input
+    type: string
+    required: false
+    description: "<source files or categories> [orientation=TD|LR] [svg=yes|no]"
+dependencies:
+  - skill:mermaid-flow
+  - agent:mermaid-flow-engineer

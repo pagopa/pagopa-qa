@@ -1,0 +1,6 @@
+# Runtime dependencies for the MCP catalog MVP scaffold (modelless)
+fastapi>=0.111
+uvicorn[standard]>=0.30
+pydantic>=2.7
+PyYAML>=6.0
+# No model/provider SDKs: this catalog hosts and calls no model, and runs no skills.

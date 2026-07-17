@@ -1,0 +1,36 @@
+id: marp-presentation-engineer
+kind: agent
+name: Marp Presentation Engineer
+version: 1.0.0
+description: >
+  Use when: a Marp presentation must be authored, scaffolded, or restyled from
+  a user brief.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/agents/Marp-presentation-engineer.agent.md
+
+# --- agent-specific fields ---
+# No `model` field: the agent is a DEFINITION orchestrated client-side by the
+# consumer's LOCAL model. The server does not run it and calls no model.
+body_file: agents/agent.marp-presentation-engineer.md
+install:
+  target_path: .github/agents/Marp-presentation-engineer.agent.md
+  files: []
+  frontmatter_anchor: true
+user_invocable: true
+tools:
+  - read/readFile
+  - edit/createFile
+  - edit/createDirectory
+  - edit/editFiles
+  - search/fileSearch
+  - vscode/askQuestions
+  - execute/runInTerminal
+  - execute/getTerminalOutput
+subagents: []
+dependencies: []

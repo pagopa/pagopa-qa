@@ -1,0 +1,33 @@
+id: pr
+kind: prompt
+name: Pull Request
+version: 1.0.0
+description: >
+  Create a pull request for the current branch following project
+  conventions.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/prompts/pr.prompt.md
+
+# --- prompt-specific fields ---
+# Distributed asset: catalog delivers the template, LOCAL model executes it.
+# No model call by the server.
+target_agent: agent
+fallback_to_context: false
+body_file: prompts/prompt.pr.md
+install:
+  target_path: .github/prompts/pr.prompt.md
+  files: []
+  frontmatter_anchor: true
+arguments:
+  - name: input
+    type: string
+    required: false
+    description: Optional branch name, PR title override, or extra context
+dependencies:
+  - policy:git-pr

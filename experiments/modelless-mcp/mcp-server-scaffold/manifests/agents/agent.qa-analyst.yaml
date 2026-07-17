@@ -1,0 +1,33 @@
+id: qa-analyst
+kind: agent
+name: QA Analyst
+version: 1.0.0
+description: >
+  Use when: Gherkin feature files need to be reviewed, created from
+  documentation, or explained to the QA engineer.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/agents/QA-analyst.agent.md
+
+# --- agent-specific fields ---
+# No `model` field: the agent is a DEFINITION orchestrated client-side by the
+# consumer's LOCAL model. The server does not run it and calls no model.
+body_file: agents/agent.qa-analyst.md
+install:
+  target_path: .github/agents/QA-analyst.agent.md
+  files: []
+  frontmatter_anchor: true
+user_invocable: true
+tools:
+  - read/readFile
+  - search/fileSearch
+  - vscode/askQuestions
+  - edit/editFiles
+  - execute/runInTerminal
+subagents: []
+dependencies: []

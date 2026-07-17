@@ -1,0 +1,70 @@
+id: marp-presentation
+kind: skill
+name: Marp Presentation
+version: 1.0.0
+description: >
+  Skill for authoring Marp presentations (Markdown-first) from a user brief:
+  tooling prerequisites, user interview, chromatic-harmony palette
+  completion, deck layout conventions, and output contract.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/skills/marp-presentation/SKILL.md
+  applyTo: "docs/**/*.md"
+
+# --- skill-specific fields ---
+# Distributed asset: the catalog delivers it (load or install); the client's LOCAL
+# model executes it. No model is called and the server runs nothing:
+# no entrypoint, no isolation, no resource_limits, no timeout, no network.
+body_file: skills/skill.marp-presentation.md
+install:
+  target_path: .github/skills/marp-presentation/SKILL.md
+  files: []
+  frontmatter_anchor: true
+dependencies: []        # no external prerequisites (Marp CLI is invoked via npx on demand)
+
+inputs:
+  - name: topic
+    type: string
+    required: true
+    description: Deck topic
+  - name: audience
+    type: string
+    required: false
+    description: Target audience
+  - name: duration
+    type: string
+    required: false
+    description: Target deck duration
+  - name: graphic_style
+    type: string
+    required: false
+    description: Graphic style label (e.g. minimalista, corporate, tecnico/dev)
+  - name: tone
+    type: string
+    required: false
+    description: Communicative tone label (e.g. tecnico sintetico, executive)
+  - name: colors
+    type: string
+    required: false
+    description: Color palette as human-language tones, hex codes, or a mix
+
+outputs:
+  - name: deck_path
+    type: string
+    description: Path of the generated docs/<slug>.md deck
+  - name: render_path
+    type: string
+    description: Path of the optional reports/<slug>.html render, if requested
+
+custom_params:
+  - name: visibility
+    type: string
+    required: false
+    default: private
+    enum: [public, private]
+    description: Manifest visibility field (declarative only, not yet enforced)

@@ -1,0 +1,28 @@
+id: gherkin
+kind: policy
+name: Gherkin Guidelines
+version: 1.0.0
+description: >
+  Conventions for writing `.feature` files in this repository: language,
+  structure, indentation, and tagging rules.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/instructions/gherkin.instructions.md
+  applyTo: "src/**/*.feature"
+
+# --- policy-specific fields ---
+# Distributed asset: catalog delivers it, LOCAL model applies it. No model
+# call, no execution surface.
+apply_to: "src/**/*.feature"
+body_file: policies/policy.gherkin.md
+install:
+  target_path: .github/instructions/gherkin.instructions.md
+  files: []
+  frontmatter_anchor: true
+injectable: true
+dependencies: []

@@ -1,0 +1,55 @@
+# Helm values skeleton for the MCP server on AKS.
+# Secrets are NOT defined here; they are mounted from Key Vault via the
+# Secrets Store CSI driver (or workload identity).
+
+replicaCount: 2
+
+image:
+  repository: <acrName>.azurecr.io/mcp-server
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: mcp.example-corp.internal
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []   # provide cert via cert-manager / gateway
+
+resources:
+  requests:
+    cpu: "250m"
+    memory: "256Mi"
+  limits:
+    cpu: "1"
+    memory: "512Mi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+# Separate, isolated node pool for heavier skill workers (see security doc).
+skillWorkers:
+  enabled: false
+  nodeSelector:
+    workload: skill-sandbox
+  networkPolicy:
+    # Deterministic tools need no external egress.
+    egressWhitelist: []
+
+env:
+  MCP_AUTH_DISABLED: "0"
+
+serviceAccount:
+  create: true
+  # Azure workload identity annotation:
+  annotations: {}

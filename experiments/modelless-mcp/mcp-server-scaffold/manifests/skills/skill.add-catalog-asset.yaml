@@ -1,0 +1,63 @@
+id: add-catalog-asset
+kind: skill
+name: Add Catalog Asset
+version: 1.0.0
+description: >
+  Author a new MCP catalog manifest and asset body from a source Markdown file
+  (SKILL.md, *.agent.md, *.prompt.md, *.instructions.md), deterministically
+  inferring kind, id, and description.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/skills/add-catalog-asset/SKILL.md
+  applyTo: mcp_blueprint/modelless-mcp/mcp-server-scaffold/**
+
+# --- skill-specific fields ---
+# Distributed asset: the catalog delivers it (load or install); the client's LOCAL
+# model executes it. No model is called and the server runs nothing:
+# no entrypoint, no isolation, no resource_limits, no timeout, no network.
+body_file: skills/skill.add-catalog-asset.md
+install:
+  target_path: .github/skills/add-catalog-asset/SKILL.md
+  files: []
+  frontmatter_anchor: true
+dependencies: []        # no external prerequisites
+
+inputs:
+  - name: source
+    type: string
+    required: true
+    description: Source file path or raw Markdown content of the asset to register
+  - name: id
+    type: string
+    required: false
+    description: Explicit asset id override (otherwise inferred)
+  - name: version
+    type: string
+    required: false
+    default: "1.0.0"
+    description: Semantic version for the new asset
+  - name: install_target_path
+    type: string
+    required: false
+    description: Local hard-install destination (asked if not inferable)
+
+outputs:
+  - name: manifest_path
+    type: string
+    description: Path of the written manifests/<kind-plural>/<kind>.<id>.yaml file
+  - name: asset_body_path
+    type: string
+    description: Path of the written assets/<kind-plural>/<kind>.<id>.md file
+
+custom_params:
+  - name: visibility
+    type: string
+    required: false
+    default: private
+    enum: [public, private]
+    description: Manifest visibility field (declarative only, not yet enforced)

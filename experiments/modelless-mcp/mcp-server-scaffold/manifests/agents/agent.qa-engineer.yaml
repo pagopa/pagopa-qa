@@ -1,0 +1,37 @@
+id: qa-engineer
+kind: agent
+name: QA Engineer
+version: 1.0.0
+description: >
+  Use when: Python step definitions need to be implemented for Gherkin
+  feature files.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/agents/QA-engineer.agent.md
+
+# --- agent-specific fields ---
+# No `model` field: the agent is a DEFINITION orchestrated client-side by the
+# consumer's LOCAL model. The server does not run it and calls no model.
+body_file: agents/agent.qa-engineer.md
+install:
+  target_path: .github/agents/QA-engineer.agent.md
+  files: []
+  frontmatter_anchor: true
+user_invocable: true
+tools:
+  - read/readFile
+  - edit/createFile
+  - edit/createDirectory
+  - edit/editFiles
+  - edit/rename
+  - search/fileSearch
+  - vscode/askQuestions
+  - agent
+subagents:
+  - python-utility-engineer
+dependencies: []

@@ -1,0 +1,28 @@
+id: python-scripts
+kind: policy
+name: Python Scripts Guidelines
+version: 1.0.0
+description: >
+  Coding conventions for new and modified Python files, including mandatory
+  English docstrings.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/instructions/python-scripts.instructions.md
+  applyTo: "**/*.py"
+
+# --- policy-specific fields ---
+# Distributed asset: catalog delivers it, LOCAL model applies it. No model
+# call, no execution surface.
+apply_to: "**/*.py"
+body_file: policies/policy.python-scripts.md
+install:
+  target_path: .github/instructions/python-scripts.instructions.md
+  files: []
+  frontmatter_anchor: true
+injectable: true
+dependencies: []

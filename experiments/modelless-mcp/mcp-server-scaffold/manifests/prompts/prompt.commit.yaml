@@ -1,0 +1,33 @@
+id: commit
+kind: prompt
+name: Commit
+version: 1.0.0
+description: >
+  Create a commit with a compliant message from staged changes and push the
+  current branch.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/prompts/commit.prompt.md
+
+# --- prompt-specific fields ---
+# Distributed asset: catalog delivers the template, LOCAL model executes it.
+# No model call by the server.
+target_agent: agent
+fallback_to_context: false
+body_file: prompts/prompt.commit.md
+install:
+  target_path: .github/prompts/commit.prompt.md
+  files: []
+  frontmatter_anchor: true
+arguments:
+  - name: input
+    type: string
+    required: false
+    description: Optional message override, scope hint, or extra context
+dependencies:
+  - policy:git-commit

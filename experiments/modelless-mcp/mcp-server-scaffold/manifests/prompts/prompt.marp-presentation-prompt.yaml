@@ -1,0 +1,38 @@
+id: marp-presentation-prompt
+kind: prompt
+name: Marp Presentation
+version: 1.0.0
+description: >
+  Author or update a Marp presentation deck from a brief (style, tone, color
+  palette in human language or hex).
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/prompts/marp-presentation.prompt.md
+  note: >
+    id disambiguated with a -prompt suffix because the bare id
+    'marp-presentation' is already used by the skill.marp-presentation
+    manifest (AssetCatalog ids are unique across all kinds).
+
+# --- prompt-specific fields ---
+# Distributed asset: catalog delivers the template, LOCAL model executes it.
+# No model call by the server.
+target_agent: Marp-presentation-engineer
+fallback_to_context: false
+body_file: prompts/prompt.marp-presentation-prompt.md
+install:
+  target_path: .github/prompts/marp-presentation.prompt.md
+  files: []
+  frontmatter_anchor: true
+arguments:
+  - name: input
+    type: string
+    required: false
+    description: "<topic> [audience] [duration] [graphic-style] [tone] [colors: names or #hex]"
+dependencies:
+  - skill:marp-presentation
+  - agent:marp-presentation-engineer

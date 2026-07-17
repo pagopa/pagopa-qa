@@ -1,0 +1,33 @@
+id: qa
+kind: prompt
+name: QA
+version: 1.0.0
+description: >
+  Iterative quality assurance process using the QA Loop — plan, execute,
+  verify, repeat.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/prompts/qa.prompt.md
+
+# --- prompt-specific fields ---
+# Distributed asset: catalog delivers the template, LOCAL model executes it.
+# No model call by the server.
+target_agent: QA-orchestrator
+fallback_to_context: true
+body_file: prompts/prompt.qa.md
+install:
+  target_path: .github/prompts/qa.prompt.md
+  files: []
+  frontmatter_anchor: true
+arguments:
+  - name: input
+    type: string
+    required: false
+    description: Task ID, suite name, and objective
+dependencies:
+  - agent:qa-orchestrator

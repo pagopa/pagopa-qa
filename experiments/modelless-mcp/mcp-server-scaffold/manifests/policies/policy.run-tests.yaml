@@ -1,0 +1,27 @@
+id: run-tests
+kind: policy
+name: Running Tests
+version: 1.0.0
+description: >
+  Commands and validation rules for running API/integration test suites and
+  viewing the Allure report.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/instructions/run-tests.instructions.md
+
+# --- policy-specific fields ---
+# Distributed asset: catalog delivers it, LOCAL model applies it. No model
+# call, no execution surface. No `applyTo` in the source: loaded explicitly
+# by the QA-runner agent, not matched by file glob.
+body_file: policies/policy.run-tests.md
+install:
+  target_path: .github/instructions/run-tests.instructions.md
+  files: []
+  frontmatter_anchor: true
+injectable: true
+dependencies: []

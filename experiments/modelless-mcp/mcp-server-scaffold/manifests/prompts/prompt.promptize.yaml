@@ -1,0 +1,31 @@
+id: promptize
+kind: prompt
+name: Promptize
+version: 1.0.0
+description: >
+  Genera un prompt ottimizzato a partire dalla tua richiesta.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/prompts/promptize.prompt.md
+
+# --- prompt-specific fields ---
+# Distributed asset: catalog delivers the template, LOCAL model executes it.
+# No model call by the server.
+target_agent: Ask
+fallback_to_context: false
+body_file: prompts/prompt.promptize.md
+install:
+  target_path: .github/prompts/promptize.prompt.md
+  files: []
+  frontmatter_anchor: true
+arguments:
+  - name: input
+    type: string
+    required: false
+    description: "Descrivi cosa vuoi fare"
+dependencies: []

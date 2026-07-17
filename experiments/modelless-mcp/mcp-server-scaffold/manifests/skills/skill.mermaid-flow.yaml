@@ -1,0 +1,54 @@
+id: mermaid-flow
+kind: skill
+name: Mermaid Flow Generator
+version: 1.0.0
+description: >
+  Generate a Mermaid workflow diagram (Markdown-first, optional SVG) from a source
+  Markdown asset (agent, prompt, instruction, or document).
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/skills/mermaid-flow/SKILL.md
+  applyTo: docs/flows/**
+
+# --- skill-specific fields ---
+# Distributed asset: the catalog delivers it (load or install); the client's LOCAL
+# model executes it. No model is called and the server runs nothing:
+# no entrypoint, no isolation, no resource_limits, no timeout, no network.
+body_file: skills/skill.mermaid-flow.md
+install:
+  target_path: .github/skills/mermaid-flow/SKILL.md
+  files: []
+  frontmatter_anchor: true
+dependencies: []       # no mandatory external prerequisites (SVG render optional)
+
+inputs:
+  - name: source_markdown
+    type: string
+    required: true
+    description: Raw Markdown content of the source asset
+  - name: orientation
+    type: string
+    required: false
+    default: TD
+    enum: [TD, LR]
+    description: Diagram orientation (top-down or left-right)
+
+outputs:
+  - name: mermaid
+    type: string
+    description: Fenced Mermaid diagram block
+  - name: basename
+    type: string
+    description: Suggested output file basename
+
+custom_params:
+  - name: max_nodes
+    type: integer
+    required: false
+    default: 15
+    description: Split diagram if it would exceed this node count

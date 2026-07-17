@@ -1,0 +1,28 @@
+id: behave-steps
+kind: policy
+name: Behave Step Definitions Guidelines
+version: 1.0.0
+description: >
+  Coding conventions for Python behave step definition files: file
+  organization, step implementation style, and shared utility reuse.
+visibility: public
+owner: qa-platform-team
+digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+provenance:
+  publisher: qa-platform-team
+  source_commit: <git-sha>
+metadata:
+  source: .github/instructions/behave-steps.instructions.md
+  applyTo: "src/**/steps/**/*.py"
+
+# --- policy-specific fields ---
+# Distributed asset: catalog delivers it, LOCAL model applies it. No model
+# call, no execution surface.
+apply_to: "src/**/steps/**/*.py"
+body_file: policies/policy.behave-steps.md
+install:
+  target_path: .github/instructions/behave-steps.instructions.md
+  files: []
+  frontmatter_anchor: true
+injectable: true
+dependencies: []

@@ -1,0 +1,34 @@
+# Template: PROMPT manifest.
+# Copy this file into ../prompts/ as `prompt.<id>.yaml` and fill in
+# the placeholders. Files in _templates/ are NOT loaded by AssetCatalog.load_dir
+# (excluded explicitly).
+
+id: my-prompt
+kind: prompt
+name: My Prompt
+version: 1.0.0
+description: >
+  What this prompt starts/drives, and which agent (if any) it targets.
+visibility: public
+owner: your-team
+metadata:
+  source: .github/prompts/my-prompt.prompt.md   # informational provenance only
+
+# --- prompt-specific fields ---
+target_agent: my-agent           # optional: agent id this prompt drives
+fallback_to_context: true        # use chat context if no explicit input is given
+# `template` doubles as the asset body: no separate body/body_file needed for
+# prompts (the catalog falls back to `template` when `body`/`body_file` are absent).
+template: |
+  If no text prompt is provided, use the chat context to determine the implicit
+  request. Otherwise respond to the provided prompt.
+
+  Objective: ${objective}
+
+arguments:
+  - name: objective
+    type: string
+    required: false
+    description: Free-text objective of the task
+
+custom_params: []

@@ -1,0 +1,63 @@
+# GitHub Actions — build, test, and deploy the MCP server.
+# Template: adjust names/secrets to corporate policy. Uses Azure OIDC federation
+# (no long-lived cloud credentials stored in GitHub).
+
+name: mcp-server-ci-cd
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  id-token: write   # required for Azure OIDC login
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mcp_blueprint/modelless-mcp/mcp-server-scaffold
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -r requirements-dev.txt
+      - name: Lint
+        run: |
+          black --check app tests
+          isort --check-only app tests
+      - name: Type check
+        run: mypy app || true   # relax during MVP; tighten later
+      - name: Test
+        env:
+          MCP_AUTH_DISABLED: "1"
+        run: pytest --cov=app --cov-report=term-missing --cov-fail-under=80
+
+  build-and-deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Build & push image to ACR
+        run: |
+          az acr build -r ${{ secrets.ACR_NAME }} \
+            -t mcp-server:${{ github.sha }} \
+            mcp_blueprint/modelless-mcp/mcp-server-scaffold
+      - name: Deploy to Container Apps
+        run: |
+          az containerapp update \
+            -g ${{ secrets.RESOURCE_GROUP }} \
+            -n mcp-server \
+            --image ${{ secrets.ACR_NAME }}.azurecr.io/mcp-server:${{ github.sha }}
