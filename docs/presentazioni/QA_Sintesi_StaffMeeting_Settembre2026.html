@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA — Sintesi Direttore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f6fa; --surface:#ffffff; --surface2:#edf0f7;
+    --teal:#008c6e; --teal-bright:#00b894; --cyan:#0891b2; --amber:#c2740a;
+    --text:#1a1f2e; --text-dim:#4b5563; --text-muted:#9aa3b5;
+    --border:rgba(20,30,50,0.10); --shadow:0 10px 30px rgba(20,30,50,0.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0a0e17; --surface:#141b2b; --surface2:#1c2540;
+      --teal:#00d4aa; --teal-bright:#00e6bb; --cyan:#22d3ee; --amber:#f5a524;
+      --text:#e8edf5; --text-dim:#8fa0c2; --text-muted:#54628a;
+      --border:rgba(255,255,255,0.09); --shadow:0 10px 30px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0a0e17; --surface:#141b2b; --surface2:#1c2540;
+    --teal:#00d4aa; --teal-bright:#00e6bb; --cyan:#22d3ee; --amber:#f5a524;
+    --text:#e8edf5; --text-dim:#8fa0c2; --text-muted:#54628a;
+    --border:rgba(255,255,255,0.09); --shadow:0 10px 30px rgba(0,0,0,0.35);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;overflow:hidden}
+  body{width:100%}
+
+  .deck{position:relative;width:100%;height:100%}
+  .slide{
+    position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+    padding:clamp(24px,4.5vw,72px) clamp(20px,6vw,96px);
+    opacity:0;transform:translateY(28px);pointer-events:none;
+    transition:opacity .55s cubic-bezier(.4,0,.2,1),transform .55s cubic-bezier(.4,0,.2,1);
+    overflow-y:auto;
+  }
+  .slide.active{opacity:1;transform:translateY(0);pointer-events:all}
+
+  .progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--cyan));z-index:1000;transition:width .5s cubic-bezier(.4,0,.2,1)}
+  .nav-dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:9px;z-index:1000}
+  .nav-dot{width:8px;height:8px;border-radius:50%;background:var(--text-muted);border:none;cursor:pointer;transition:all .25s;padding:0}
+  .nav-dot.active{background:var(--teal);box-shadow:0 0 10px var(--teal);transform:scale(1.35)}
+  .slide-counter{position:fixed;bottom:18px;right:18px;font-family:'Space Mono',monospace;font-size:12px;color:var(--text-muted);z-index:1000}
+  .nav-arrows{position:fixed;bottom:18px;left:18px;display:flex;gap:8px;z-index:1000}
+  .nav-arrow{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--text-dim);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:.2s}
+  .nav-arrow:hover{color:var(--teal);border-color:var(--teal)}
+
+  .kicker{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--teal);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+  .kicker::before{content:'';width:22px;height:1px;background:var(--teal)}
+  h1{font-family:'Playfair Display',Georgia,serif;font-weight:900;font-size:clamp(30px,4.2vw,50px);line-height:1.08;margin-bottom:8px;text-wrap:balance}
+  h1 .accent{color:var(--teal)}
+  .subtitle{font-size:15px;color:var(--text-dim);max-width:680px;margin-bottom:clamp(20px,3vw,34px);line-height:1.55}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  .three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media (max-width:760px){.two-col,.three-col{grid-template-columns:1fr}}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 24px;box-shadow:var(--shadow)}
+  .card-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .card-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+  .card h3{font-family:'DM Sans',sans-serif;font-weight:700;font-size:16px}
+  .card-sub{font-size:11px;color:var(--text-muted);font-family:'Space Mono',monospace;letter-spacing:.5px;text-transform:uppercase}
+
+  .item-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-top:1px solid var(--border)}
+  .item-row:first-of-type{border-top:none}
+  .item-row p{font-size:13.5px;color:var(--text-dim);line-height:1.5}
+  .item-row strong{color:var(--text);font-weight:600}
+
+  .tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10.5px;font-family:'Space Mono',monospace;letter-spacing:.5px;text-transform:uppercase;flex-shrink:0;white-space:nowrap}
+  .tag-done{background:rgba(0,180,148,0.14);color:var(--teal)}
+  .tag-progress{background:rgba(245,165,36,0.14);color:var(--amber)}
+  .tag-cyan{background:rgba(34,211,238,0.14);color:var(--cyan)}
+
+  .timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
+  @media (max-width:760px){.timeline{grid-template-columns:1fr}}
+  .tl-col{position:relative;padding-top:20px}
+  .tl-col::before{content:'';position:absolute;top:6px;left:0;right:0;height:2px;background:var(--border)}
+  .tl-col::after{content:'';position:absolute;top:1px;left:0;width:11px;height:11px;border-radius:50%;background:var(--surface);border:2px solid var(--teal-bright)}
+  .tl-col.now::after{background:var(--teal-bright);box-shadow:0 0 0 4px rgba(0,212,170,.18)}
+  .tl-month{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1.5px;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px}
+  .tl-col.now .tl-month{color:var(--teal-bright)}
+  .tl-title{font-size:13.5px;font-weight:700;margin-bottom:4px}
+  .tl-desc{font-size:12px;color:var(--text-dim);line-height:1.5}
+
+  .thread{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;box-shadow:var(--shadow)}
+  .thread + .thread{margin-top:12px}
+  .thread-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+  .thread b{font-size:13.5px}
+  .thread p{font-size:12.5px;color:var(--text-dim);margin-top:3px;line-height:1.5}
+
+  .subgroup{margin-bottom:14px}
+  .subgroup:last-child{margin-bottom:0}
+  .subgroup-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .subgroup-label::after{content:'';flex:1;height:1px;background:var(--border)}
+  .rm-item{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:7px 0}
+  .rm-item + .rm-item{border-top:1px solid var(--border)}
+  .rm-item p{font-size:13px;color:var(--text-dim);line-height:1.5}
+  .rm-item p strong{color:var(--text);font-weight:600}
+  .tag-period{flex-shrink:0;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.3px;color:var(--teal-bright);background:rgba(0,180,148,0.12);padding:3px 9px;border-radius:20px;white-space:nowrap;margin-top:1px}
+
+  table.budget{width:100%;border-collapse:collapse;background:var(--surface);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);font-size:13px}
+  table.budget th{text-align:left;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);font-weight:400;padding:12px 14px;border-bottom:1px solid var(--border);background:var(--surface2)}
+  table.budget td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--text-dim)}
+  table.budget tr:last-child td{border-bottom:none}
+  table.budget td.num,table.budget th.num{text-align:right;font-variant-numeric:tabular-nums}
+  table.budget td.strong{color:var(--text);font-weight:600}
+  table.budget tr.total td{font-weight:700;color:var(--text);border-top:2px solid var(--border);background:var(--surface2)}
+  table.budget tr.total td.num{font-family:'Space Mono',monospace;color:var(--teal-bright);font-size:14.5px}
+  .tbl-wrap{overflow-x:auto;border-radius:16px}
+
+  .econ-row{display:grid;grid-template-columns:1.3fr 1fr;gap:22px;align-items:start}
+  @media (max-width:760px){.econ-row{grid-template-columns:1fr}}
+  .big-num{font-family:'Playfair Display',serif;font-size:clamp(38px,5vw,56px);font-weight:900;line-height:1;background:linear-gradient(135deg,var(--teal-bright),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:inline-block}
+  .split-bar{height:12px;border-radius:7px;overflow:hidden;display:flex;margin:14px 0 10px;box-shadow:inset 0 0 0 1px var(--border)}
+  .split-seg{height:100%}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--text-dim)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="nav-dots" id="navDots"></div>
+<div class="slide-counter" id="slideCounter">01 / 03</div>
+<div class="nav-arrows">
+  <button class="nav-arrow" id="prevBtn" aria-label="Slide precedente">←</button>
+  <button class="nav-arrow" id="nextBtn" aria-label="Slide successiva">→</button>
+</div>
+
+<div class="deck" id="deck">
+
+  <section class="slide active" data-index="0">
+    <div class="kicker">Centro di Competenza QA · Stato Avanzamento</div>
+    <h1>Cosa abbiamo fatto, <span class="accent">dove siamo</span></h1>
+    <p class="subtitle">Due pilastri — Testing e Data Quality — costruiti in parallelo dal kick-off di febbraio 2026.</p>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon" style="background:rgba(0,180,148,0.14);color:var(--teal)">🧪</div>
+          <div>
+            <h3>Testing</h3>
+            <div class="card-sub">Pilastro 1</div>
+          </div>
+        </div>
+        <div class="item-row">
+          <span class="tag tag-done">Completato</span>
+          <p><strong>Framework QA operativo</strong> — processo SDLC, RACI, Jira strutturato, dashboard e cadence definite</p>
+        </div>
+        <div class="item-row">
+          <span class="tag tag-done">Completato</span>
+          <p><strong>Pilota Checkout</strong> — progetto di integrazione concluso</p>
+        </div>
+        <div class="item-row">
+          <span class="tag tag-progress">In corso</span>
+          <p><strong>Estensione a E-commerce</strong> — stessa metodologia in implementazione sul secondo touchpoint</p>
+        </div>
+        <div class="item-row">
+          <span class="tag tag-cyan">Live</span>
+          <p><strong>Hub QA — prima versione</strong> — online con fonti dati integrate: Testing, SANP, Data Quality Controls</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon" style="background:rgba(34,211,238,0.14);color:var(--cyan)">🗄️</div>
+          <div>
+            <h3>Data Quality</h3>
+            <div class="card-sub">Pilastro 2</div>
+          </div>
+        </div>
+        <div class="item-row">
+          <span class="tag tag-done">Completato</span>
+          <p><strong>DQF — Data Quality Framework</strong> — implementato su Cloudera / SODA Cloud</p>
+        </div>
+        <div class="item-row">
+          <span class="tag tag-progress">In corso</span>
+          <p><strong>Dashboard sui KPI chiave</strong> — in fase di creazione</p>
+        </div>
+        <div class="item-row">
+          <span class="tag tag-progress">In corso</span>
+          <p><strong>Knowledge transfer dal fornitore</strong> — trasferimento competenze in corso verso il team interno</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-index="1">
+    <div class="kicker">Roadmap · Settembre 2026 → Gennaio 2027</div>
+    <h1>Dove stiamo <span class="accent">andando</span></h1>
+    <p class="subtitle">Due focus in parallelo: estensione del Testing a nuovi touchpoint e processi core, e messa a regime della Data Quality.</p>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon" style="background:rgba(0,180,148,0.14);color:var(--teal)">🧪</div>
+          <div>
+            <h3>Testing</h3>
+            <div class="card-sub">Pilastro 1</div>
+          </div>
+        </div>
+
+        <div class="subgroup">
+          <div class="subgroup-label">Touchpoint</div>
+          <div class="rm-item">
+            <p><strong>Chiusura pilota Touchpoint</strong> — Checkout + E-commerce</p>
+            <span class="tag-period">Set → metà Ott</span>
+          </div>
+          <div class="rm-item">
+            <p><strong>Avvio progetto POS</strong> — analisi, progettazione, integrazione</p>
+            <span class="tag-period">Ott → Dic</span>
+          </div>
+        </div>
+
+        <div class="subgroup">
+          <div class="subgroup-label">Core</div>
+          <div class="rm-item">
+            <p><strong>Revisione FdR</strong> — analisi, progettazione, implementazione</p>
+            <span class="tag-period">Ottobre</span>
+          </div>
+          <div class="rm-item">
+            <p><strong>OdP</strong> — analisi, progettazione, implementazione</p>
+            <span class="tag-period">Nov → Dic</span>
+          </div>
+        </div>
+
+        <div class="subgroup">
+          <div class="subgroup-label">Interno</div>
+          <div class="rm-item">
+            <p><strong>Agentic Framework</strong> — enhancements</p>
+          </div>
+          <div class="rm-item">
+            <p><strong>Hub QA</strong> — enhancements</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon" style="background:rgba(34,211,238,0.14);color:var(--cyan)">🗄️</div>
+          <div>
+            <h3>Data Quality</h3>
+            <div class="card-sub">Pilastro 2</div>
+          </div>
+        </div>
+        <div class="rm-item">
+          <p><strong>Nuovi data product</strong> — es. KPI PSP</p>
+        </div>
+        <div class="rm-item">
+          <p><strong>Acquisizione operativa</strong> — presa in carico completa del DQF</p>
+        </div>
+        <div class="rm-item">
+          <p><strong>Supporto ticket</strong> — gestione operativa strutturata</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-index="2">
+    <div class="kicker">Budget · Anno 2027</div>
+    <h1>Economics <span class="accent">Outlook 2027</span></h1>
+    <p class="subtitle">Fabbisogno di risorse in continuità sui due pilastri, in modalità consulting T&amp;M.</p>
+
+    <div class="econ-row">
+      <div class="tbl-wrap">
+        <table class="budget">
+          <thead>
+            <tr>
+              <th>Attività</th><th>Profilo</th><th class="num">Risorse</th><th class="num">Giorni</th><th class="num">€/gg</th><th>Fornitore</th><th class="num">Budget 2027</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="strong">Testing</td><td>QA Engineer</td><td class="num">2</td><td class="num">260</td><td class="num">400</td><td>Alten / DXC</td><td class="num strong">€ 208.000</td>
+            </tr>
+            <tr>
+              <td class="strong">Data</td><td>Data Engineer</td><td class="num">1</td><td class="num">260</td><td class="num">400</td><td>Quantyca / Jakala</td><td class="num strong">€ 104.000</td>
+            </tr>
+            <tr>
+              <td class="strong">Data</td><td>Solution Architect</td><td class="num">2</td><td class="num">30</td><td class="num">500</td><td>Quantyca / Jakala</td><td class="num strong">€ 30.000</td>
+            </tr>
+            <tr class="total">
+              <td colspan="6">Totale</td><td class="num">€ 342.000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-sub" style="margin-bottom:6px">Budget complessivo</div>
+        <div class="big-num">€342k</div>
+        <div class="split-bar">
+          <div class="split-seg" style="width:61%;background:var(--teal-bright)"></div>
+          <div class="split-seg" style="width:39%;background:var(--cyan)"></div>
+        </div>
+        <div class="legend">
+          <span><span class="dot" style="background:var(--teal-bright)"></span>Testing — 61% (€208k)</span>
+          <span><span class="dot" style="background:var(--cyan)"></span>Data — 39% (€134k)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var dotsWrap = document.getElementById('navDots');
+  var counter = document.getElementById('slideCounter');
+  var bar = document.getElementById('progressBar');
+  var current = 0;
+
+  slides.forEach(function(_, i){
+    var d = document.createElement('button');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', 'Vai alla slide ' + (i + 1));
+    d.addEventListener('click', function(){ go(i); });
+    dotsWrap.appendChild(d);
+  });
+  var dots = Array.prototype.slice.call(dotsWrap.children);
+
+  function pad(n){ return n < 10 ? '0' + n : '' + n; }
+
+  function go(i){
+    if (i < 0 || i >= slides.length || i === current) return;
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = i;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    counter.textContent = pad(current + 1) + ' / ' + pad(slides.length);
+    bar.style.width = ((current + 1) / slides.length * 100) + '%';
+  }
+
+  document.getElementById('prevBtn').addEventListener('click', function(){ go(current - 1); });
+  document.getElementById('nextBtn').addEventListener('click', function(){ go(current + 1); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') go(current + 1);
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(current - 1);
+  });
+
+  counter.textContent = pad(1) + ' / ' + pad(slides.length);
+  bar.style.width = (1 / slides.length * 100) + '%';
+})();
+</script>
+</body>
+</html>
