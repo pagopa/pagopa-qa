@@ -48,7 +48,7 @@ jobs:
     steps:     
       - name: Create GitHub Runner
         id: create_github_runner
-        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-create-action@main
+        uses: pagopa/eng-github-actions-iac-template/azure/github-self-hosted-runner-azure-create-action@c4eb4d7f3b953bdb7e07f7f7ac47a125b0cf0ac7 # main
         with:
           client_id: ${{ secrets.CLIENT_ID }}
           tenant_id: ${{ secrets.TENANT_ID }}
