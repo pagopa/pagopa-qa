@@ -747,18 +747,15 @@ h3 {
 .person-bio li::before { content: '▸'; position: absolute; left: 0; color: var(--person-accent, var(--teal)); }
 .person-years { color: var(--text-muted); letter-spacing: 1px; }
 .person-logos {
-  margin-top: auto; padding-top: 14px; width: 100%;
-  border-top: 1px solid rgba(136,153,180,0.18);
-  display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: nowrap;
+  margin-top: auto; width: 100%;
+  background: #ffffff; border-radius: 10px; padding: 10px 12px;
+  display: flex; align-items: center; justify-content: space-evenly; gap: 12px; flex-wrap: nowrap;
 }
 .person-bio { margin-bottom: 16px; }
-.person-logos img {
-  height: 22px; max-width: 72px; min-width: 0; object-fit: contain;
-  filter: brightness(0) invert(1); opacity: 0.72;
-}
+.person-logos img { height: 22px; max-width: 72px; min-width: 0; object-fit: contain; }
 .person-logos img.tall { height: 28px; }
 .person-logos img.wide { height: 28px; max-width: 100px; }
-[data-theme="light"] .person-logos img { filter: brightness(0); opacity: 0.6; }
+[data-theme="light"] .person-logos { background: var(--bg); border: 1px solid rgba(0,0,0,0.06); }
 .team-band {
   margin-top: 22px; display: flex; gap: 18px; flex-wrap: wrap; align-items: stretch;
 }
