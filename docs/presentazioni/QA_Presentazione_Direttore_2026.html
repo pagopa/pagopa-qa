@@ -806,17 +806,28 @@ h3 {
 .note { font-size: 12px; color: var(--text-muted); margin-top: 10px; line-height: 1.5; font-style: italic; }
 
 .enabler {
-  background: linear-gradient(135deg, rgba(245,158,11,0.10), rgba(236,72,153,0.06));
-  border: 1px solid rgba(245,158,11,0.35);
+  background: linear-gradient(135deg, rgba(245,158,11,0.16), rgba(236,72,153,0.08));
+  border: 2px solid var(--amber);
+  box-shadow: 0 0 0 4px rgba(245,158,11,0.08), 0 12px 40px rgba(245,158,11,0.16);
+  padding: 26px 28px;
 }
-.enabler ol { list-style: none; counter-reset: en; display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
-.enabler li { counter-increment: en; font-size: 14px; color: var(--text-dim); line-height: 1.5; padding-left: 34px; position: relative; }
+.enabler-kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--amber); }
+.enabler h3 { font-family: var(--font-display); font-size: 24px; color: var(--text); margin: 6px 0 0; }
+.enabler ol { list-style: none; counter-reset: en; display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+.enabler li { counter-increment: en; font-size: 15px; color: var(--text-dim); line-height: 1.5; padding-left: 42px; position: relative; }
 .enabler li::before {
-  content: counter(en); position: absolute; left: 0; top: 0;
-  width: 22px; height: 22px; border-radius: 50%; background: rgba(245,158,11,0.18); color: var(--amber);
-  font-family: var(--font-mono); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  content: counter(en); position: absolute; left: 0; top: -1px;
+  width: 28px; height: 28px; border-radius: 50%; background: var(--amber); color: #1a1f2e;
+  font-family: var(--font-mono); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center;
 }
 .enabler li strong { color: var(--text); }
+.goal-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 24px; align-items: stretch; }
+@media (max-width: 900px) { .goal-grid { grid-template-columns: 1fr; } }
+[data-theme="light"] .card.enabler {
+  border: 2px solid var(--amber);
+  background: linear-gradient(135deg, rgba(217,119,6,0.10), rgba(219,39,119,0.05));
+  box-shadow: 0 0 0 4px rgba(217,119,6,0.08), 0 12px 32px rgba(217,119,6,0.14);
+}
 .target-badge {
   display: inline-block; font-family: var(--font-display); font-size: 40px; font-weight: 900; color: var(--pink); line-height: 1;
 }
@@ -1106,15 +1117,15 @@ h3 {
           <div class="rm-dot future"></div>
           <div class="rm-date" style="color:var(--pink);">DIC 2027</div>
           <div class="rm-title">Target</div>
-          <div class="rm-desc">Quality Gate sull'80% dei rilasci</div>
+          <div class="rm-desc">Quality Gate sul 70% dei rilasci</div>
         </div>
       </div>
     </div>
 
-    <div class="two-col fade-in" style="margin-top:6px;">
+    <div class="goal-grid fade-in" style="margin-top:6px;">
       <div class="card" style="border-top:3px solid var(--pink);">
         <div style="display:flex;align-items:baseline;gap:14px;">
-          <span class="target-badge">80%</span>
+          <span class="target-badge">70%</span>
           <h3 style="font-size:15px;margin:0;">dei rilasci con Quality Gate entro fine 2027</h3>
         </div>
         <ul class="gap-list ok" style="margin-top:16px;">
@@ -1126,7 +1137,8 @@ h3 {
       </div>
 
       <div class="card enabler">
-        <h3 style="font-size:15px;color:var(--amber);">Cosa serve per arrivarci</h3>
+        <div class="enabler-kicker">Condizioni necessarie</div>
+        <h3>Cosa serve per arrivarci</h3>
         <ol>
           <li><strong>Adozione da parte dei team prodotto</strong>: il Quality Gate come passaggio standard del rilascio</li>
           <li><strong>Continuità del team</strong>: competenze ormai consolidate su processo, automazione e dato</li>
