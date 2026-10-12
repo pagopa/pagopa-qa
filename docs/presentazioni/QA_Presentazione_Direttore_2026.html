@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Centro di Competenza QA — Incontro con la Direzione</title>
+<title>Centro di Competenza QA — Incontro con Stefano</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=Space+Mono:wght@400;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -801,6 +801,8 @@ h3 {
 .st.live { background: rgba(0,212,170,0.14); color: var(--teal); }
 .st.wip { background: rgba(245,158,11,0.14); color: var(--amber); }
 .st.exp { background: rgba(236,72,153,0.14); color: var(--pink); }
+.st.next { background: rgba(6,182,212,0.14); color: var(--cyan); }
+.status-row .st { min-width: 74px; text-align: center; }
 .trend { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-top: 6px; }
 .trend strong { color: var(--teal); }
 .note { font-size: 12px; color: var(--text-muted); margin-top: 10px; line-height: 1.5; font-style: italic; }
@@ -861,7 +863,7 @@ h3 {
     <span class="logo-dark"><svg viewBox="0 0 35 23" width="90" height="58" xmlns="http://www.w3.org/2000/svg"><path fill="#FFFFFF" d="M24.4,6.9v2.9h-2.1V0h2.1h0.2h1.5C27.4,0,28,0.3,28,1v4.8c0,0.7-0.6,1-1.8,1L24.4,6.9z M26,1.1h-1.6v4.5H26V1.1z"/><path fill="#FFFFFF" d="M1.8,9.8v2.9H0V2.9h1.8H2h1.3c1.1,0,1.6,0.3,1.6,1v4.8c0,0.7-0.5,1-1.5,1L1.8,9.8z M3.1,4H1.8v4.5h1.3V4z"/><path fill="#FFFFFF" d="M10.4,9.7H7c-1,0-1.5-0.3-1.5-1v-2c0-0.7,0.5-1,1.5-1h1.6V4H7.3v0.9H5.5v-1c0-0.7,0.5-1,1.6-1h1.7c1,0,1.5,0.3,1.5,1L10.4,9.7z M7.3,8.6h1.3V6.8H7.3V8.6z"/><path fill="#FFFFFF" d="M14.2,9.7h-1.6c-1,0-1.5-0.3-1.5-1V3.9c0-0.7,0.5-1,1.6-1H14h0.2H16v8.8c0,0.7-0.5,1-1.6,1h-1.8c-1,0-1.6-0.3-1.6-1v-1h1.8v0.9h1.3L14.2,9.7z M12.9,8.6h1.3V4h-1.3V8.6z"/><path fill="#FFFFFF" d="M21.5,8.7c0,0.7-0.5,1-1.6,1h-1.7c-1,0-1.6-0.3-1.6-1V3.9c0-0.7,0.5-1,1.6-1H20c1,0,1.5,0.3,1.5,1V8.7z M19.8,4h-1.3v4.5h1.3V4z"/><path fill="#FFFFFF" d="M34.7,1.1c0-0.7-0.6-1-1.8-1h-2.1c-1.2,0-1.9,0.3-1.9,1v8.7H31v-3h1.6v2.5c0,6.4-5.2,11.6-11.6,11.6c-3.7,0-7-1.8-9.1-4.5l1.1-0.8l-4.3-2.9l0.2,6l1.4-1.1C12.7,20.9,16.6,23,21,23c7.6,0,13.7-6.1,13.7-13.7V1.1z M32.6,5.7H31V1.2h1.6V5.7z"/></svg></span>
     <span class="logo-light"><svg viewBox="0 0 35 23" width="90" height="58" xmlns="http://www.w3.org/2000/svg"><path fill="#1D1D1B" d="M24.4,6.9v2.9h-2.1V0h2.1h0.2h1.5c1.3,0,1.9,0.3,1.9,1v4.8c0,0.7-0.6,1-1.8,1L24.4,6.9z M26,1.1h-1.6v4.5H26V1.1z"/><path fill="#1D1D1B" d="M1.8,9.8v2.9H0V2.9h1.8H2h1.3c1.1,0,1.6,0.3,1.6,1v4.8c0,0.7-0.5,1-1.5,1L1.8,9.8z M3.1,4H1.8v4.5h1.3V4z"/><path fill="#1D1D1B" d="M10.4,9.7H7c-1,0-1.5-0.3-1.5-1v-2c0-0.7,0.5-1,1.5-1h1.6V4H7.3v0.9H5.5v-1c0-0.7,0.5-1,1.6-1h1.7c1,0,1.5,0.3,1.5,1V9.7z M7.3,8.6h1.3V6.8H7.3V8.6z"/><path fill="#1D1D1B" d="M14.2,9.7h-1.6c-1,0-1.5-0.3-1.5-1V3.9c0-0.7,0.5-1,1.6-1H14h0.2H16v8.8c0,0.7-0.5,1-1.6,1h-1.8c-1,0-1.6-0.3-1.6-1v-1h1.8v0.9h1.3L14.2,9.7z M12.9,8.6h1.3V4h-1.3V8.6z"/><path fill="#1D1D1B" d="M21.5,8.7c0,0.7-0.5,1-1.6,1h-1.7c-1,0-1.6-0.3-1.6-1V3.9c0-0.7,0.5-1,1.6-1H20c1,0,1.5,0.3,1.5,1V8.7z M19.8,4h-1.3v4.5h1.3V4z"/><path fill="#1D1D1B" d="M34.7,1.1c0-0.7-0.6-1-1.8-1h-2.1c-1.2,0-1.9,0.3-1.9,1v8.7H31v-3h1.6v2.5c0,6.4-5.2,11.6-11.6,11.6c-3.7,0-7-1.8-9.1-4.5l1.1-0.8l-4.3-2.9l0.2,6l1.4-1.1C12.7,20.9,16.6,23,21,23c7.6,0,13.7-6.1,13.7-13.7V1.1z M32.6,5.7H31V1.2h1.6V5.7z"/></svg></span>
   </div>
-  <div class="fade-in"><div class="kicker">Incontro con la Direzione · Ottobre 2026</div></div>
+  <div class="fade-in"><div class="kicker">Incontro con Stefano · Ottobre 2026</div></div>
   <h1 class="fade-in glow-teal">Centro di Competenza<br><span class="accent">Quality Assurance</span></h1>
   <div class="fade-in">
     <p class="subtitle">Chi siamo, cosa facciamo, perché lo facciamo e dove vogliamo arrivare.</p>
@@ -914,7 +916,7 @@ h3 {
         <div class="person-focus">Qualità del dato e KPI</div>
         <ul class="person-bio">
           <li>~10 anni in FCA: validazione e test di prototipi (Fiat, Alfa Romeo, Maserati)</li>
-          <li>Qualità e miglioramento continuo in Alstom, Iveco, CIM4.0</li>
+          <li>Responsabile software embedded, qualità e miglioramento continuo in Alstom, Iveco, CIM4.0</li>
           <li>In PagoPA dal 2025: Data Quality Framework e Data Contract</li>
         </ul>
         <div class="person-logos"><img src="img/loghi/fca.svg" alt="FCA" class="tall"><img src="img/loghi/alstom.svg" alt="Alstom"><img src="img/loghi/iveco.svg" alt="Iveco"><img src="img/loghi/pininfarina.svg" alt="Pininfarina" class="wide"></div>
@@ -1043,8 +1045,8 @@ h3 {
         <div class="ach-label">Prodotti con NRT live<br>WISP · Checkout</div>
       </div>
       <div class="ach-item">
-        <div class="ach-num">12/10</div>
-        <div class="ach-label">Primo data check<br>live su GEC</div>
+        <div class="ach-num">1</div>
+        <div class="ach-label">Controllo DQ attivo<br>DQF live su GEC</div>
       </div>
       <div class="ach-item">
         <div class="ach-num">Live</div>
@@ -1056,14 +1058,14 @@ h3 {
       <div class="card" style="border-top:3px solid var(--teal);">
         <h3 style="font-size:15px;">🧪 Testing</h3>
         <div class="status-row">
-          <div><span class="st live">Fatto</span><span>Checkout integrato con il TAS</span></div>
-          <div><span class="st wip">In corso</span><span>Integrazione eCommerce</span></div>
-          <div><span class="st live">Live</span><span>Test di non regressione (NRT) su <strong style="color:var(--text);">WISP e Checkout</strong></span></div>
-          <div><span class="st wip">In corso</span><span>FdR · POS</span></div>
+          <div><span class="st live">Live</span><span>TAS integrato con <strong style="color:var(--text);">Checkout</strong></span></div>
+          <div><span class="st live">Live</span><span>NRT su <strong style="color:var(--text);">WISP · Checkout</strong></span></div>
+          <div><span class="st wip">In corso</span><span>Integrazione TAS con eCommerce</span></div>
+          <div><span class="st wip">In corso</span><span>NRT su FdR</span></div>
+          <div><span class="st next">Prossimi</span><span>Integrazione TAS con i Core Components</span></div>
+          <div><span class="st next">Prossimi</span><span>NRT su POS · OdP</span></div>
         </div>
-        <div class="trend">Esecuzioni TAS dal 17/07: lug 29 · ago 10 · <strong>set 54</strong> · ott 27 nei primi 8 giorni</div>
-        <div class="note">La maggior parte dei fallimenti rilevati è debito tecnico: lo indirizzeremo insieme ai team prodotto.</div>
-      </div>
+    </div>
 
       <div class="card" style="border-top:3px solid var(--amber);">
         <h3 style="font-size:15px;">🗄️ Data Quality</h3>
