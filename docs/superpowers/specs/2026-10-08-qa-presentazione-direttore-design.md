@@ -43,7 +43,7 @@ Nuovo file: `docs/presentazioni/QA_Presentazione_Direttore_2026.html`, con foto 
    - **Central Hub QA live**: drift check API SANP, KPI Jira del team, definizione controlli DQF, trend su entità (Commissioni PSP, GPD); in sviluppo le dashboard KPI dei test.
    - **Agentic AI**: in sperimentazione, in allineamento con le linee guida di Engineering.
 
-5. **Dove vogliamo andare** — timeline: 2026 costruzione & pilota → **2027 anno dell'applicazione del framework a tutte le componenti** → target **Quality Gate sull'80% dei rilasci entro fine 2027**. Prossimi passi: Assessment TO-BE / QAdro (da pianificare), Agentic AI allineato a Engineering, sinergia a 3 dipartimenti.
+5. **Dove vogliamo andare** — timeline: 2026 costruzione & pilota → **2027 anno dell'applicazione del framework a tutte le componenti** → target **Quality Gate sul 70% dei rilasci entro fine 2027**. Prossimi passi: Assessment TO-BE / QAdro (da pianificare), Agentic AI allineato a Engineering, sinergia a 3 dipartimenti.
    Riquadro **"Cosa serve per arrivarci"** (tre condizioni abilitanti, tono fattuale, non richiesta esplicita):
    1. adozione da parte dei team prodotto;
    2. continuità del team;
