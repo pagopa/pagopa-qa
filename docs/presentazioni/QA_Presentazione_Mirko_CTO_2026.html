@@ -723,6 +723,29 @@ h3 {
 [data-theme="light"] .ctrl-ex-val code { background: rgba(0,0,0,0.06); }
 .ctrl-legend { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 14px; border-radius: 10px; background: var(--surface2); font-size: 12px; }
 
+/* Team introduction slide */
+.person { background: var(--surface); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 26px 24px 22px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; overflow: hidden; }
+.person::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--person-accent, var(--teal)); }
+.person-photo { width: 104px; height: 104px; border-radius: 50%; object-fit: cover; border: 3px solid var(--person-accent, var(--teal)); margin-bottom: 14px; background: var(--surface2); }
+.person-name { font-family: var(--font-display); font-size: 21px; font-weight: 700; color: var(--text); }
+.person-role { font-family: var(--font-mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--person-accent, var(--teal)); margin: 6px 0 4px; }
+.person-focus { font-size: 13px; color: var(--text-dim); font-style: italic; margin-bottom: 14px; }
+.person-bio { list-style: none; text-align: left; width: 100%; display: flex; flex-direction: column; gap: 7px; margin: 0 0 16px; }
+.person-bio li { font-size: 13px; line-height: 1.5; color: var(--text-dim); padding-left: 16px; position: relative; }
+.person-bio li::before { content: '▸'; position: absolute; left: 0; color: var(--person-accent, var(--teal)); }
+.person-years { color: var(--text-muted); letter-spacing: 1px; }
+.person-logos { margin-top: auto; width: 100%; background: #fff; border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-evenly; gap: 12px; flex-wrap: nowrap; }
+.person-logos img { height: 22px; max-width: 72px; min-width: 0; object-fit: contain; }
+.person-logos img.tall { height: 28px; }
+.person-logos img.wide { height: 28px; max-width: 100px; }
+.team-band { margin-top: 22px; display: flex; gap: 18px; flex-wrap: wrap; align-items: stretch; }
+.team-band > div { flex: 1 1 260px; background: var(--surface); border-radius: 12px; padding: 14px 20px; border: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 14px; }
+.team-band .big { font-family: var(--font-display); font-size: 30px; font-weight: 900; color: var(--teal); white-space: nowrap; }
+.team-band .txt { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+.team-band .txt strong { color: var(--text); }
+[data-theme="light"] .person, [data-theme="light"] .team-band > div { border-color: rgba(0,0,0,0.08); box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+[data-theme="light"] .person-logos { background: var(--bg); border: 1px solid rgba(0,0,0,0.06); }
+
 /* ACE learning loop spotlight */
 .ace-topline { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
 .ace-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; color: var(--pink); text-transform: uppercase; }
@@ -798,6 +821,66 @@ h3 {
     <span>📅 Kick-off Feb 2026 → Target Dic 2027</span>
     <span>🏢 Dipartimento Pagamenti</span>
     <span>🤝 In sinergia con SEND & Interop, IO-Wallet-Multicanalità</span>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 1: CHI SIAMO ==================== -->
+<div class="slide" data-idx="1">
+  <div class="slide-scroll">
+    <div class="fade-in kicker">Chi Siamo</div>
+    <h2 class="fade-in">Tre profili, <span class="accent">un'unica squadra</span></h2>
+
+    <div class="three-col fade-in" style="margin-top:26px;">
+      <div class="person" style="--person-accent:var(--teal);">
+        <img class="person-photo" src="img/cristiano-foto.jpeg" alt="Cristiano Sticca">
+        <div class="person-name">Cristiano Sticca</div>
+        <div class="person-role">QA Manager <span class="person-years">· ~18 anni</span></div>
+        <div class="person-focus">Visione, governance, rapporto con gli stakeholder</div>
+        <ul class="person-bio">
+          <li>10+ anni in GSE: IT Project Manager e referente per la qualità del software</li>
+          <li>Solutions Architect in Enel · Product Owner &amp; QA Manager in Treedom</li>
+          <li>Customer Success in Microsoft · in PagoPA dal 2023</li>
+        </ul>
+        <div class="person-logos"><img src="img/loghi/gse.png" alt="GSE" class="tall"><img src="img/loghi/enel.svg" alt="Enel"><img src="img/loghi/treedom.svg" alt="Treedom" class="tall"><img src="img/loghi/microsoft.svg" alt="Microsoft"></div>
+      </div>
+
+      <div class="person" style="--person-accent:var(--cyan);">
+        <img class="person-photo" src="img/andrea-foto.png" alt="Andrea Ferracci">
+        <div class="person-name">Andrea Ferracci</div>
+        <div class="person-role">Lead Tecnico <span class="person-years">· ~28 anni</span></div>
+        <div class="person-focus">Architettura e automazione dei test</div>
+        <ul class="person-bio">
+          <li>14 anni in BNL BNP Paribas: Enterprise &amp; Technical Architect</li>
+          <li>Automazione di deploy e CI/CD, piattaforme cloud, monitoring</li>
+          <li>In PagoPA dal 2022: Technical PM, poi Senior QA Engineer</li>
+        </ul>
+        <div class="person-logos"><img src="img/loghi/bnl.svg" alt="BNL BNP Paribas" class="tall"><img src="img/loghi/ibm.svg" alt="IBM"></div>
+      </div>
+
+      <div class="person" style="--person-accent:var(--amber);">
+        <img class="person-photo" src="img/annalisa-foto.jpeg" alt="Annalisa Sabatelli">
+        <div class="person-name">Annalisa Sabatelli</div>
+        <div class="person-role">Business / Data Analyst <span class="person-years">· ~19 anni</span></div>
+        <div class="person-focus">Qualità del dato e KPI</div>
+        <ul class="person-bio">
+          <li>~10 anni in FCA: validazione e test di prototipi (Fiat, Alfa Romeo, Maserati)</li>
+          <li>Responsabile software embedded, qualità e miglioramento continuo in Alstom, Iveco, CIM4.0</li>
+          <li>In PagoPA dal 2025: Data Quality Framework e Data Contract</li>
+        </ul>
+        <div class="person-logos"><img src="img/loghi/fca.svg" alt="FCA" class="tall"><img src="img/loghi/alstom.svg" alt="Alstom"><img src="img/loghi/iveco.svg" alt="Iveco"><img src="img/loghi/pininfarina.svg" alt="Pininfarina" class="wide"></div>
+      </div>
+    </div>
+
+    <div class="team-band fade-in">
+      <div>
+        <span class="big">~65</span>
+        <span class="txt"><strong>anni di esperienza complessiva</strong><br>in qualità, architettura e delivery, in contesti enterprise e regolati</span>
+      </div>
+      <div>
+        <span class="big">+5</span>
+        <span class="txt"><strong>Team esteso</strong> (partner ALTEN · Quantyca)<br>1 QA Analyst · 3 QA Engineer · 1 Data Engineer</span>
+      </div>
+    </div>
   </div>
 </div>
 
