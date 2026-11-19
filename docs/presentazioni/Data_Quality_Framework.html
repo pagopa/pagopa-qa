@@ -234,7 +234,7 @@
   <div class="slide slide-cover active">
     <div class="cover-tag">Piattaforma Dati pagoPA</div>
     <div class="cover-title">Data Quality Framework</div>
-    <div class="cover-subtitle">Sintesi tecnica e architetturale del framework di definizione controlli, orchestrazione e gestione  dellapersistenza degli esiti di qualità dati.</div>
+    <div class="cover-subtitle">Sintesi tecnica e architetturale del framework di definizione controlli, orchestrazione e gestione della persistenza degli esiti di qualità dati.</div>
     <div class="cover-pills">
       <div class="cover-pill">
         <strong>Regole Dichiarative</strong>
@@ -277,7 +277,7 @@
     </div>
     <div class="slide-footer">
       <span>Data Quality Framework | pagoPA</span>
-      <span>Slide 2 di 11</span>
+      <span>Slide 2 / 11</span>
     </div>
   </div>
 
@@ -327,7 +327,7 @@
     </div>
     <div class="slide-footer">
       <span>Data Quality Framework | pagoPA</span>
-      <span>Slide 3 di 11</span>
+      <span>Slide 3 / 11</span>
     </div>
   </div>
 
@@ -338,14 +338,12 @@
       <div class="slide-title">03 · Flusso Architetturale & Pipeline di Esecuzione</div>
     </div>
 
-    <!-- BOX IMMAGINE A TUTTO RESPIRO (MOLTO PIÙ GRANDE) -->
     <div class="card" style="padding: 4px 10px; display: flex; align-items: center; justify-content: center; background: #ffffff; margin-bottom: 10px; border: 1px solid var(--border);">
-      <img src="https://github.com/pagopa/pagopa-qa/blob/main/docs/presentazioni/img/DQF-flusso.jpeg" 
+      <img src="img/DQF-flusso.jpeg" 
            alt="Flusso Architetturale del Modulo di Quality pagoPA" 
            style="width: 100%; max-height: 310px; height: auto; object-fit: contain;">
     </div>
 
-    <!-- 3 CARD SOTTOSTANTI ULTRA-COMPATTE -->
     <div class="grid-3" style="gap: 12px;">
       <div class="card card-teal" style="padding: 9px 12px;">
         <div class="card-title" style="font-size: 13px; margin-bottom: 3px; font-weight: 700;">1. Contract Parser</div>
@@ -399,7 +397,7 @@
     </div>
     <div class="slide-footer">
       <span>Data Quality Framework | pagoPA</span>
-      <span>Slide 5 di 11</span>
+      <span>Slide 5 / 11</span>
     </div>
   </div>
 
@@ -437,7 +435,7 @@
     </div>
     <div class="slide-footer">
       <span>Data Quality Framework | pagoPA</span>
-      <span>Slide 6 di 11</span>
+      <span>Slide 6 / 11</span>
     </div>
   </div>
 
@@ -474,15 +472,15 @@
     </div>
     <div class="slide-footer">
       <span>Data Quality Framework | pagoPA</span>
-      <span>Slide 7 di 11</span>
+      <span>Slide 7 / 11</span>
     </div>
   </div>
 
-  <!-- SLIDE 9: ORCHESTRAZIONE - ARCHITETTURA -->
+  <!-- SLIDE 8: ORCHESTRAZIONE - ARCHITETTURA -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-category">Orchestrazione (1/3)</div>
-      <div class="slide-title">08 · Architettura, Disaccoppiamento & Granularità</div>
+      <div class="slide-title">07 · Architettura, Disaccoppiamento & Granularità</div>
     </div>
     <div class="grid-3">
       <div class="card card-teal">
@@ -509,7 +507,6 @@
         </p>
       </div>
     </div>
-    <!-- BOX SINTESI VANTAGGI DAG -->
     <div class="card" style="margin-top: 20px; padding: 14px 18px;">
       <div class="card-title" style="font-size: 15px; margin-bottom: 6px;">Vantaggi Chiave del Modello DAG (Directed Acyclic Graph)</div>
       <div class="grid-3" style="gap: 14px;">
@@ -532,20 +529,20 @@
     </div>
     <div class="slide-footer">
       <span>Data Quality Framework | pagoPA</span>
-      <span>Slide 9 di 11</span>
+      <span>Slide 8 / 11</span>
     </div>
   </div>
 
-  <!-- SLIDE 10: ORCHESTRAZIONE - TEMPLATE & JSON -->
+  <!-- SLIDE 9: ORCHESTRAZIONE - TEMPLATE & JSON -->
   <div class="slide">
     <div class="slide-header">
       <div class="slide-category">Orchestrazione (2/3)</div>
-      <div class="slide-title">09 · Generazione DAG: Astrazione Dichiarativa & Configurazione JSON</div>
+      <div class="slide-title">08 · Generazione DAG: Astrazione Dichiarativa & Configurazione JSON</div>
     </div>
-      <div class="grid-2">
-        <div class="card card-navy" style="padding: 10px 14px;">
-          <div class="card-title" style="font-size: 13px; margin-bottom: 4px;">dags_config/gec/prod.json (Componente GEC)</div>
-          <pre style="font-size: 10px; line-height: 1.3; color: #a5f3fc; font-family: monospace; overflow-y: auto; max-height: 380px;">
+    <div class="grid-2">
+      <div class="card card-navy" style="padding: 10px 14px;">
+        <div class="card-title" style="font-size: 13px; margin-bottom: 4px;">dags_config/gec/prod.json (Componente GEC)</div>
+        <pre style="font-size: 10px; line-height: 1.3; color: #a5f3fc; font-family: monospace; overflow-y: auto; max-height: 380px;">
 {
   "repository": "pagopa/pdnd-data-contracts",
   "ref": "main",
@@ -573,138 +570,134 @@
     "touchpoints": ["after.id"]
   }
 }</pre>
-        </div>
-        <div class="card card-teal">
-          <div class="card-title">Separazione tra Configurazione e Implementazione</div>
-          <p style="margin-bottom: 8px;">
-            Il file <code>.json</code> definisce <strong>cosa</strong> il framework deve controllare, <strong>nascondendo completamente i dettagli implementativi del DAG Airflow</strong>.
-          </p>
-          <ul>
-            <li><strong>Astrazione Totale del Codice Orchestratore:</strong> Chi gestisce il componente non scrive codice Python per Airflow, operatori o hook CDE: dichiara unicamente asset, contratti e relazioni.</li>
-            <li><strong>Dettagli Mascherati:</strong> Il JSON incapsula:
-              <ul>
-                <li>Path dei Data Contract YAML nel repo contratti.</li>
-                <li>Finestra temporale iniziale (<code>watermark_bootstrap_from</code>).</li>
-                <li>Dipendenze cross-entità e cross-layer (es. join tra GEC e <code>gold_tassonomia_pagopa</code>).</li>
-              </ul>
-            </li>
-            <li><strong>Build Deterministica:</strong> Lo script di rendering compila il template unificato producendo il DAG concreto:
-              <br><code style="font-weight:bold; display:inline-block; margin-top:4px;">make render SYSTEM=gec ENV=prod</code>
-            </li>
-          </ul>
-        </div>
       </div>
-      <div class="slide-footer"><span>Data Quality Framework | pagoPA</span><span>Slide 10 / 11</span></div>
-    </div>
-
- <!-- 11: MODULO DI OBSERVABILITY -->
-    <div class="slide">
-      <div class="slide-header">
-        <div class="slide-category">Observability di Piattaforma</div>
-        <div class="slide-title">10 · Modulo di Observability</div>
-      </div>
-      
-      <div class="card card-teal" style="margin-bottom: 16px; padding: 12px 18px;">
-        <p style="font-size:14px; color:var(--navy);">
-          <strong>Dettaglio vs Controllo:</strong> Le tabelle Iceberg conservano il dettaglio analitico; il Modulo DQ invia via <strong>push</strong> i risultati aggregati a <strong>Soda Cloud</strong> per monitoraggio e alerting centralizzati.
+      <div class="card card-teal">
+        <div class="card-title">Separazione tra Configurazione e Implementazione</div>
+        <p style="margin-bottom: 8px;">
+          Il file <code>.json</code> definisce <strong>cosa</strong> il framework deve controllare, <strong>nascondendo completamente i dettagli implementativi del DAG Airflow</strong>.
         </p>
+        <ul>
+          <li><strong>Astrazione Totale del Codice Orchestratore:</strong> Chi gestisce il componente non scrive codice Python per Airflow, operatori o hook CDE: dichiara unicamente asset, contratti e relazioni.</li>
+          <li><strong>Dettagli Mascherati:</strong> Il JSON incapsula:
+            <ul>
+              <li>Path dei Data Contract YAML nel repo contratti.</li>
+              <li>Finestra temporale iniziale (<code>watermark_bootstrap_from</code>).</li>
+              <li>Dipendenze cross-entità e cross-layer (es. join tra GEC e <code>gold_tassonomia_pagopa</code>).</li>
+            </ul>
+          </li>
+          <li><strong>Build Deterministica:</strong> Lo script di rendering compila il template unificato producendo il DAG concreto:
+            <br><code style="font-weight:bold; display:inline-block; margin-top:4px;">make render SYSTEM=gec ENV=prod</code>
+          </li>
+        </ul>
       </div>
-
-      <div class="grid-2">
-        
-        <div class="card">
-          <div class="card-title">Componenti Chiave</div>
-          <ul>
-            <li><strong>Ingestion Push:</strong> Invio metriche a fine run tramite Agent dedicato.</li>
-            <li><strong>Dashboard:</strong> Stato di salute e KPI aggregati consultabili in tempo reale.</li>
-            <li><strong>Alerting:</strong> Notifiche (Slack / email) contestuali al team owner.</li>
-          </ul>
-        </div>
-
-        <div class="card card-teal">
-          <div class="card-title">Piattaforma: Soda Cloud</div>
-          <ul>
-            <li><strong>Standard pagoPA:</strong> Strumento già in uso nell'ecosistema aziendale.</li>
-            <li><strong>Zero Codice Custom:</strong> Sfrutta feature native di dashboard e soglie alert.</li>
-            <li><strong>On/Off Dichiarativo:</strong> Gestito da <code>soda_cloud_enabled</code> nel JSON.</li>
-          </ul>
-        </div>
-      </div>
-    <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
-    <a href="https://cloud.soda.io/o/1b8ec77d-1bed-4418-9dcf-beed1ef6945e/scans-and-data/data-sources?sort=label:ASC" 
-      target="_blank" rel="noopener noreferrer" 
-      style="display: inline-flex; align-items: center; gap: 10px; background: #ffffff; border: 1.5px solid var(--teal); color: var(--navy); text-decoration: none; padding: 8px 18px; border-radius: 24px; font-size: 13px; font-weight: 700; box-shadow: 0 2px 8px rgba(8, 126, 139, 0.12);">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04C2.34 8.36 0 10.91 0 14C0 17.31 2.69 20 6 20H19C21.76 20 24 17.76 24 15C24 12.36 21.95 10.22 19.35 10.04Z" fill="#00A8B5"/>
-        <circle cx="9" cy="13" r="1.5" fill="#ffffff"/>
-        <circle cx="14" cy="11.5" r="2" fill="#ffffff"/>
-        <circle cx="16" cy="15.5" r="1.2" fill="#ffffff"/>
-      </svg>
-      <span><strong>Soda Cloud pagoPA</strong> (Data Sources & Scans) ↗</span>
-    </a>
-  </div>
-
-      <div class="slide-footer">
-        <span>Data Quality Framework | pagoPA</span>
-        <span>Slide 11 / 11</span>
-      </div>
+    </div>
+    <div class="slide-footer">
+      <span>Data Quality Framework | pagoPA</span>
+      <span>Slide 9 / 11</span>
     </div>
   </div>
 
- <!-- 12: VISUALIZZAZIONE DATA QUALITY (APACHE SUPERSET) -->
-    <div class="slide">
-      <div class="slide-header">
-        <div class="slide-category">Visualizzazione & Dashboarding</div>
-        <div class="slide-title">11 · Visualizzazione di Data Quality: Apache Superset</div>
-      </div>
+  <!-- SLIDE 10: MODULO DI OBSERVABILITY -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-category">Observability di Piattaforma</div>
+      <div class="slide-title">09 · Modulo di Observability</div>
+    </div>
+    
+    <div class="card card-teal" style="margin-bottom: 16px; padding: 12px 18px;">
+      <p style="font-size:14px; color:var(--navy);">
+        <strong>Dettaglio vs Controllo:</strong> Le tabelle Iceberg conservano il dettaglio analitico; il Modulo DQ invia via <strong>push</strong> i risultati aggregati a <strong>Soda Cloud</strong> per monitoraggio e alerting centralizzati.
+      </p>
+    </div>
 
-      <!-- BANNER SUPERIORE -->
-      <div class="card card-teal" style="margin-bottom: 6px; padding: 7px 14px;">
-        <p style="font-size: 12.5px; color: var(--navy); line-height: 1.35; margin: 0;">
-          <strong>Decisione Architetturale:</strong> Adozione di <strong>Apache Superset</strong> per abilitare un dashboarding analitico self-service, interattivo e con segregazione dei permessi (RLS) direttamente integrato con il Data Lake Cloudera e l'infrastruttura Azure.
-        </p>
-      </div>
-
-      <!-- CARD ARCHITETTURA DI EROGAZIONE -->
-      <div class="card card-teal" style="padding: 7px 14px; margin-bottom: 14px;">
-        <div class="card-title" style="font-size: 13px; margin-bottom: 3px; font-weight: 700;">Architettura di Erogazione</div>
-        <ul style="font-size: 11.5px; line-height: 1.35; padding-left: 14px; margin: 0;">
-          <li><strong>Export Observability:</strong> Il framework esporta le tabelle Iceberg su <em>Storage Account Azure</em>.</li>
-          <li><strong>Cluster Kubernetes (AKS):</strong> Superset è ospitato su cluster gestito in ambiente Azure.</li>
-          <li><strong>Query Engine SQL:</strong> Interrogazione diretta e performante dei dati sincronizzati.</li>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Componenti Chiave</div>
+        <ul>
+          <li><strong>Ingestion Push:</strong> Invio metriche a fine run tramite Agent dedicato.</li>
+          <li><strong>Dashboard:</strong> Stato di salute e KPI aggregati consultabili in tempo reale.</li>
+          <li><strong>Alerting:</strong> Notifiche (Slack / email) contestuali al team owner.</li>
         </ul>
       </div>
 
-      <!-- BOX IMMAGINE INGRANDITA -->
-      <div class="card" style="padding: 6px 14px; display: flex; align-items: center; justify-content: center; background: #ffffff; border: 1px solid var(--border); margin-bottom: 8px;">
-        <img src="https://github.com/pagopa/pagopa-qa/blob/main/docs/presentazioni/img/DQF-Superset_pagopa.jpeg" 
-             alt="Architettura Flusso Data Quality verso Apache Superset" 
-             style="width: 100%; max-height: 200px; height: auto; object-fit: contain;">
-      </div>
-
-      <!-- ANCORA LINK SUPERSET CON LOGO -->
-      <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
-        <a href="https://qa-superset.itn.internal.uat.platform.pagopa.it/superset/welcome/" 
-           target="_blank" rel="noopener noreferrer" 
-           style="display: inline-flex; align-items: center; gap: 8px; background: #ffffff; border: 1.5px solid var(--teal); color: var(--navy); text-decoration: none; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; box-shadow: 0 2px 6px rgba(8, 126, 139, 0.12); transition: all 0.2s ease;"
-           onmouseover="this.style.background='var(--mint-light)'; this.style.transform='translateY(-1px)';" 
-           onmouseout="this.style.background='#ffffff'; this.style.transform='translateY(0)';">
-          <!-- Logo Apache Superset (Icona SVG) -->
-          <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16 4C9.37 4 4 9.37 4 16C4 22.63 9.37 28 16 28C22.63 28 28 22.63 28 16C28 9.37 22.63 4 16 4ZM10 17.5C9.17 17.5 8.5 16.83 8.5 16C8.5 15.17 9.17 14.5 10 14.5C10.83 14.5 11.5 15.17 11.5 16C11.5 16.83 10.83 17.5 10 17.5ZM16 23.5C14.07 23.5 12.5 21.93 12.5 20C12.5 18.07 14.07 16.5 16 16.5C17.93 16.5 19.5 18.07 19.5 20C19.5 21.93 17.93 23.5 16 23.5ZM22 17.5C21.17 17.5 20.5 16.83 20.5 16C20.5 15.17 21.17 14.5 22 14.5C22.83 14.5 23.5 15.17 23.5 16C23.5 16.83 22.83 17.5 22 17.5Z" fill="#20A7C9"/>
-            <circle cx="16" cy="11" r="2.5" fill="#087E8B"/>
-          </svg>
-          <span><strong>Apache Superset pagoPA</strong> ↗</span>
-        </a>
-      </div>
-
-      <div class="slide-footer">
-        <span>Data Quality Framework | pagoPA</span>
-        <span>Slide 12 / 12</span>
+      <div class="card card-teal">
+        <div class="card-title">Piattaforma: Soda Cloud</div>
+        <ul>
+          <li><strong>Standard pagoPA:</strong> Strumento già in uso nell'ecosistema aziendale.</li>
+          <li><strong>Zero Codice Custom:</strong> Sfrutta feature native di dashboard e soglie alert.</li>
+          <li><strong>On/Off Dichiarativo:</strong> Gestito da <code>soda_cloud_enabled</code> nel JSON.</li>
+        </ul>
       </div>
     </div>
 
+    <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+      <a href="https://cloud.soda.io/o/1b8ec77d-1bed-4418-9dcf-beed1ef6945e/scans-and-data/data-sources?sort=label:ASC" 
+         target="_blank" rel="noopener noreferrer" 
+         style="display: inline-flex; align-items: center; gap: 10px; background: #ffffff; border: 1.5px solid var(--teal); color: var(--navy); text-decoration: none; padding: 8px 18px; border-radius: 24px; font-size: 13px; font-weight: 700; box-shadow: 0 2px 8px rgba(8, 126, 139, 0.12);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04C2.34 8.36 0 10.91 0 14C0 17.31 2.69 20 6 20H19C21.76 20 24 17.76 24 15C24 12.36 21.95 10.22 19.35 10.04Z" fill="#00A8B5"/>
+          <circle cx="9" cy="13" r="1.5" fill="#ffffff"/>
+          <circle cx="14" cy="11.5" r="2" fill="#ffffff"/>
+          <circle cx="16" cy="15.5" r="1.2" fill="#ffffff"/>
+        </svg>
+        <span><strong>Soda Cloud pagoPA</strong> (Data Sources & Scans) ↗</span>
+      </a>
+    </div>
+
+    <div class="slide-footer">
+      <span>Data Quality Framework | pagoPA</span>
+      <span>Slide 10 / 11</span>
+    </div>
   </div>
+
+  <!-- SLIDE 11: VISUALIZZAZIONE DATA QUALITY (APACHE SUPERSET) -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-category">Visualizzazione & Dashboarding</div>
+      <div class="slide-title">10 · Visualizzazione di Data Quality: Apache Superset</div>
+    </div>
+
+    <div class="card card-teal" style="margin-bottom: 6px; padding: 7px 14px;">
+      <p style="font-size: 12.5px; color: var(--navy); line-height: 1.35; margin: 0;">
+        <strong>Decisione Architetturale:</strong> Adozione di <strong>Apache Superset</strong> per abilitare un dashboarding analitico self-service, interattivo e con segregazione dei permessi (RLS) direttamente integrato con il Data Lake Cloudera e l'infrastruttura Azure.
+      </p>
+    </div>
+
+    <div class="card card-teal" style="padding: 7px 14px; margin-bottom: 14px;">
+      <div class="card-title" style="font-size: 13px; margin-bottom: 3px; font-weight: 700;">Architettura di Erogazione</div>
+      <ul style="font-size: 11.5px; line-height: 1.35; padding-left: 14px; margin: 0;">
+        <li><strong>Export Observability:</strong> Il framework esporta le tabelle Iceberg su <em>Storage Account Azure</em>.</li>
+        <li><strong>Cluster Kubernetes (AKS):</strong> Superset è ospitato su cluster gestito in ambiente Azure.</li>
+        <li><strong>Query Engine SQL:</strong> Interrogazione diretta e performante dei dati sincronizzati.</li>
+      </ul>
+    </div>
+
+    <div class="card" style="padding: 6px 14px; display: flex; align-items: center; justify-content: center; background: #ffffff; border: 1px solid var(--border); margin-bottom: 8px;">
+      <img src="img/DQF-Superset_pagopa.jpeg" 
+           alt="Architettura Flusso Data Quality verso Apache Superset" 
+           style="width: 100%; max-height: 200px; height: auto; object-fit: contain;">
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+      <a href="https://qa-superset.itn.internal.uat.platform.pagopa.it/superset/welcome/" 
+         target="_blank" rel="noopener noreferrer" 
+         style="display: inline-flex; align-items: center; gap: 8px; background: #ffffff; border: 1.5px solid var(--teal); color: var(--navy); text-decoration: none; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; box-shadow: 0 2px 6px rgba(8, 126, 139, 0.12); transition: all 0.2s ease;"
+         onmouseover="this.style.background='var(--mint-light)'; this.style.transform='translateY(-1px)';" 
+         onmouseout="this.style.background='#ffffff'; this.style.transform='translateY(0)';">
+        <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 4C9.37 4 4 9.37 4 16C4 22.63 9.37 28 16 28C22.63 28 28 22.63 28 16C28 9.37 22.63 4 16 4ZM10 17.5C9.17 17.5 8.5 16.83 8.5 16C8.5 15.17 9.17 14.5 10 14.5C10.83 14.5 11.5 15.17 11.5 16C11.5 16.83 10.83 17.5 10 17.5ZM16 23.5C14.07 23.5 12.5 21.93 12.5 20C12.5 18.07 14.07 16.5 16 16.5C17.93 16.5 19.5 18.07 19.5 20C19.5 21.93 17.93 23.5 16 23.5ZM22 17.5C21.17 17.5 20.5 16.83 20.5 16C20.5 15.17 21.17 14.5 22 14.5C22.83 14.5 23.5 15.17 23.5 16C23.5 16.83 22.83 17.5 22 17.5Z" fill="#20A7C9"/>
+          <circle cx="16" cy="11" r="2.5" fill="#087E8B"/>
+        </svg>
+        <span><strong>Apache Superset pagoPA</strong> ↗</span>
+      </a>
+    </div>
+
+    <div class="slide-footer">
+      <span>Data Quality Framework | pagoPA</span>
+      <span>Slide 11 / 11</span>
+    </div>
+  </div>
+
 </div>
 
 <!-- NAVIGAZIONE IN BASSO -->
