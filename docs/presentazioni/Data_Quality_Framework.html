@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Data Quality Framework pagoPA</title>
+  <style>
+    :root {
+      --navy: #10243a;
+      --teal: #087e8b;
+      --mint: #dff4f1;
+      --mint-light: #f2faf9;
+      --paper: #f8fafc;
+      --text-main: #172b3a;
+      --text-muted: #526575;
+      --border: #cbd6df;
+      --white: #ffffff;
+      --accent-coral: #d9534f;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #0b1522;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* CONTENITORE SLIDE FISSO 16:9 */
+    .deck-container {
+      position: relative;
+      width: 1280px;
+      height: 720px;
+      background: var(--paper);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      padding: 60px 70px 45px;
+      display: none;
+      flex-direction: column;
+      background: var(--paper);
+    }
+
+    .slide.active { display: flex; }
+
+    /* HEADER SLIDE */
+    .slide-header { margin-bottom: 32px; }
+    .slide-category {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+    .slide-title {
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+
+    /* FOOTER SLIDE */
+    .slide-footer {
+      position: absolute;
+      bottom: 24px; left: 70px; right: 70px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+
+    /* CARD GRID SYSTEM */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    .grid-4 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 22px 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .card-teal {
+      background: var(--mint-light);
+      border: 1px solid #bceae4;
+      border-left: 5px solid var(--teal);
+    }
+    .card-navy {
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+    }
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+    .card-navy .card-title { color: #5eead4; }
+    .card p, .card li {
+      font-size: 15px;
+      line-height: 1.5;
+      color: #334e68;
+    }
+    .card-navy p, .card-navy li { color: #cbd5e1; }
+    .card ul { padding-left: 18px; }
+    .card li + li { margin-top: 8px; }
+
+    /* TABELLE PULITE */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 8px;
+      background: var(--white);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    th, td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: #e2e8f0;
+      color: var(--navy);
+      font-weight: 700;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    code {
+      background: var(--mint);
+      color: var(--navy);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 13px;
+    }
+
+    /* SLIDE COVER */
+    .slide-cover {
+      background: linear-gradient(135deg, #0d1e30 0%, #10243a 100%);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px;
+    }
+    .cover-tag {
+      color: #5eead4;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .cover-title {
+      font-size: 54px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 18px;
+    }
+    .cover-subtitle {
+      font-size: 22px;
+      color: #94a3b8;
+      max-width: 800px;
+      line-height: 1.4;
+      margin-bottom: 40px;
+    }
+    .cover-pills { display: flex; gap: 16px; }
+    .cover-pill {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 14px 20px;
+      border-radius: 6px;
+      font-size: 15px;
+      color: #e2e8f0;
+    }
+    .cover-pill strong { color: #5eead4; display: block; margin-bottom: 4px; }
+
+    /* CONTROLLI IN BASSO */
+    .nav-bar {
+      margin-top: 18px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-btn {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.3); }
+    .nav-counter { color: #94a3b8; font-size: 14px; font-weight: 600; min-width: 60px; text-align: center; }
+
+    /* STILI STAMPA PDF */
+    @media print {
+      body { background: transparent; padding: 0; }
+      .nav-bar { display: none; }
+      .deck-container { box-shadow: none; border-radius: 0; width: 100%; height: auto; }
+      .slide { position: relative; display: flex !important; page-break-after: always; height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="deck-container">
+
+  <!-- SLIDE 1: COVER -->
+  <div class="slide slide-cover active">
+    <div class="cover-tag">Piattaforma Dati pagoPA</div>
+    <div class="cover-title">Data Quality Framework</div>
+    <div class="cover-subtitle">Sintesi tecnica e architetturale del framework di definizione controlli, orchestrazione e gestione  dellapersistenza degli esiti di qualità dati.</div>
+    <div class="cover-pills">
+      <div class="cover-pill">
+        <strong>Regole Dichiarative</strong>
+        Definite e versionate nei Data Contract YAML
+      </div>
+      <div class="cover-pill">
+        <strong>Controlli Post-Ingestion</strong>
+        Esecuzione disaccoppiata su cluster Spark / CDE
+      </div>
+      <div class="cover-pill">
+        <strong>Esiti su tabelle Apache Iceberg</strong>
+        Scrittura append su tabelle standardizzate
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: 4 PRINCIPI -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-category">Principi Architetturali</div>
+      <div class="slide-title">01 · Quattro principi guida del Framework</div>
+    </div>
+    <div class="grid-4">
+      <div class="card"> 
+        <div class="card-title">1. Contract-Driven Quality</div>
+        <p>Le regole di validazione sono dichiarate nei <strong>Data Contract YAML</strong> e non cablate nel codice Spark. Il contratto è l'unica sorgente di verità per l'esecuzione.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">2. Centralizzazione di Piattaforma</div>
+        <p>Quality e Observability operano in modo trasversale e standardizzato sugli asset del dominio pagamenti, garantendo governance uniforme a prescindere dal sistema sorgente.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">3. Disaccoppiamento dalla Pipeline</div>
+        <p>I controlli avvengono <strong>post-write</strong> in modo asincrono. Modificare le regole di qualità non richiede alcun intervento sui DAG di ingestion/trasformazione (Silver/Gold).</p>
+      </div>
+      <div class="card">
+        <div class="card-title">4. Standardizzazione degli Output</div>
+        <p>Tutti i check e le metriche generano un tracciato record comune su <strong>Apache Iceberg</strong>, permettendo audit trail, monitoraggio centralizzato e calcolo KPI omogeneo.</p>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>Data Quality Framework | pagoPA</span>
+      <span>Slide 2 di 11</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: MODELLO DEI CONTROLLI -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-category">Tassonomia</div>
+      <div class="slide-title">02 · Modello di classificazione dei controlli</div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Assi di Valutazione</div>
+        <table>
+          <thead><tr><th>Prefisso</th><th>Ambito Strutturale</th></tr></thead>
+          <tbody>
+            <tr><td><code>fld</code></td><td>Singolo campo (es. null, formato, range)</td></tr>
+            <tr><td><code>ent</code></td><td>Coerenza logica tra campi della stessa riga</td></tr>
+            <tr><td><code>xref</code></td><td>Integrità referenziale cross-dataset / tabella</td></tr>
+          </tbody>
+        </table>
+        <table style="margin-top: 14px;">
+          <thead><tr><th>Prefisso</th><th>Dimensione</th></tr></thead>
+          <tbody>
+            <tr><td><code>acc</code></td><td>Accuracy</td></tr>
+            <tr><td><code>cmp</code></td><td>Completeness (completezza campi)</td></tr>
+            <tr><td><code>cns</code></td><td>Consistency (coerenza)</td></tr>
+            <tr><td><code>tim</code></td><td>Timeliness (tempestività)</td></tr>
+            <tr><td><code>unq</code></td><td>Uniqueness (univocità)</td></tr>
+            <tr><td><code>vld</code></td><td>Validity (regole business)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card card-teal">
+        <div class="card-title">Convenzione di Naming Standard</div>
+        <p style="margin-bottom: 12px;">Tutti i controlli seguono la nomenclatura gerarchica:</p>
+        <p style="font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 14px;">
+          <code>&lt;ambito&gt;__&lt;dimensione&gt;__&lt;campo&gt;__&lt;regola&gt;</code>
+        </p>
+        <div class="card" style="background: #fff; padding: 14px;">
+          <strong>Esempio reale:</strong><br>
+          <code>fld__vld__importo__range</code><br>
+          <span style="font-size: 13px; color: var(--text-muted); margin-top: 4px; display: block;">
+            Verifica la validità dell'attributo <em>importo</em> accertando che il valore sia positivo e coerente con i limiti ammessi.
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>Data Quality Framework | pagoPA</span>
+      <span>Slide 3 di 11</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: ARCHITETTURA & PIPELINE DI ESECUZIONE -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-category">Architettura Operativa</div>
+      <div class="slide-title">03 · Flusso Architetturale & Pipeline di Esecuzione</div>
+    </div>
+
+    <!-- BOX IMMAGINE A TUTTO RESPIRO (MOLTO PIÙ GRANDE) -->
+    <div class="card" style="padding: 4px 10px; display: flex; align-items: center; justify-content: center; background: #ffffff; margin-bottom: 10px; border: 1px solid var(--border);">
+      <img src="/Users/annalisa.sabatelli/Desktop/ Presetazioni/flusso orzzontale.jpeg" 
+           alt="Flusso Architetturale del Modulo di Quality pagoPA" 
+           style="width: 100%; max-height: 310px; height: auto; object-fit: contain;">
+    </div>
+
+    <!-- 3 CARD SOTTOSTANTI ULTRA-COMPATTE -->
+    <div class="grid-3" style="gap: 12px;">
+      <div class="card card-teal" style="padding: 9px 12px;">
+        <div class="card-title" style="font-size: 13px; margin-bottom: 3px; font-weight: 700;">1. Contract Parser</div>
+        <p style="font-size: 11.5px; line-height: 1.35; margin: 0;">Scarica il Data Contract YAML via GitHub API ed estrae regole, vincoli e metadati.</p>
+      </div>
+      <div class="card" style="padding: 9px 12px;">
+        <div class="card-title" style="font-size: 13px; margin-bottom: 3px; font-weight: 700;">2. Preparazione Check</div>
+        <p style="font-size: 11.5px; line-height: 1.35; margin: 0;">Genera SodaCL iniettando filtri di partizione e watermark incrementali.</p>
+      </div>
+      <div class="card" style="padding: 9px 12px;">
+        <div class="card-title" style="font-size: 13px; margin-bottom: 3px; font-weight: 700;">3. Engine & Writer</div>
+        <p style="font-size: 11.5px; line-height: 1.35; margin: 0;">Esegue su Spark/CDE, scrive in append su tabelle Apache Iceberg (<code>pagopa_qa</code>) ed esegue il push su Soda Cloud.</p>
+      </div>
+    </div>
+
+    <div class="slide-footer">
+      <span>Data Quality Framework | pagoPA</span>
+      <span>Slide 4 / 11</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: WRITER RESULTS -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-category">Persistenza Dati (1/3)</div>
+      <div class="slide-title">04 · Tabella Iceberg <code>results</code></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Ruolo e Specifiche</div>
+        <ul>
+          <li><strong>Un record per check e run:</strong> Traccia ogni singolo controllo eseguito durante la sessione.</li>
+          <li><strong>Metadata Parsing:</strong> I campi <em>check_category</em>, <em>check_dimension</em> e <em>check_column</em> sono dedotti via regex da <em>check_name</em>.</li>
+          <li><strong>Tolleranza agli errori:</strong> Se il nome del check è anomalo, i campi di classificazione assumono <code>NULL</code> senza bloccare il job.</li>
+          <li><strong>Metriche chiare:</strong> <em>row_count_failed</em> registra il numero esatto di violazioni (distinto da 0 quando è <code>NULL</code>).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Tracciato Esempio (Fail su GPD)</div>
+        <table>
+          <tbody>
+            <tr><td><code>run_id</code></td><td><code>a1b2c3d4-5e6f-4a1b...</code></td></tr>
+            <tr><td><code>dataset</code></td><td><code>silver_gpd_payment_position</code></td></tr>
+            <tr><td><code>check_name</code></td><td><code>fld__vld__importo__range</code></td></tr>
+            <tr><td><code>outcome</code></td><td><strong style="color:var(--accent-coral)">fail</strong></td></tr>
+            <tr><td><code>row_count_total</code></td><td><code>40000</code></td></tr>
+            <tr><td><code>row_count_failed</code></td><td><code>12</code> (has_failed_records = true)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>Data Quality Framework | pagoPA</span>
+      <span>Slide 5 di 11</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: WRITER FAILED RECORDS -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-category">Persistenza Dati (2/3)</div>
+      <div class="slide-title">05 · Tabella Iceberg <code>failed_records</code></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Campionamento per Analisi Mirata</div>
+        <ul>
+          <li><strong>Diagnostica precisa:</strong> Raccoglie un campione controllato di record falliti per consentire l'indagine ai data owner.</li>
+          <li><strong>Minimizzazione Storage:</strong> Invece di duplicare l'intera riga, memorizza unicamente la <strong>Primary Key</strong> e il campo che ha fallito.</li>
+          <li><strong>SQL Custom con clausola:</strong> Nei check complessi con <code>failed-query-fields</code>, riesegue la query con <code>LIMIT</code> per estrarre un campione delle tuple anomale.</li>
+          <li><strong>Data Protection:</strong> È responsabilità di chi compila il contratto escludere attributi PII/sensibili dai failed fields.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Struttura Payload Violazione (Esempio Campi)</div>
+        <table>
+          <tbody>
+            <tr><td><code>run_id</code></td><td><code>a1b2c3d4-5e6f-4a1b...</code></td></tr>
+            <tr><td><code>check_name</code></td><td><code>fld__vld__importo__range</code></td></tr>
+            <tr><td><code>dataset</code></td><td><code>silver_gpd_payment_position</code></td></tr>
+            <tr><td><code>failed_record_pk</code></td><td><code>{"iuv": "30220260000012345"}</code></td></tr>
+            <tr><td><code>failed_value</code></td><td><code>{"importo": -50.0}</code></td></tr>
+          </tbody>
+        </table>
+        <p style="font-size: 13px; color: var(--text-muted); margin-top: 14px;">
+          Per controlli incrementali vengono registrati anche il nome della colonna di watermark e gli estremi della finestra temporale scansionata.
+        </p>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>Data Quality Framework | pagoPA</span>
+      <span>Slide 6 di 11</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: RELAZIONE E KPI -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-category">Persistenza Dati (3/3)</div>
+      <div class="slide-title">06 · Correlazione Risultati & Alimentazione KPI</div>
+    </div>
+    <div class="grid-2">
+      <div class="card card-teal">
+        <div class="card-title">Tabella results (Aggregata)</div>
+        <p>• Chiave logica: <code>run_id</code> + <code>check_name</code><br>
+        • Dataset, timestamp e metadati<br>
+        • Totali record e righe fallite<br>
+        • Flag presenza violazioni: <code>has_failed_records</code></p>
+      </div>
+      <div class="card card-teal">
+        <div class="card-title">Tabella failed_records (Dettaglio)</div>
+        <p>• Join relazionale su: <code>run_id</code> + <code>check_name</code><br>
+        • Campione puntuale delle righe fallite<br>
+        • <code>failed_record_pk</code> (chiave primaria sorgente)<br>
+        • <code>failed_value</code> (tupla o valore incriminato)</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top: 20px;">
+      <div class="card-title">Tracciabilità Immutabile di ogni run & Viste Analitiche Impala</div>
+      <p style="font-size: 15px; line-height: 1.6;">
+        1. <strong>Identificazione Univoca (run_id):</strong> Ogni esecuzione dei controlli è tracciata in modo deterministico e univoco tramite la combinazione di <code>run_id</code> e <code>check_name</code>, permettendo di correlare in qualsiasi momento i log di cluster con i record di output.<br>
+        2. <strong>Separazione tra Esito Aggregato e Dettaglio:</strong> L'architettura disaccoppia nettamente la fotografia macroscopica del controllo (<code>results</code>) dal campione puntuale delle anomalie (<code>failed_records</code>), riducendo il footprint di memorizzazione ed evitando l'esposizione massiva di dati applicativi.<br>
+        3. <strong>Persistenza in Append-Only:</strong> Preserva la cronologia storica immutabile di ogni run senza update distruttivi, garantendo piena conformità, verificabilità e auditabilità retroattiva nel tempo. Non è possibile alterare il dato retroattivamente.<br>
+        4. <strong>Strato Analitico KPI:</strong> Tramite viste SQL Impala definite direttamente sopra la tabella <code>results</code>, vengono calcolati in tempo reale SLA di conformità, trend storici e aggregazioni pronte per dashboard di monitoraggio.
+      </p>
+    </div>
+    <div class="slide-footer">
+      <span>Data Quality Framework | pagoPA</span>
+      <span>Slide 7 di 11</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: ORCHESTRAZIONE - ARCHITETTURA -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-category">Orchestrazione (1/3)</div>
+      <div class="slide-title">08 · Architettura, Disaccoppiamento & Granularità</div>
+    </div>
+    <div class="grid-3">
+      <div class="card card-teal">
+        <div class="card-title">Disaccoppiamento Pipeline</div>
+        <p>I controlli di qualità sono coordinati da un DAG Airflow indipendente rispetto ai DAG delle pipeline ETL che caricano i livelli Bronze, Silver e Gold.</p>
+        <p style="margin-top: 10px; font-size: 13px; color: var(--text-muted);">
+          Un fallimento o intervento sulle verifiche di qualità non richiede alcuna modifica ai flussi di alimentazione dati.
+        </p>
+      </div>
+      <div class="card card-teal">
+        <div class="card-title">Granularità Sistema × Ambiente</div>
+        <p>Esiste un DAG distinto per ciascuna combinazione di sistema sorgente e ambiente (es. <em>GPD in sviluppo</em> e <em>GPD in produzione</em>).</p>
+        <p style="margin-top: 10px; font-size: 13px; color: var(--text-muted);">
+          Si evita il DAG monolitico cross-dominio, azzerando le contese di lock e i colli di bottiglia computazionali.
+        </p>
+      </div>
+      <div class="card card-teal">
+        <div class="card-title">Isolamento Layer & Watermark</div>
+        <p style="font-size: 13px; line-height: 1.45; margin-bottom: 6px;">
+          • <strong>dl_layer:</strong> indica il livello target delle tabelle di output (<code>results</code> e <code>failed_records</code>) coincidente con quello del dataset sorgente analizzato (es. <em>silver</em>).
+        </p>
+        <p style="font-size: 13px; line-height: 1.45;">
+          • <strong>Watermark:</strong> checkpoint temporale (timestamp) che traccia l'ultimo record validato, consentendo ai check successivi di elaborare solo il delta incrementale.
+        </p>
+      </div>
+    </div>
+    <!-- BOX SINTESI VANTAGGI DAG -->
+    <div class="card" style="margin-top: 20px; padding: 14px 18px;">
+      <div class="card-title" style="font-size: 15px; margin-bottom: 6px;">Vantaggi Chiave del Modello DAG (Directed Acyclic Graph)</div>
+      <div class="grid-3" style="gap: 14px;">
+        <div>
+          <p style="font-size: 13px; line-height: 1.45;">
+            <strong>Parallelismo automatico:</strong> Se due task sono indipendenti, l'orchestratore li esegue in concorrenza massimizzando le risorse di calcolo.
+          </p>
+        </div>
+        <div>
+          <p style="font-size: 13px; line-height: 1.45;">
+            <strong>Gestione errori & Retry:</strong> Se un nodo a valle fallisce, si riesegue solo il task interrotto senza ricalcolare i nodi a monte completati.
+          </p>
+        </div>
+        <div>
+          <p style="font-size: 13px; line-height: 1.45;">
+            <strong>Prevedibilità & Determinismo:</strong> Ordine delle operazioni formalizzato, visualizzabile a colpo d'occhio ed esente da cicli o deadlock.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>Data Quality Framework | pagoPA</span>
+      <span>Slide 9 di 11</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: ORCHESTRAZIONE - TEMPLATE & JSON -->
+  <div class="slide">
+    <div class="slide-header">
+      <div class="slide-category">Orchestrazione (2/3)</div>
+      <div class="slide-title">09 · Generazione DAG: Astrazione Dichiarativa & Configurazione JSON</div>
+    </div>
+      <div class="grid-2">
+        <div class="card card-navy" style="padding: 10px 14px;">
+          <div class="card-title" style="font-size: 13px; margin-bottom: 4px;">dags_config/gec/prod.json (Componente GEC)</div>
+          <pre style="font-size: 10px; line-height: 1.3; color: #a5f3fc; font-family: monospace; overflow-y: auto; max-height: 380px;">
+{
+  "repository": "pagopa/pdnd-data-contracts",
+  "ref": "main",
+  "dl_layer": "silver",
+  "watermark_bootstrap_from": "2026-01-01T00:00:00",
+  "schedule": "45 1 * * *",
+  "soda_cloud_enabled": true,
+  "blob_export_enabled": false,
+  "blob_export_failed_records_enabled": false,
+  "email": ["carlo.manco@quantyca.it", "federico.sala@quantyca.it"],
+  "contracts": {
+    "bundles": "src/data/pagopa/gec/dc-gec-bundles.yaml",
+    "cibundles": "src/data/pagopa/gec/dc-gec-cibundles.yaml",
+    "paymenttypes": "src/data/pagopa/gec/dc-gec-paymenttypes.yaml",
+    "touchpoints": "src/data/pagopa/gec/dc-gec-touchpoints.yaml"
+  },
+  "xref_datasets": {
+    "bundles": ["silver_touchpoints", "silver_paymenttypes"],
+    "cibundles": ["silver_bundles", "dl_tassonomie.gold_tassonomia_pagopa"]
+  },
+  "dataset_pk_map": {
+    "bundles": ["after.id"],
+    "cibundles": ["after.id"],
+    "paymenttypes": ["after.id"],
+    "touchpoints": ["after.id"]
+  }
+}</pre>
+        </div>
+        <div class="card card-teal">
+          <div class="card-title">Separazione tra Configurazione e Implementazione</div>
+          <p style="margin-bottom: 8px;">
+            Il file <code>.json</code> definisce <strong>cosa</strong> il framework deve controllare, <strong>nascondendo completamente i dettagli implementativi del DAG Airflow</strong>.
+          </p>
+          <ul>
+            <li><strong>Astrazione Totale del Codice Orchestratore:</strong> Chi gestisce il componente non scrive codice Python per Airflow, operatori o hook CDE: dichiara unicamente asset, contratti e relazioni.</li>
+            <li><strong>Dettagli Mascherati:</strong> Il JSON incapsula:
+              <ul>
+                <li>Path dei Data Contract YAML nel repo contratti.</li>
+                <li>Finestra temporale iniziale (<code>watermark_bootstrap_from</code>).</li>
+                <li>Dipendenze cross-entità e cross-layer (es. join tra GEC e <code>gold_tassonomia_pagopa</code>).</li>
+              </ul>
+            </li>
+            <li><strong>Build Deterministica:</strong> Lo script di rendering compila il template unificato producendo il DAG concreto:
+              <br><code style="font-weight:bold; display:inline-block; margin-top:4px;">make render SYSTEM=gec ENV=prod</code>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer"><span>Data Quality Framework | pagoPA</span><span>Slide 10 / 11</span></div>
+    </div>
+
+ <!-- 11: MODULO DI OBSERVABILITY -->
+    <div class="slide">
+      <div class="slide-header">
+        <div class="slide-category">Observability di Piattaforma</div>
+        <div class="slide-title">10 · Modulo di Observability</div>
+      </div>
+      
+      <div class="card card-teal" style="margin-bottom: 16px; padding: 12px 18px;">
+        <p style="font-size:14px; color:var(--navy);">
+          <strong>Dettaglio vs Controllo:</strong> Le tabelle Iceberg conservano il dettaglio analitico; il Modulo DQ invia via <strong>push</strong> i risultati aggregati a <strong>Soda Cloud</strong> per monitoraggio e alerting centralizzati.
+        </p>
+      </div>
+
+      <div class="grid-2">
+        
+        <div class="card">
+          <div class="card-title">Componenti Chiave</div>
+          <ul>
+            <li><strong>Ingestion Push:</strong> Invio metriche a fine run tramite Agent dedicato.</li>
+            <li><strong>Dashboard:</strong> Stato di salute e KPI aggregati consultabili in tempo reale.</li>
+            <li><strong>Alerting:</strong> Notifiche (Slack / email) contestuali al team owner.</li>
+          </ul>
+        </div>
+
+        <div class="card card-teal">
+          <div class="card-title">Piattaforma: Soda Cloud</div>
+          <ul>
+            <li><strong>Standard pagoPA:</strong> Strumento già in uso nell'ecosistema aziendale.</li>
+            <li><strong>Zero Codice Custom:</strong> Sfrutta feature native di dashboard e soglie alert.</li>
+            <li><strong>On/Off Dichiarativo:</strong> Gestito da <code>soda_cloud_enabled</code> nel JSON.</li>
+          </ul>
+        </div>
+      </div>
+    <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+    <a href="https://cloud.soda.io/o/1b8ec77d-1bed-4418-9dcf-beed1ef6945e/scans-and-data/data-sources?sort=label:ASC" 
+      target="_blank" rel="noopener noreferrer" 
+      style="display: inline-flex; align-items: center; gap: 10px; background: #ffffff; border: 1.5px solid var(--teal); color: var(--navy); text-decoration: none; padding: 8px 18px; border-radius: 24px; font-size: 13px; font-weight: 700; box-shadow: 0 2px 8px rgba(8, 126, 139, 0.12);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04C2.34 8.36 0 10.91 0 14C0 17.31 2.69 20 6 20H19C21.76 20 24 17.76 24 15C24 12.36 21.95 10.22 19.35 10.04Z" fill="#00A8B5"/>
+        <circle cx="9" cy="13" r="1.5" fill="#ffffff"/>
+        <circle cx="14" cy="11.5" r="2" fill="#ffffff"/>
+        <circle cx="16" cy="15.5" r="1.2" fill="#ffffff"/>
+      </svg>
+      <span><strong>Soda Cloud pagoPA</strong> (Data Sources & Scans) ↗</span>
+    </a>
+  </div>
+
+      <div class="slide-footer">
+        <span>Data Quality Framework | pagoPA</span>
+        <span>Slide 11 / 11</span>
+      </div>
+    </div>
+  </div>
+
+ <!-- 12: VISUALIZZAZIONE DATA QUALITY (APACHE SUPERSET) -->
+    <div class="slide">
+      <div class="slide-header">
+        <div class="slide-category">Visualizzazione & Dashboarding</div>
+        <div class="slide-title">11 · Visualizzazione di Data Quality: Apache Superset</div>
+      </div>
+
+      <!-- BANNER SUPERIORE -->
+      <div class="card card-teal" style="margin-bottom: 6px; padding: 7px 14px;">
+        <p style="font-size: 12.5px; color: var(--navy); line-height: 1.35; margin: 0;">
+          <strong>Decisione Architetturale:</strong> Adozione di <strong>Apache Superset</strong> per abilitare un dashboarding analitico self-service, interattivo e con segregazione dei permessi (RLS) direttamente integrato con il Data Lake Cloudera e l'infrastruttura Azure.
+        </p>
+      </div>
+
+      <!-- CARD ARCHITETTURA DI EROGAZIONE -->
+      <div class="card card-teal" style="padding: 7px 14px; margin-bottom: 14px;">
+        <div class="card-title" style="font-size: 13px; margin-bottom: 3px; font-weight: 700;">Architettura di Erogazione</div>
+        <ul style="font-size: 11.5px; line-height: 1.35; padding-left: 14px; margin: 0;">
+          <li><strong>Export Observability:</strong> Il framework esporta le tabelle Iceberg su <em>Storage Account Azure</em>.</li>
+          <li><strong>Cluster Kubernetes (AKS):</strong> Superset è ospitato su cluster gestito in ambiente Azure.</li>
+          <li><strong>Query Engine SQL:</strong> Interrogazione diretta e performante dei dati sincronizzati.</li>
+        </ul>
+      </div>
+
+      <!-- BOX IMMAGINE INGRANDITA -->
+      <div class="card" style="padding: 6px 14px; display: flex; align-items: center; justify-content: center; background: #ffffff; border: 1px solid var(--border); margin-bottom: 8px;">
+        <img src="/Users/annalisa.sabatelli/Desktop/ Presetazioni/Superset_pagopa.jpeg" 
+             alt="Architettura Flusso Data Quality verso Apache Superset" 
+             style="width: 100%; max-height: 200px; height: auto; object-fit: contain;">
+      </div>
+
+      <!-- ANCORA LINK SUPERSET CON LOGO -->
+      <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+        <a href="https://qa-superset.itn.internal.uat.platform.pagopa.it/superset/welcome/" 
+           target="_blank" rel="noopener noreferrer" 
+           style="display: inline-flex; align-items: center; gap: 8px; background: #ffffff; border: 1.5px solid var(--teal); color: var(--navy); text-decoration: none; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; box-shadow: 0 2px 6px rgba(8, 126, 139, 0.12); transition: all 0.2s ease;"
+           onmouseover="this.style.background='var(--mint-light)'; this.style.transform='translateY(-1px)';" 
+           onmouseout="this.style.background='#ffffff'; this.style.transform='translateY(0)';">
+          <!-- Logo Apache Superset (Icona SVG) -->
+          <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 4C9.37 4 4 9.37 4 16C4 22.63 9.37 28 16 28C22.63 28 28 22.63 28 16C28 9.37 22.63 4 16 4ZM10 17.5C9.17 17.5 8.5 16.83 8.5 16C8.5 15.17 9.17 14.5 10 14.5C10.83 14.5 11.5 15.17 11.5 16C11.5 16.83 10.83 17.5 10 17.5ZM16 23.5C14.07 23.5 12.5 21.93 12.5 20C12.5 18.07 14.07 16.5 16 16.5C17.93 16.5 19.5 18.07 19.5 20C19.5 21.93 17.93 23.5 16 23.5ZM22 17.5C21.17 17.5 20.5 16.83 20.5 16C20.5 15.17 21.17 14.5 22 14.5C22.83 14.5 23.5 15.17 23.5 16C23.5 16.83 22.83 17.5 22 17.5Z" fill="#20A7C9"/>
+            <circle cx="16" cy="11" r="2.5" fill="#087E8B"/>
+          </svg>
+          <span><strong>Apache Superset pagoPA</strong> ↗</span>
+        </a>
+      </div>
+
+      <div class="slide-footer">
+        <span>Data Quality Framework | pagoPA</span>
+        <span>Slide 12 / 12</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- NAVIGAZIONE IN BASSO -->
+<div class="nav-bar">
+  <button class="nav-btn" onclick="prevSlide()">◀ Precedente</button>
+  <span class="nav-counter" id="slide-num">1 / 11</span>
+  <button class="nav-btn" onclick="nextSlide()">Successiva ▶</button>
+  <button class="nav-btn" style="margin-left: 20px;" onclick="window.print()">🖨 Salva PDF / Stampa</button>
+</div>
+
+<script>
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.slide');
+  const slideNum = document.getElementById('slide-num');
+
+  function showSlide(index) {
+    slides[currentSlide].classList.remove('active');
+    currentSlide = (index + slides.length) % slides.length;
+    slides[currentSlide].classList.add('active');
+    slideNum.textContent = `${currentSlide + 1} / ${slides.length}`;
+  }
+
+  function nextSlide() { showSlide(currentSlide + 1); }
+  function prevSlide() { showSlide(currentSlide - 1); }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') nextSlide();
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevSlide();
+  });
+</script>
+
+</body>
+</html>
