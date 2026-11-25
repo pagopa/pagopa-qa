@@ -804,8 +804,9 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-ente
 
 /* ───────────────────────── router ───────────────────────── */
 const TITLES = { panoramica:'Panoramica', transazioni:'Transazioni', posizioni:'Posizioni debitorie', fatturazione:'Fatturazione', 'qualita-psp':'Qualità PSP', rendicontazione:'Rendicontazione', modello:'Come funziona' };
-function render() {
-  const r = (location.hash || '#panoramica').slice(1); S.route = PAGES[r] ? r : 'panoramica';
+function hashRoute() { try { return (location.hash || '').slice(1); } catch(_) { return ''; } }
+function render(r) {
+  r = r || hashRoute() || S.route; S.route = PAGES[r] ? r : 'panoramica';
   $('#page').innerHTML = PAGES[S.route]();
   PAGES[S.route].after && PAGES[S.route].after();
   $('#crumb').textContent = TITLES[S.route];
@@ -816,13 +817,22 @@ function render() {
   $('#period').style.visibility = filt ? '' : 'hidden'; $('#tipo').style.visibility = filt ? '' : 'hidden';
   hideTip();
 }
-let lastRoute = null;
-window.addEventListener('hashchange', () => { render(); if (lastRoute !== S.route) window.scrollTo(0,0); lastRoute = S.route; closeEnte(); });
-$('#period').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.period = b.dataset.p; try { localStorage.setItem('pn-period', S.period); } catch(_) {} render(); });
-$('#tipo').addEventListener('change', e => { S.tipo = e.target.value; try { localStorage.setItem('pn-tipo', S.tipo); } catch(_) {} render(); });
+// Navigazione interna senza seguire i link: funziona anche dentro visualizzatori che iniettano <base href> (es. Docs del QA Hub).
+function go(r) {
+  if (!PAGES[r]) return;
+  closeEnte(); render(r); window.scrollTo(0,0);
+  try { if (hashRoute() !== r) location.hash = r; } catch(_) {}
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href^="#"]'); if (!a) return;
+  e.preventDefault(); go(a.getAttribute('href').slice(1));
+});
+window.addEventListener('hashchange', () => { const r = hashRoute(); if (r && r !== S.route && PAGES[r]) { closeEnte(); render(r); window.scrollTo(0,0); } });
+$('#period').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.period = b.dataset.p; try { localStorage.setItem('pn-period', S.period); } catch(_) {} render(S.route); });
+$('#tipo').addEventListener('change', e => { S.tipo = e.target.value; try { localStorage.setItem('pn-tipo', S.tipo); } catch(_) {} render(S.route); });
 let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { PAGES[S.route].after && PAGES[S.route].after(); }, 150); });
-matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', render);
-render(); lastRoute = S.route;
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => render(S.route));
+render();
 </script>
 </body>
 </html>
