@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>pagoPA in numeri</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sidebar a sinistra (come QA WebPortal) + area contenuti a griglia; su telefono la sidebar diventa una barra di schede orizzontale. */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --subtle: #f1f3f6;
+  --hover: #e9ecf1;
+  --border: #e3e6ec;
+  --border-strong: #cfd4dc;
+  --text: #14171d;
+  --text-dim: #545a66;
+  --text-muted: #8a909c;
+  --accent: #0066cc;
+  --accent-soft: #e6f0fb;
+  --accent-fg: #ffffff;
+  --good: #0b8a3e; --good-soft: #e5f4ea;
+  --warn: #b26b00; --warn-soft: #fdf1dc;
+  --bad: #c62828;  --bad-soft: #fbe7e7;
+  --s1: #257de0; --s2: #f47230; --s3: #00b894; --s4: #f2a600;
+  --s-prev: #b4bac4;
+  --grid: #eceff3;
+  --shadow: 0 1px 0 rgba(15,20,30,.04), 0 2px 8px rgba(15,20,30,.05);
+  --radius: 10px;
+  --sans: "Geist", ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d0f13; --surface: #15181e; --subtle: #1b1f26; --hover: #222731;
+    --border: #252a33; --border-strong: #323844;
+    --text: #eceef2; --text-dim: #a2a8b3; --text-muted: #6f7582;
+    --accent: #5aa2f0; --accent-soft: #16283f; --accent-fg: #0d0f13;
+    --good: #3fbf6a; --good-soft: #13291b; --warn: #e0a440; --warn-soft: #2e2412; --bad: #ef6b6b; --bad-soft: #321718;
+    --s1: #338ced; --s2: #e76624; --s3: #00a888; --s4: #d28e05; --s-prev: #4a505c;
+    --grid: #20252d; --shadow: 0 1px 0 rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d0f13; --surface: #15181e; --subtle: #1b1f26; --hover: #222731;
+  --border: #252a33; --border-strong: #323844;
+  --text: #eceef2; --text-dim: #a2a8b3; --text-muted: #6f7582;
+  --accent: #5aa2f0; --accent-soft: #16283f; --accent-fg: #0d0f13;
+  --good: #3fbf6a; --good-soft: #13291b; --warn: #e0a440; --warn-soft: #2e2412; --bad: #ef6b6b; --bad-soft: #321718;
+  --s1: #338ced; --s2: #e76624; --s3: #00a888; --s4: #d28e05; --s-prev: #4a505c;
+  --grid: #20252d; --shadow: 0 1px 0 rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+button, select { font-family: inherit; font-size: inherit; color: inherit; }
+a { color: inherit; }
+.num, td.n, .mono { font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--mono); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* shell */
+.shell { display: grid; grid-template-columns: 236px minmax(0,1fr); min-height: 100vh; }
+.side { background: var(--surface); border-right: 1px solid var(--border); position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; }
+.brand { display: flex; gap: 10px; align-items: center; padding: 16px; border-bottom: 1px solid var(--border); }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); color: var(--accent-fg); display: grid; place-items: center; font: 600 12px var(--mono); }
+.brand b { display: block; font-weight: 600; letter-spacing: -.01em; }
+.brand small { display: block; font: 11px var(--mono); color: var(--text-muted); }
+.nav { padding: 10px 8px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+.nav-h { font: 500 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); padding: 12px 10px 6px; }
+.nav a { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 6px; text-decoration: none; color: var(--text-dim); }
+.nav a:hover { background: var(--hover); color: var(--text); }
+.nav a.active { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+.nav a svg { flex: none; }
+.nav .tag { margin-left: auto; font: 10px var(--mono); padding: 1px 6px; border-radius: 99px; background: var(--subtle); color: var(--text-muted); }
+.side-foot { margin-top: auto; padding: 14px 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); }
+.side-foot b { color: var(--text-dim); font-weight: 500; }
+
+.main { min-width: 0; display: flex; flex-direction: column; }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.top-in { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding-block: 12px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
+.crumb { font-size: 13px; color: var(--text-muted); }
+.crumb b { color: var(--text); font-weight: 600; }
+.filters { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.seg { display: inline-flex; background: var(--subtle); border: 1px solid var(--border); border-radius: 8px; padding: 2px; }
+.seg button { border: 0; background: transparent; padding: 5px 10px; border-radius: 6px; cursor: pointer; color: var(--text-dim); font-size: 13px; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); font-weight: 500; }
+.sel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; cursor: pointer; }
+.demo { display: inline-flex; align-items: center; gap: 6px; font: 500 11px var(--mono); color: var(--warn); background: var(--warn-soft); padding: 4px 8px; border-radius: 99px; white-space: nowrap; }
+
+.page { padding-block: 22px 48px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 16px; max-width: 1360px; width: 100%; }
+.page-h h1 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -.02em; text-wrap: balance; }
+.page-h p { margin: 4px 0 0; color: var(--text-dim); max-width: 72ch; }
+.eyebrow { font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+
+.grid { display: grid; gap: 16px; }
+.g-kpi { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.g-kpi.six { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+@media (max-width: 1320px) { .g-kpi.six { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 980px) { .g-kpi, .g-kpi.six { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 380px) { .g-kpi, .g-kpi.six { grid-template-columns: minmax(0, 1fr); } }
+.g-2 { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+.g-2e { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1080px) { .g-2, .g-3 { grid-template-columns: minmax(0,1fr); } }
+@media (max-width: 760px) { .g-2e { grid-template-columns: minmax(0,1fr); } }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px; min-width: 0; }
+.card-h { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.card-h h2 { margin: 0; font-size: 14px; font-weight: 600; }
+.card-h .sub { color: var(--text-muted); font-size: 12px; }
+.card-h .right { margin-left: auto; }
+.src { font: 11px var(--mono); color: var(--text-muted); margin-top: 10px; }
+
+.kpi { display: flex; flex-direction: column; gap: 4px; position: relative; }
+.kpi .label { color: var(--text-dim); font-size: 12.5px; }
+.kpi .val { font-size: 26px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.kpi .val small { font-size: 14px; font-weight: 500; color: var(--text-dim); margin-left: 3px; }
+.kpi .foot { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; font-size: 12px; color: var(--text-muted); }
+.kpi .foot svg.spark { margin-left: auto; flex: none; }
+.kpi .foot { min-height: 28px; }
+.delta { font: 500 12px var(--mono); padding: 1px 6px; border-radius: 99px; white-space: nowrap; }
+.delta.up { color: var(--good); background: var(--good-soft); }
+.delta.down { color: var(--bad); background: var(--bad-soft); }
+.delta.flat { color: var(--text-dim); background: var(--subtle); }
+.kpi.clickable { cursor: pointer; }
+.kpi.clickable:hover { border-color: var(--border-strong); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--text-dim); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.legend i.line { height: 2px; border-radius: 1px; vertical-align: 3px; width: 14px; }
+
+.chart { width: 100%; position: relative; }
+.chart svg { display: block; width: 100%; overflow: visible; }
+.chart text { fill: var(--text-muted); font: 11px var(--mono); }
+
+.hbars { display: flex; flex-direction: column; gap: 4px; }
+.hbar { display: grid; grid-template-columns: 22px minmax(0, 1.3fr) minmax(0, 1fr) 84px; gap: 10px; align-items: center; padding: 6px 6px; border-radius: 6px; cursor: pointer; border: 0; background: transparent; text-align: left; width: 100%; }
+.hbar:hover { background: var(--hover); }
+.hbar .rk { font: 11px var(--mono); color: var(--text-muted); }
+.hbar .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hbar .nm small { display: block; color: var(--text-muted); font-size: 11px; }
+.hbar .track { height: 8px; background: var(--subtle); border-radius: 4px; overflow: hidden; }
+.hbar .fill { height: 100%; background: var(--s1); border-radius: 0 4px 4px 0; }
+.hbar .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+
+.stack100 { display: flex; height: 26px; border-radius: 6px; overflow: hidden; gap: 2px; }
+.stack100 div { height: 100%; min-width: 2px; }
+.stack100 div:first-child { border-radius: 6px 0 0 6px; }
+.stack100 div:last-child { border-radius: 0 6px 6px 0; }
+.mixrows { display: flex; flex-direction: column; gap: 14px; }
+.mixrow .lab { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 6px; color: var(--text-dim); }
+
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font: 500 11px var(--mono); letter-spacing: .04em; text-transform: uppercase; color: var(--text-muted); padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+tbody tr.click { cursor: pointer; }
+tbody tr.click:hover td { background: var(--hover); }
+
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+.pill.good { color: var(--good); background: var(--good-soft); }
+.pill.warn { color: var(--warn); background: var(--warn-soft); }
+.pill.bad { color: var(--bad); background: var(--bad-soft); }
+.pill.neutral { color: var(--text-dim); background: var(--subtle); }
+.pill.accent { color: var(--accent); background: var(--accent-soft); }
+
+.signals { display: flex; flex-direction: column; gap: 10px; }
+.signal { display: grid; grid-template-columns: 4px minmax(0,1fr); gap: 12px; padding: 10px 12px 10px 0; border-radius: 8px; background: var(--subtle); text-decoration: none; }
+.signal:hover { background: var(--hover); }
+.signal .bar { border-radius: 0 3px 3px 0; }
+.signal b { font-weight: 600; display: block; }
+.signal span { color: var(--text-dim); font-size: 12.5px; }
+
+.heat { display: grid; gap: 3px; }
+.heat .hc { padding: 7px 6px; border-radius: 5px; text-align: center; font: 500 12px var(--mono); font-variant-numeric: tabular-nums; cursor: default; }
+.heat .hh { font: 500 10.5px var(--mono); color: var(--text-muted); text-align: center; padding: 4px 2px; text-transform: uppercase; letter-spacing: .03em; }
+.heat .hn { font-size: 12.5px; padding: 7px 6px 7px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hc.ok { background: var(--good-soft); color: var(--good); }
+.hc.near { background: var(--warn-soft); color: var(--warn); }
+.hc.ko { background: var(--bad-soft); color: var(--bad); }
+
+.traffic { display: flex; gap: 14px; align-items: center; }
+.lamp { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; flex: none; }
+
+.phase2 { position: relative; }
+.phase2 .veil { opacity: .55; filter: saturate(.4); pointer-events: none; }
+.banner { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: var(--radius); border: 1px dashed var(--border-strong); background: var(--surface); }
+.banner b { display: block; }
+.banner span { color: var(--text-dim); }
+
+.bus td, .bus th { text-align: center; }
+.bus td:first-child, .bus th:first-child { text-align: left; white-space: nowrap; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.fact { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; background: var(--subtle); }
+.fact h3 { margin: 0 0 4px; font: 600 13px var(--mono); }
+.fact p { margin: 0; color: var(--text-dim); font-size: 12.5px; }
+.fact ul { margin: 8px 0 0; padding-left: 16px; font-size: 12.5px; color: var(--text-dim); }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.step { border-left: 3px solid var(--border-strong); padding: 4px 0 4px 12px; }
+.step.now { border-color: var(--accent); }
+.step b { display: block; }
+.step span { font-size: 12.5px; color: var(--text-dim); }
+.qlist { margin: 0; padding-left: 18px; color: var(--text-dim); display: flex; flex-direction: column; gap: 6px; }
+.qlist b { color: var(--text); font-weight: 500; }
+.flow { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; }
+.flow .box { flex: 1 1 150px; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; background: var(--subtle); }
+.flow .box b { display: block; font-size: 13px; }
+.flow .box span { font-size: 12px; color: var(--text-dim); }
+.flow .arr { display: grid; place-items: center; color: var(--text-muted); font-size: 18px; }
+
+/* drawer ente */
+.scrim { position: fixed; inset: 0; background: rgba(10,14,20,.35); z-index: 20; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 100%); background: var(--surface); border-left: 1px solid var(--border); z-index: 21; overflow-y: auto; padding: calc(env(safe-area-inset-top, 0px) + 18px) max(20px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 24px) 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: -12px 0 32px rgba(0,0,0,.12); }
+.drawer-h { display: flex; align-items: flex-start; gap: 12px; }
+.drawer-h h2 { margin: 0; font-size: 18px; letter-spacing: -.01em; }
+.drawer-h p { margin: 2px 0 0; color: var(--text-dim); font-size: 13px; }
+.xbtn { margin-left: auto; border: 1px solid var(--border); background: var(--surface); border-radius: 8px; width: 32px; height: 32px; cursor: pointer; flex: none; }
+.mini { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.mini .card { padding: 12px 14px; box-shadow: none; }
+.mini .val { font-size: 20px; }
+
+.tip { position: fixed; z-index: 40; pointer-events: none; background: var(--text); color: var(--bg); padding: 8px 10px; border-radius: 8px; font-size: 12px; line-height: 1.4; max-width: 260px; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.tip b { font-weight: 600; }
+.tip .row { display: flex; gap: 10px; justify-content: space-between; font-variant-numeric: tabular-nums; }
+.tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+
+.foot-note { color: var(--text-muted); font-size: 12px; }
+
+@media (max-width: 860px) {
+  .shell { grid-template-columns: minmax(0,1fr); }
+  .side { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+  .brand { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .nav { flex-direction: row; overflow-x: auto; padding: 8px max(12px, env(safe-area-inset-left, 0px)); gap: 4px; }
+  .nav-h, .side-foot { display: none; }
+  .nav a { white-space: nowrap; }
+  .nav .tag { display: none; }
+  .top-in, .page { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .filters { margin-left: 0; }
+  .hbar { grid-template-columns: 18px minmax(0, 1fr) 70px; }
+  .hbar .track { grid-column: 2 / 4; grid-row: 2; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .page > * { animation: rise .35s ease both; }
+  @keyframes rise { from { transform: translateY(4px); } to { transform: none; } }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="side">
+    <div class="brand">
+      <div class="brand-mark">pN</div>
+      <div><b>pagoPA in numeri</b><small>QA Hub · vista Direzione</small></div>
+    </div>
+    <nav class="nav" id="nav" aria-label="Sezioni">
+      <div class="nav-h">Sintesi</div>
+      <a href="#panoramica" data-r="panoramica"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>Panoramica</a>
+      <div class="nav-h">Entità di piattaforma</div>
+      <a href="#transazioni" data-r="transazioni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5h10l-2-2M14 11H4l2 2"/></svg>Transazioni</a>
+      <a href="#posizioni" data-r="posizioni"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="2" width="10" height="12" rx="1.5"/><path d="M6 6h4M6 9h4"/></svg>Posizioni debitorie</a>
+      <a href="#fatturazione" data-r="fatturazione"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h8v12l-2-1.2L8 14l-2-1.2L4 14z"/><path d="M6 6h4M6 9h3"/></svg>Fatturazione</a>
+      <a href="#qualita-psp" data-r="qualita-psp"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l5 2v4c0 3-2.2 5-5 6-2.8-1-5-3-5-6V4z"/><path d="M6 8l1.5 1.5L10.5 6.5"/></svg>Qualità PSP</a>
+      <a href="#rendicontazione" data-r="rendicontazione"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 13h12M4 13V8M8 13V4M12 13V6"/></svg>Rendicontazione<span class="tag">fase 2</span></a>
+      <div class="nav-h">Progetto</div>
+      <a href="#modello" data-r="modello"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><circle cx="3" cy="3" r="1.3"/><circle cx="13" cy="3" r="1.3"/><circle cx="3" cy="13" r="1.3"/><circle cx="13" cy="13" r="1.3"/><path d="M4 4l2.6 2.6M12 4L9.4 6.6M4 12l2.6-2.6M12 12L9.4 9.4"/></svg>Come funziona</a>
+    </nav>
+    <div class="side-foot">Aggiornato al <b>24/11/2026</b> (D-1)<br>Fonte: Data Lake pagoPA · aggregati</div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <div class="top-in">
+        <div class="crumb">QA Hub / <b id="crumb">Panoramica</b></div>
+        <div class="filters">
+          <span class="demo" title="Tutti i numeri di questo mockup sono inventati">● Dati dimostrativi</span>
+          <div class="seg" id="period" role="group" aria-label="Periodo">
+            <button type="button" data-p="mese" aria-pressed="true">Ott 2026</button>
+            <button type="button" data-p="trim" aria-pressed="false">Ultimi 3 mesi</button>
+            <button type="button" data-p="ytd" aria-pressed="false">Anno a oggi</button>
+          </div>
+          <label class="sr" for="tipo" hidden>Tipologia ente</label>
+          <select class="sel" id="tipo" aria-label="Tipologia ente">
+            <option value="tutti">Tutti gli enti</option>
+            <option value="comuni">Comuni</option>
+            <option value="regioni">Regioni e sanità</option>
+            <option value="stato">Amministrazioni centrali</option>
+            <option value="scuole">Scuole</option>
+            <option value="altri">Altri enti</option>
+          </select>
+        </div>
+      </div>
+    </header>
+    <main class="page" id="page"></main>
+  </div>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-label="Dettaglio ente"></aside>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+/* ───────────────────────── dati dimostrativi ───────────────────────── */
+const MONTHS = ['Ott 25','Nov 25','Dic 25','Gen 26','Feb 26','Mar 26','Apr 26','Mag 26','Giu 26','Lug 26','Ago 26','Set 26','Ott 26'];
+const SEAS = [1.00,1.05,1.13,1.07,0.95,1.02,0.98,1.05,1.11,1.06,0.79,0.97,1.03];
+// milioni di transazioni positive per mese
+const TRX = SEAS.map((s,i) => +(36.2 * s * (1 + i*0.011)).toFixed(2));
+const TRX_PREV = TRX.map(v => +(v/1.142).toFixed(2));
+const TICKET = [208,211,236,224,201,214,206,212,219,217,198,205,213];
+const EUR = TRX.map((t,i) => +(t*TICKET[i]/1000).toFixed(2)); // miliardi
+const EUR_PREV = EUR.map((v,i) => +(v/(1.12 + (i%3)*0.01)).toFixed(2));
+const SUCC = [93.6,93.9,93.4,94.0,94.2,94.1,94.4,94.3,94.0,94.5,94.8,94.6,94.7];
+const NEG = TRX.map((t,i) => +(t*(100/SUCC[i]-1)).toFixed(2));
+
+const TP = [ {k:'IO', c:'--s1', share:[.27,.275,.28,.285,.29,.293,.297,.30,.303,.306,.31,.312,.315]},
+             {k:'Checkout', c:'--s2', share:[.17,.17,.172,.173,.174,.175,.176,.177,.178,.179,.18,.181,.182]},
+             {k:'Canale PSP', c:'--s3', share:null},
+             {k:'Portale EC', c:'--s4', share:[.11,.109,.108,.107,.106,.105,.104,.103,.102,.101,.10,.099,.098]} ];
+TP[2].share = TP[0].share.map((_,i) => +(1 - TP[0].share[i] - TP[1].share[i] - TP[3].share[i]).toFixed(3));
+const TP_SUCC = {IO: 96.1, Checkout: 93.2, 'Canale PSP': 95.4, 'Portale EC': 90.8};
+
+const MET = [ {k:'Carte', c:'--s1', sh:.46, succ:93.1}, {k:'Conto / bonifico', c:'--s2', sh:.31, succ:96.4},
+              {k:'Wallet e APM', c:'--s3', sh:.13, succ:95.0}, {k:'Sportello e contanti', c:'--s4', sh:.10, succ:98.7} ];
+const ERR = [ {k:'Abbandono utente', sh:.38}, {k:'Autorizzazione negata', sh:.24}, {k:'Avviso già pagato', sh:.14},
+              {k:'Timeout PSP', sh:.12}, {k:'Errore tecnico EC', sh:.08}, {k:'Altro', sh:.04} ];
+
+const TIPI = { tutti:{n:'Tutti gli enti', f:1, ds:0}, comuni:{n:'Comuni', f:.36, ds:-.3}, regioni:{n:'Regioni e sanità', f:.19, ds:.2},
+               stato:{n:'Amministrazioni centrali', f:.29, ds:.4}, scuole:{n:'Scuole', f:.06, ds:-.6}, altri:{n:'Altri enti', f:.10, ds:-.1} };
+
+// trx in migliaia/mese (ott 26), posizioni aperte in migliaia, importo dovuto mln €
+const ENTI = [
+  {id:'ader', n:'Agenzia delle Entrate-Riscossione', t:'stato', r:'Nazionale', trx:4820, tk:412, pos:21400, due:9840, pag:61.2, gpd:.15},
+  {id:'aci', n:'ACI – tasse automobilistiche', t:'altri', r:'Nazionale', trx:3110, tk:236, pos:5200, due:1290, pag:78.4, gpd:.10},
+  {id:'mim', n:'Ministero dell\'Istruzione e del Merito', t:'scuole', r:'Nazionale', trx:2140, tk:48, pos:3900, due:181, pag:82.5, gpd:.95},
+  {id:'roma', n:'Roma Capitale', t:'comuni', r:'Lazio', trx:1490, tk:164, pos:6100, due:1420, pag:58.9, gpd:.72},
+  {id:'lomb', n:'Regione Lombardia', t:'regioni', r:'Lombardia', trx:1320, tk:198, pos:2800, due:640, pag:74.0, gpd:.88},
+  {id:'mit', n:'Ministero delle Infrastrutture e dei Trasporti', t:'stato', r:'Nazionale', trx:1180, tk:62, pos:900, due:71, pag:91.3, gpd:.40},
+  {id:'mi', n:'Comune di Milano', t:'comuni', r:'Lombardia', trx:960, tk:171, pos:3300, due:780, pag:66.1, gpd:.81},
+  {id:'inps', n:'INPS', t:'stato', r:'Nazionale', trx:910, tk:388, pos:1700, due:1110, pag:70.2, gpd:.55},
+  {id:'lazio', n:'Regione Lazio', t:'regioni', r:'Lazio', trx:780, tk:205, pos:2100, due:520, pag:69.5, gpd:.83},
+  {id:'na', n:'Comune di Napoli', t:'comuni', r:'Campania', trx:640, tk:142, pos:3900, due:910, pag:44.8, gpd:.62},
+  {id:'to', n:'Comune di Torino', t:'comuni', r:'Piemonte', trx:520, tk:158, pos:1800, due:390, pag:63.3, gpd:.77},
+  {id:'asl1', n:'ASL Roma 1', t:'regioni', r:'Lazio', trx:470, tk:36, pos:640, due:22, pag:88.1, gpd:.91},
+  {id:'camp', n:'Regione Campania', t:'regioni', r:'Campania', trx:450, tk:192, pos:1900, due:450, pag:57.0, gpd:.79},
+  {id:'bo', n:'Comune di Bologna', t:'comuni', r:'Emilia-Romagna', trx:330, tk:149, pos:900, due:170, pag:72.4, gpd:.86},
+  {id:'unimi', n:'Università degli Studi di Milano', t:'altri', r:'Lombardia', trx:210, tk:690, pos:260, due:120, pag:85.0, gpd:.70},
+  {id:'ic', n:'Istituti comprensivi (aggregato)', t:'scuole', r:'Nazionale', trx:390, tk:31, pos:700, due:14, pag:79.6, gpd:.97},
+];
+
+const PSP = [
+  {n:'Banca Aurora', t:'Banca', sh:.19}, {n:'Rete Sportelli Nord', t:'Rete fisica', sh:.15}, {n:'Moneta Digitale IMEL', t:'IMEL', sh:.12},
+  {n:'Credito Levante', t:'Banca', sh:.10}, {n:'Nexo Pagamenti', t:'Istituto di pagamento', sh:.09}, {n:'Banca Tirrenica', t:'Banca', sh:.08},
+  {n:'PayVia', t:'IMEL', sh:.07}, {n:'Cassa Adriatica', t:'Banca', sh:.06}, {n:'Banca Popolare del Mincio', t:'Banca', sh:.05}, {n:'Delta Pay', t:'Istituto di pagamento', sh:.04},
+];
+const QI = [ {k:'Disponibilità', s:99.5, dir:1, u:'%'}, {k:'Tempo risposta', s:3.0, dir:-1, u:'s'}, {k:'Esiti positivi', s:95.0, dir:1, u:'%'},
+             {k:'Ricevute nei tempi', s:99.0, dir:1, u:'%'}, {k:'Rendicont. puntuale', s:98.0, dir:1, u:'%'} ];
+const QI_VAL = [
+  [99.96,1.4,96.8,99.7,99.4],[99.91,1.9,97.9,99.5,98.9],[99.82,2.2,95.6,99.2,98.4],[99.95,1.6,96.2,99.6,99.1],[99.41,3.4,94.1,98.6,97.2],
+  [99.88,2.1,95.9,99.3,98.6],[99.73,2.6,95.2,98.8,98.1],[99.93,1.8,96.4,99.4,99.0],[99.62,2.9,94.6,99.1,97.6],[99.21,3.8,93.4,97.9,96.8] ];
+
+const QTR = [ {q:'T4 2025', fat:112.4, dop:.82, inc:1.12, eur:24.1}, {q:'T1 2026', fat:109.6, dop:.71, inc:.98, eur:22.9},
+              {q:'T2 2026', fat:118.3, dop:.58, inc:.86, eur:25.4}, {q:'T3 2026', fat:115.9, dop:.47, inc:.74, eur:24.8} ];
+
+const POS_ORIG = [ {k:'GPD', c:'--s1', sh:.61}, {k:'ACA', c:'--s2', sh:.17}, {k:'WISP (legacy)', c:'--s3', sh:.08}, {k:'Gestione propria EC', c:'--s4', sh:.14} ];
+const POS_OPEN = [58.2,59.1,61.0,63.4,62.0,61.3,60.8,61.9,62.7,63.0,63.8,64.1,64.6]; // milioni aperte (stock)
+const POS_PAID_M = [23.9,25.0,27.6,26.1,23.0,24.8,23.6,25.7,27.2,25.9,19.1,23.6,25.2]; // milioni pagate nel mese
+const POS_NEW_M  = [25.1,25.9,29.5,28.5,21.6,24.1,23.1,26.8,28.0,26.2,19.9,23.9,25.7];
+const SCAD = [ {w:'1 dic',v:2.9},{w:'8 dic',v:2.1},{w:'15 dic',v:3.6},{w:'22 dic',v:1.4},{w:'29 dic',v:4.8},{w:'5 gen',v:1.7},{w:'12 gen',v:1.5},{w:'19 gen',v:1.9} ];
+const AREE = [ {k:'Nord-Ovest', v:.29, pag:71.2}, {k:'Nord-Est', v:.19, pag:74.6}, {k:'Centro', v:.24, pag:66.0}, {k:'Sud', v:.20, pag:55.3}, {k:'Isole', v:.08, pag:57.9} ];
+
+/* ───────────────────────── stato e utilità ───────────────────────── */
+const S = { route:'panoramica', period:'mese', tipo:'tutti' };
+try { const t = localStorage.getItem('pn-tipo'), p = localStorage.getItem('pn-period'); if (t && TIPI[t]) S.tipo = t; if (p) S.period = p; } catch(e) {}
+
+const nf = (d=0) => new Intl.NumberFormat('it-IT', {minimumFractionDigits:d, maximumFractionDigits:d});
+const fmt = (v,d=0) => nf(d).format(v);
+const pct = (v,d=1) => fmt(v,d) + '%';
+const mld = v => v >= 1 ? fmt(v, v >= 100 ? 0 : 1) + ' mld €' : fmt(v*1000,0) + ' mln €';
+const mln = v => v >= 1 ? fmt(v, v >= 100 ? 0 : 1) + ' mln' : fmt(v*1000,0) + ' mila';
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function idx() { return S.period === 'mese' ? [12] : S.period === 'trim' ? [10,11,12] : [3,4,5,6,7,8,9,10,11,12]; }
+function idxPrev() { return S.period === 'mese' ? [0] : S.period === 'trim' ? [-2,-1,0] : null; }
+function periodLabel() { return S.period === 'mese' ? 'ottobre 2026' : S.period === 'trim' ? 'ago–ott 2026' : 'gen–ott 2026'; }
+function tf() { return TIPI[S.tipo].f; }
+function ds() { return TIPI[S.tipo].ds; }
+function sum(arr, ii) { return ii.reduce((a,i) => a + arr[i], 0); }
+// confronto anno precedente: usiamo le serie *_PREV allineate agli stessi indici
+function yoy(cur, prevArr, ii) { const p = sum(prevArr, ii); return (cur/p - 1) * 100; }
+function delta(v, inverse=false, suffix='% a/a', d=1) {
+  const good = inverse ? v < 0 : v > 0; const cls = Math.abs(v) < 0.05 ? 'flat' : good ? 'up' : 'down';
+  return `<span class="delta ${cls}">${v>0?'+':''}${fmt(v,d)}${suffix}</span>`;
+}
+function srcLine(t) { return `<div class="src">Fonte: ${t}</div>`; }
+
+/* tooltip */
+const tip = $('#tip');
+function showTip(html, x, y) { tip.innerHTML = html; tip.hidden = false; const r = tip.getBoundingClientRect();
+  let left = x + 14, top = y + 14; if (left + r.width > innerWidth - 8) left = x - r.width - 14; if (top + r.height > innerHeight - 8) top = y - r.height - 14;
+  tip.style.left = Math.max(8,left) + 'px'; tip.style.top = Math.max(8,top) + 'px'; }
+function hideTip() { tip.hidden = true; }
+document.addEventListener('mousemove', e => { const t = e.target.closest('[data-tip]'); if (t && !t.closest('.chart-x')) showTip(t.dataset.tip, e.clientX, e.clientY); else if (!e.target.closest('.chart-x')) hideTip(); });
+
+/* ───────────────────────── grafici SVG ───────────────────────── */
+function sparkline(vals, color, w=86, h=28) {
+  const mn = Math.min(...vals), mx = Math.max(...vals), r = (mx - mn) || 1;
+  const pts = vals.map((v,i) => [i*(w-4)/(vals.length-1)+2, h-3-(v-mn)/r*(h-8)]);
+  const d = pts.map((p,i) => (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const last = pts[pts.length-1];
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="${d} L${w-2} ${h} L2 ${h}Z" fill="${color}" opacity=".10"/><path d="${d}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linejoin="round"/><circle cx="${last[0]}" cy="${last[1]}" r="2.6" fill="${color}"/></svg>`;
+}
+function niceMax(v) { const p = Math.pow(10, Math.floor(Math.log10(v))); const n = v/p; const st = [1,1.2,1.6,2,2.4,3,4,5,6,8,10]; return st.find(x => x >= n - 1e-9)*p; }
+
+// linee: serie con la stessa unità (es. anno corrente vs precedente)
+function lineChart(el, {labels, series, fmtV, h=240, yfmt}) {
+  const W = Math.max(el.clientWidth, 280), H = h, L = 52, R = 14, T = 12, B = 26;
+  const all = series.flatMap(s => s.values); const mx = niceMax(Math.max(...all)*1.05); const mn = 0;
+  const x = i => L + i*(W-L-R)/(labels.length-1); const y = v => T + (1-(v-mn)/(mx-mn))*(H-T-B);
+  let g = '';
+  for (let k=0;k<=4;k++){ const v = mn + (mx-mn)*k/4; g += `<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${(yfmt||fmtV)(v)}</text>`; }
+  const step = W < 520 ? 3 : W < 760 ? 2 : 1;
+  labels.forEach((lb,i) => { if (i % step === 0 || i === labels.length-1) g += `<text x="${x(i)}" y="${H-6}" text-anchor="middle">${lb}</text>`; });
+  series.forEach(s => {
+    const d = s.values.map((v,i) => (i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
+    if (s.area) g += `<path d="${d} L${x(s.values.length-1)} ${y(0)} L${x(0)} ${y(0)}Z" fill="var(${s.c})" opacity=".08"/>`;
+    g += `<path d="${d}" fill="none" stroke="var(${s.c})" stroke-width="2" ${s.dash?'stroke-dasharray="4 4"':''} stroke-linejoin="round" stroke-linecap="round"/>`;
+    const li = s.values.length-1; if (!s.dash) g += `<circle cx="${x(li)}" cy="${y(s.values[li])}" r="4" fill="var(${s.c})" stroke="var(--surface)" stroke-width="2"/>`;
+  });
+  g += `<line class="xh" x1="0" x2="0" y1="${T}" y2="${H-B}" stroke="var(--border-strong)" visibility="hidden"/>`;
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img">${g}<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" class="hit"/></svg>`;
+  el.classList.add('chart-x');
+  const svg = el.querySelector('svg'), xh = svg.querySelector('.xh'), hit = svg.querySelector('.hit');
+  hit.addEventListener('mousemove', e => { const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) * W / r.width;
+    const i = Math.max(0, Math.min(labels.length-1, Math.round((px-L)/((W-L-R)/(labels.length-1)))));
+    xh.setAttribute('x1', x(i)); xh.setAttribute('x2', x(i)); xh.setAttribute('visibility','visible');
+    showTip(`<b>${labels[i]}</b>` + series.map(s => `<div class="row"><span><i style="background:var(${s.c})"></i>${s.name}</span><span>${fmtV(s.values[i])}</span></div>`).join(''), e.clientX, e.clientY); });
+  hit.addEventListener('mouseleave', () => { xh.setAttribute('visibility','hidden'); hideTip(); });
+}
+
+// barre verticali impilate (stessa unità)
+function stackChart(el, {labels, series, fmtV, h=240, hl, yfmt}) {
+  const W = Math.max(el.clientWidth, 280), H = h, L = 52, R = 8, T = 12, B = 26;
+  const tot = labels.map((_,i) => series.reduce((a,s) => a + s.values[i], 0));
+  const mx = niceMax(Math.max(...tot)*1.05); const y = v => T + (1 - v/mx)*(H-T-B);
+  const bw = (W-L-R)/labels.length; const w = Math.max(6, bw*0.62);
+  let g = '';
+  for (let k=0;k<=4;k++){ const v = mx*k/4; g += `<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${(yfmt||(v=>fmt(v,0)))(v)}</text>`; }
+  const step = labels.length <= 8 ? 1 : W < 520 ? 3 : W < 760 ? 2 : 1;
+  labels.forEach((lb,i) => {
+    const cx = L + bw*i + bw/2; let acc = 0;
+    series.forEach((s,si) => { const v = s.values[i]; const y0 = y(acc), y1 = y(acc+v); acc += v;
+      const top = si === series.length-1; const hgt = Math.max(0, y0 - y1 - (si>0?2:0));
+      const yy = y1;
+      g += top ? `<path d="M${cx-w/2} ${yy+hgt} V${yy+4} q0 -4 4 -4 H${cx+w/2-4} q4 0 4 4 V${yy+hgt}Z" fill="var(${s.c})" ${hl!=null&&hl!==i?'opacity=".45"':''}/>`
+               : `<rect x="${cx-w/2}" y="${yy}" width="${w}" height="${hgt}" fill="var(${s.c})" ${hl!=null&&hl!==i?'opacity=".45"':''}/>`;
+    });
+    const tipHtml = `<b>${lb}</b>` + series.map(s => `<div class=row><span><i style=background:var(${s.c})></i>${s.name}</span><span>${fmtV(s.values[i])}</span></div>`).join('') + `<div class=row><span>Totale</span><span>${fmtV(tot[i])}</span></div>`;
+    g += `<rect x="${L+bw*i}" y="${T}" width="${bw}" height="${H-T-B}" fill="transparent" data-tip="${esc(tipHtml)}"/>`;
+    if (i % step === 0 || i === labels.length-1) g += `<text x="${cx}" y="${H-6}" text-anchor="middle">${lb}</text>`;
+  });
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img">${g}</svg>`;
+}
+
+function hbars(items, {fmtV, color='--s1', click, sub}) {
+  const mx = Math.max(...items.map(d => d.v));
+  return `<div class="hbars">` + items.map((d,i) => `<button type="button" class="hbar" ${click?`data-ente="${d.id}"`:''} data-tip="${esc(`<b>${d.n}</b><div class=row><span>Valore</span><span>${fmtV(d.v)}</span></div>${d.extra||''}`)}">
+      <span class="rk">${String(i+1).padStart(2,'0')}</span>
+      <span class="nm">${esc(d.n)}${sub?`<small>${esc(sub(d))}</small>`:''}</span>
+      <span class="track"><span class="fill" style="display:block;width:${(d.v/mx*100).toFixed(1)}%;background:var(${color})"></span></span>
+      <span class="v">${fmtV(d.v)}</span></button>`).join('') + `</div>`;
+}
+function stack100(parts) {
+  return `<div class="stack100">` + parts.map(p => `<div style="width:${(p.v*100).toFixed(2)}%;background:var(${p.c})" data-tip="${esc(`<b>${p.k}</b><div class=row><span>Quota</span><span>${pct(p.v*100)}</span></div>${p.extra||''}`)}"></div>`).join('') + `</div>`;
+}
+function legend(items) { return `<div class="legend">` + items.map(d => `<span><i class="${d.line?'line':''}" style="background:var(${d.c})${d.dash?';opacity:.8':''}"></i>${d.k}</span>`).join('') + `</div>`; }
+
+/* ───────────────────────── calcoli condivisi ───────────────────────── */
+function trxStats() {
+  const ii = idx(), f = tf();
+  const n = sum(TRX, ii)*f, e = sum(EUR, ii)*f, neg = sum(NEG, ii)*f;
+  const succ = Math.min(99, n/(n+neg)*100 + ds());
+  return { n, e, neg, succ, tk: e*1000/n * (1 + ds()*0.05),
+    yN: yoy(sum(TRX,ii), TRX_PREV, ii), yE: yoy(sum(EUR,ii), EUR_PREV, ii) };
+}
+function entiF() { return ENTI.filter(e => S.tipo === 'tutti' || e.t === S.tipo); }
+function pmul() { return S.period === 'mese' ? 1 : S.period === 'trim' ? 2.96 : 10.1; }
+function posStats() {
+  const f = tf(); const open = POS_OPEN[12]*f; const ii = idx();
+  return { open, due: open*0.198, paid: sum(POS_PAID_M, ii)*f, nw: sum(POS_NEW_M, ii)*f,
+           rate: 68.4 + ds()*6, scad30: SCAD.slice(0,4).reduce((a,d)=>a+d.v,0)*f };
+}
+function qiStats() {
+  const rows = PSP.map((p,i) => { const v = QI_VAL[i]; const ok = v.map((x,k) => QI[k].dir>0 ? x >= QI[k].s : x <= QI[k].s); return {...p, v, ok, nOk: ok.filter(Boolean).length}; });
+  return { rows, conf: rows.filter(r => r.nOk === QI.length).length };
+}
+function qiCls(x, k) { const q = QI[k]; const ok = q.dir>0 ? x >= q.s : x <= q.s; if (ok) { const margin = q.dir>0 ? x - q.s : q.s - x; return margin < (q.u==='s'?0.3:0.2) ? 'near' : 'ok'; } return 'ko'; }
+
+/* ───────────────────────── pagine ───────────────────────── */
+const PAGES = {};
+
+PAGES.panoramica = () => {
+  const t = trxStats(), p = posStats(), q = qiStats(), ii = idx();
+  const lastQ = QTR[3]; const anom = lastQ.dop + lastQ.inc;
+  const top = entiF().map(e => ({ id:e.id, n:e.n, v: e.trx*e.tk/1e6 * pmul(), t:e.t })).sort((a,b)=>b.v-a.v).slice(0,10);
+  const tpParts = TP.map(d => ({ k:d.k, c:d.c, v: ii.reduce((a,i)=>a+d.share[i]*TRX[i],0)/sum(TRX,ii) }));
+  return `
+  <div class="page-h"><div class="eyebrow">Vista direzione · ${periodLabel()} · ${TIPI[S.tipo].n}</div>
+    <h1>Come sta andando la piattaforma</h1>
+    <p>Le cinque entità della lavagna “pagoPA by the numbers” in un colpo d’occhio. Ogni tessera porta alla sua sezione; i numeri sono dimostrativi.</p></div>
+
+  <div class="grid g-kpi six">
+    ${kpi('Transato', mld(t.e), delta(t.yE), 'transazioni', sparkline(EUR, cssv('--s1')))}
+    ${kpi('Transazioni', mln(t.n), delta(t.yN), 'transazioni', sparkline(TRX, cssv('--s1')))}
+    ${kpi('Tasso di successo', pct(t.succ), delta(t.succ - 93.1 - ds(), false, ' pt a/a'), 'transazioni', sparkline(SUCC, cssv('--s3')))}
+    ${kpi('Posizioni aperte', mln(p.open), `<span>${pct(p.rate)} pagate in tempo</span>`, 'posizioni', sparkline(POS_OPEN, cssv('--s2')))}
+    ${kpi('Anomalie fatturazione', pct(anom,2), delta(anom - (QTR[2].dop+QTR[2].inc), true, ' pt t/t', 2), 'fatturazione', '')}
+    ${kpi('PSP conformi QI', `${q.conf}<small>/ ${PSP.length}</small>`, `<span>${PSP.length - q.conf} sotto soglia</span>`, 'qualita-psp', '')}
+  </div>
+
+  <div class="grid g-2">
+    <section class="card"><div class="card-h"><h2>Transato mensile</h2><span class="sub">ultimi 13 mesi, miliardi di euro</span>
+      <div class="right">${legend([{k:'2025–26', c:'--s1', line:1},{k:'anno precedente', c:'--s-prev', line:1, dash:1}])}</div></div>
+      <div class="chart" id="c-trend"></div>${srcLine('F_TRANSAZIONE · AGG_TRX_GIORNO, esito positivo')}</section>
+    <section class="card"><div class="card-h"><h2>Da guardare</h2><span class="sub">segnali calcolati sulle soglie</span></div>
+      <div class="signals">
+        <a class="signal" href="#qualita-psp"><span class="bar" style="background:var(--bad)"></span><div><b>${PSP.length - q.conf} PSP sotto soglia QI</b><span>Delta Pay e Nexo Pagamenti mancano disponibilità e tempi di risposta.</span></div></a>
+        <a class="signal" href="#posizioni"><span class="bar" style="background:var(--warn)"></span><div><b>${mln(SCAD[4].v*tf())} posizioni in scadenza a fine anno</b><span>Picco nella settimana 29 dic – 4 gen: tributi e bollo auto.</span></div></a>
+        <a class="signal" href="#fatturazione"><span class="bar" style="background:var(--good)"></span><div><b>Anomalie di fatturazione in calo da 4 trimestri</b><span>Doppie e incomplete scese da 1,94% a ${pct(anom,2)}.</span></div></a>
+        <a class="signal" href="#transazioni"><span class="bar" style="background:var(--accent)"></span><div><b>IO sale al ${pct(TP[0].share[12]*100)} delle transazioni</b><span>+4,5 punti in un anno, a scapito dei portali degli enti.</span></div></a>
+      </div></section>
+  </div>
+
+  <div class="grid g-2">
+    <section class="card"><div class="card-h"><h2>Top 10 enti per transato</h2><span class="sub">${periodLabel()} · clic per il dettaglio dell’ente</span></div>
+      ${top.length ? hbars(top, {fmtV: mld, click:true, sub: d => TIPI[d.t].n}) : '<p class="foot-note">Nessun ente per questa tipologia.</p>'}
+      ${srcLine('drill-across F_TRANSAZIONE × DIM_ENTE')}</section>
+    <section class="card"><div class="card-h"><h2>Da dove pagano i cittadini</h2><span class="sub">quota di transazioni per touchpoint</span></div>
+      <div class="mixrows">
+        <div class="mixrow"><div class="lab"><span>${periodLabel()}</span><span>${mln(t.n)}</span></div>${stack100(tpParts)}</div>
+        <div class="mixrow"><div class="lab"><span>stesso periodo 2025</span><span></span></div>${stack100(TP.map(d=>({k:d.k,c:d.c,v:d.share[0] - (d.k==='IO'?.035:d.k==='Portale EC'?-.012:d.k==='Checkout'?-.008:0) + (d.k==='Canale PSP'?.015:0)})))}</div>
+        ${legend(TP)}
+      </div>
+      <div style="height:18px"></div>
+      <div class="card-h"><h2>Come pagano</h2><span class="sub">famiglia di metodo</span></div>
+      <div class="mixrows">${stack100(MET.map(m=>({k:m.k,c:m.c,v:m.sh})))}${legend(MET.map(m=>({k:m.k,c:m.c})))}</div>
+      ${srcLine('F_TRANSAZIONE × DIM_TOUCHPOINT, DIM_FAMIGLIA_METODO')}</section>
+  </div>`;
+};
+PAGES.panoramica.after = () => {
+  lineChart($('#c-trend'), { labels: MONTHS, fmtV: v => fmt(v,1)+' mld €', yfmt: v => fmt(v,0),
+    series: [ {name:'anno precedente', c:'--s-prev', dash:1, values: EUR_PREV.map(v=>+(v*tf()).toFixed(2))}, {name:'2025–26', c:'--s1', area:1, values: EUR.map(v=>+(v*tf()).toFixed(2))} ] });
+};
+function kpi(label, val, foot, route, spark) {
+  return `<a class="card kpi clickable" href="#${route}" style="text-decoration:none"><span class="label">${label}</span><span class="val">${val}</span><span class="foot">${foot}${spark}</span></a>`;
+}
+
+PAGES.transazioni = () => {
+  const t = trxStats(), ii = idx();
+  const pspRows = PSP.map((p,i) => ({...p, n: t.n*p.sh, succ: QI_VAL[i][2] + ds()*.3 })).sort((a,b)=>b.n-a.n);
+  return `
+  <div class="page-h"><div class="eyebrow">Fatto F_TRANSAZIONE · ${periodLabel()} · ${TIPI[S.tipo].n}</div>
+    <h1>Transazioni</h1><p>Ogni tentativo di pagamento concluso, positivo o negativo. Lette per touchpoint, metodo, esito e PSP, come chiede la lavagna.</p></div>
+  <div class="grid g-kpi">
+    ${kpi('Transato', mld(t.e), delta(t.yE), 'transazioni', '')}
+    ${kpi('Transazioni positive', mln(t.n), delta(t.yN), 'transazioni', '')}
+    ${kpi('Transazioni negative', mln(t.neg), `<span>${pct(100-t.succ)} dei tentativi</span>`, 'transazioni', '')}
+    ${kpi('Ticket medio', fmt(t.tk,0)+' €', delta(2.4), 'transazioni', '')}
+  </div>
+  <section class="card"><div class="card-h"><h2>Positive e negative per mese</h2><span class="sub">milioni di transazioni</span>
+    <div class="right">${legend([{k:'Positive',c:'--s1'},{k:'Negative',c:'--s2'}])}</div></div>
+    <div class="chart" id="c-posneg"></div>${srcLine('AGG_TRX_GIORNO × DIM_CLASSE_ESITO')}</section>
+  <div class="grid g-2e">
+    <section class="card"><div class="card-h"><h2>Per touchpoint</h2><span class="sub">volume e tasso di successo</span></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Touchpoint</th><th class="n">Transazioni</th><th class="n">Quota</th><th class="n">Successo</th></tr></thead><tbody>
+      ${TP.map(d => { const sh = ii.reduce((a,i)=>a+d.share[i]*TRX[i],0)/sum(TRX,ii); const sc = TP_SUCC[d.k] + ds()*.4;
+        return `<tr><td><span class="legend"><span><i style="background:var(${d.c})"></i>${d.k}</span></span></td><td class="n">${mln(t.n*sh)}</td><td class="n">${pct(sh*100)}</td><td class="n"><span class="pill ${sc>=95?'good':sc>=92?'warn':'bad'}">${pct(sc)}</span></td></tr>`; }).join('')}
+      </tbody></table></div>${srcLine('DIM_TOUCHPOINT ← gec:touchpoints')}</section>
+    <section class="card"><div class="card-h"><h2>Per metodo di pagamento</h2><span class="sub">famiglia di metodo</span></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Famiglia</th><th class="n">Transazioni</th><th class="n">Transato</th><th class="n">Successo</th></tr></thead><tbody>
+      ${MET.map(m => `<tr><td><span class="legend"><span><i style="background:var(${m.c})"></i>${m.k}</span></span></td><td class="n">${mln(t.n*m.sh)}</td><td class="n">${mld(t.e*m.sh*(m.k==='Sportello e contanti'?.7:m.k==='Conto / bonifico'?1.25:1))}</td><td class="n"><span class="pill ${m.succ>=95?'good':m.succ>=92?'warn':'bad'}">${pct(m.succ)}</span></td></tr>`).join('')}
+      </tbody></table></div>${srcLine('DIM_METODO_PAGAMENTO ← gec:paymenttypes')}</section>
+  </div>
+  <div class="grid g-2e">
+    <section class="card"><div class="card-h"><h2>Perché falliscono</h2><span class="sub">categorie di errore sulle negative</span></div>
+      ${hbars(ERR.map(e=>({n:e.k, v:t.neg*e.sh})), {fmtV: mln, color:'--s2'})}${srcLine('DIM_ESITO → categoria errore')}</section>
+    <section class="card"><div class="card-h"><h2>PSP per volume</h2><span class="sub">primi 10 · nomi di fantasia</span></div>
+      <div class="tbl-wrap"><table><thead><tr><th>PSP</th><th>Tipologia</th><th class="n">Transazioni</th><th class="n">Successo</th></tr></thead><tbody>
+      ${pspRows.map(r => `<tr><td>${r.n}</td><td style="color:var(--text-dim)">${r.t}</td><td class="n">${mln(r.n)}</td><td class="n"><span class="pill ${r.succ>=95?'good':r.succ>=94?'warn':'bad'}">${pct(r.succ)}</span></td></tr>`).join('')}
+      </tbody></table></div>${srcLine('DIM_PSP → tipologia PSP')}</section>
+  </div>`;
+};
+PAGES.transazioni.after = () => {
+  const ii = idx();
+  stackChart($('#c-posneg'), { labels: MONTHS, fmtV: v => fmt(v,1)+' mln', hl: ii.length===13?null:undefined,
+    series: [ {name:'Positive', c:'--s1', values: TRX.map(v=>v*tf())}, {name:'Negative', c:'--s2', values: NEG.map(v=>v*tf())} ] });
+};
+
+PAGES.posizioni = () => {
+  const p = posStats();
+  const top = entiF().map(e => ({ id:e.id, n:e.n, v:e.pos/1000, t:e.t, extra:`<div class=row><span>Pagate</span><span>${pct(e.pag)}</span></div>` })).sort((a,b)=>b.v-a.v).slice(0,10);
+  return `
+  <div class="page-h"><div class="eyebrow">Fatto F_POSIZIONE_DEBITORIA · fotografia al 24/11/2026 · ${TIPI[S.tipo].n}</div>
+    <h1>Posizioni debitorie</h1><p>Quanto è stato chiesto ai cittadini e quanto è stato pagato. Lo stock è una fotografia giornaliera; i flussi (nuove, pagate) seguono il periodo scelto.</p></div>
+  <div class="grid g-kpi">
+    ${kpi('Posizioni aperte', mln(p.open), delta(2.6, true, '% m/m'), 'posizioni', sparkline(POS_OPEN, cssv('--s2')))}
+    ${kpi('Importo da incassare', mld(p.due), `<span>valore delle posizioni aperte</span>`, 'posizioni', '')}
+    ${kpi('Pagate nel periodo', mln(p.paid), `<span>${mln(p.nw)} nuove create</span>`, 'posizioni', '')}
+    ${kpi('In scadenza entro 30 giorni', mln(p.scad30), `<span>ruolo “data scadenza”</span>`, 'posizioni', '')}
+  </div>
+  <div class="grid g-2e">
+    <section class="card"><div class="card-h"><h2>Pagate e non pagate</h2><span class="sub">posizioni con scadenza nel periodo</span></div>
+      <div class="mixrows">
+        <div class="mixrow"><div class="lab"><span>Macro-stato</span><span>${pct(p.rate)} pagate</span></div>${stack100([{k:'Pagata',c:'--s3',v:p.rate/100},{k:'Non pagata, scaduta',c:'--s2',v:(100-p.rate)*.62/100},{k:'Annullata',c:'--s4',v:(100-p.rate)*.38/100}])}
+        ${legend([{k:'Pagata',c:'--s3'},{k:'Non pagata, scaduta',c:'--s2'},{k:'Annullata',c:'--s4'}])}</div>
+        <div class="mixrow"><div class="lab"><span>Sistema di gestione</span><span>GPD ${pct(POS_ORIG[0].sh*100,0)} · ACA ${pct(POS_ORIG[1].sh*100,0)}</span></div>${stack100(POS_ORIG.map(o=>({k:o.k,c:o.c,v:o.sh,extra:`<div class=row><span>Posizioni</span><span>${mln(p.open*o.sh)}</span></div>`})))}
+        ${legend(POS_ORIG)}</div>
+      </div>${srcLine('DIM_STATO_POSIZIONE, DIM_ORIGINE_POSIZIONE ← gpd:payment-position')}</section>
+    <section class="card"><div class="card-h"><h2>Calendario delle scadenze</h2><span class="sub">prossime 8 settimane (dal lunedì indicato), milioni di posizioni</span></div>
+      <div class="chart" id="c-scad"></div>${srcLine('F_POSIZIONE_DEBITORIA, ruolo data scadenza')}</section>
+  </div>
+  <section class="card"><div class="card-h"><h2>Stock e flussi</h2><span class="sub">milioni di posizioni</span>
+    <div class="right">${legend([{k:'Nuove nel mese',c:'--s1'},{k:'Pagate nel mese',c:'--s3'}])}</div></div>
+    <div class="grid g-2e" style="gap:24px"><div class="chart" id="c-flow"></div>
+    <div><div class="eyebrow">Tasso di pagamento per area</div>${hbars(AREE.map(a=>({n:a.k, v:a.pag, extra:`<div class=row><span>Quota posizioni</span><span>${pct(a.v*100,0)}</span></div>`})), {fmtV: v=>pct(v), color:'--s3'})}</div></div>
+    ${srcLine('AGG_POSIZIONI_GIORNO × DIM_ENTE → regione → area geografica')}</section>
+  <section class="card"><div class="card-h"><h2>Top 10 enti per posizioni aperte</h2><span class="sub">clic per il dettaglio dell’ente</span></div>
+    ${top.length ? hbars(top.map(d=>({...d, v:d.v*1000})), {fmtV: v=>mln(v/1000), color:'--s2', click:true, sub:d=>TIPI[d.t].n}) : '<p class="foot-note">Nessun ente per questa tipologia.</p>'}
+    ${srcLine('F_POSIZIONE_DEBITORIA × DIM_ENTE')}</section>`;
+};
+PAGES.posizioni.after = () => {
+  stackChart($('#c-scad'), { labels: SCAD.map(d=>d.w), fmtV: v=>fmt(v,1)+' mln', yfmt: v=>fmt(v,1), h:220, hl:4, series:[{name:'In scadenza', c:'--s2', values: SCAD.map(d=>d.v*tf())}] });
+  lineChart($('#c-flow'), { labels: MONTHS, fmtV: v=>fmt(v,1)+' mln', yfmt: v=>fmt(v,0), h:220,
+    series:[{name:'Nuove nel mese', c:'--s1', values: POS_NEW_M.map(v=>v*tf())},{name:'Pagate nel mese', c:'--s3', values: POS_PAID_M.map(v=>v*tf())}] });
+};
+
+PAGES.fatturazione = () => {
+  const q = QTR[3], f = tf(); const anom = q.dop + q.inc; const danno = q.eur*1000*anom/100*0.31*f;
+  const lamp = anom < 1.5 ? ['good','Sotto soglia','Anomalie sotto l’1,5% concordato'] : anom < 2.5 ? ['warn','Attenzione','Anomalie tra 1,5% e 2,5%'] : ['bad','Fuori soglia','Anomalie oltre il 2,5%'];
+  const byPsp = PSP.map((p,i) => ({...p, fat: q.fat*p.sh*f, dop: q.dop*(0.5+i*0.13), inc: q.inc*(0.6+((i*7)%5)*0.18)})).map(r=>({...r, a:r.dop+r.inc})).sort((a,b)=>b.a-a.a);
+  return `
+  <div class="page-h"><div class="eyebrow">Fatto F_FATTURAZIONE · trimestre di competenza · ${TIPI[S.tipo].n}</div>
+    <h1>Fatturazione</h1><p>Le transazioni che entrano nel perimetro di fatturazione, trimestre per trimestre, con i warning della lavagna: transazioni doppie e incomplete e il loro controvalore.</p></div>
+  <div class="grid g-kpi">
+    ${kpi('Transazioni fatturabili · T3 2026', mln(q.fat*f), delta((q.fat/QTR[2].fat-1)*100, false, '% t/t'), 'fatturazione', '')}
+    ${kpi('Controvalore corretto', mld(q.eur*f*(1-anom/100)), `<span>transazioni valide</span>`, 'fatturazione', '')}
+    ${kpi('Transazioni doppie', pct(q.dop,2), delta(q.dop-QTR[2].dop, true, ' pt t/t', 2), 'fatturazione', '')}
+    ${kpi('Transazioni incomplete', pct(q.inc,2), delta(q.inc-QTR[2].inc, true, ' pt t/t', 2), 'fatturazione', '')}
+  </div>
+  <div class="grid g-2">
+    <section class="card"><div class="card-h"><h2>Trend trimestrale</h2><span class="sub">milioni di transazioni fatturabili, per qualità del record</span>
+      <div class="right">${legend([{k:'Corrette',c:'--s1'},{k:'Doppie',c:'--s2'},{k:'Incomplete',c:'--s4'}])}</div></div>
+      <div class="chart" id="c-qtr"></div><div class="foot-note">Doppie e incomplete ingrandite ×6 per renderle visibili; i valori nel tooltip sono quelli ingranditi.</div>${srcLine('AGG_FATTURAZIONE_TRIMESTRE × DIM_QUALITA_RECORD ← biz:gold:invoicing-payments')}</section>
+    <section class="card"><div class="card-h"><h2>Semaforo qualità</h2><span class="sub">T3 2026</span></div>
+      <div class="traffic"><div class="lamp" style="background:var(--${lamp[0]}-soft);color:var(--${lamp[0]})">${lamp[0]==='good'?'✓':'!'}</div>
+        <div><b>${lamp[1]}</b><div style="color:var(--text-dim);font-size:13px">${lamp[2]}. Anomalie totali ${pct(anom,2)}.</div></div></div>
+      <div style="height:16px"></div>
+      <div class="card" style="box-shadow:none;background:var(--subtle)"><div class="kpi"><span class="label">Controvalore esposto (“danno”)</span><span class="val">${fmt(danno,0)}<small>mln €</small></span>
+      <span class="foot">Valore dei record doppi o incompleti. <b style="color:var(--warn);font-weight:500">Definizione da confermare.</b></span></div></div>
+      <p class="foot-note">Il controllo dei doppioni usa le regole del DQF del Hub, dominio BIZ.</p></section>
+  </div>
+  <section class="card"><div class="card-h"><h2>Anomalie per PSP</h2><span class="sub">T3 2026 · ordinati per incidenza</span></div>
+    <div class="tbl-wrap"><table><thead><tr><th>PSP</th><th class="n">Fatturabili</th><th class="n">Doppie</th><th class="n">Incomplete</th><th class="n">Totale anomalie</th></tr></thead><tbody>
+    ${byPsp.map(r => `<tr><td>${r.n}</td><td class="n">${mln(r.fat)}</td><td class="n">${pct(r.dop,2)}</td><td class="n">${pct(r.inc,2)}</td><td class="n"><span class="pill ${r.a<1.5?'good':r.a<2.5?'warn':'bad'}">${pct(r.a,2)}</span></td></tr>`).join('')}
+    </tbody></table></div>${srcLine('F_FATTURAZIONE × DIM_PSP')}</section>`;
+};
+PAGES.fatturazione.after = () => {
+  const f = tf();
+  stackChart($('#c-qtr'), { labels: QTR.map(d=>d.q), fmtV: v=>fmt(v,1)+' mln', h:240, series: [
+    {name:'Corrette', c:'--s1', values: QTR.map(d=>d.fat*(1-(d.dop+d.inc)/100)*f)},
+    {name:'Doppie', c:'--s2', values: QTR.map(d=>d.fat*d.dop/100*f*6)},
+    {name:'Incomplete', c:'--s4', values: QTR.map(d=>d.fat*d.inc/100*f*6)} ] });
+};
+
+PAGES['qualita-psp'] = () => {
+  const q = qiStats(); const worst = [...q.rows].sort((a,b)=>a.nOk-b.nOk || a.v[2]-b.v[2]).slice(0,5);
+  const cols = `minmax(130px,1.4fr) repeat(${QI.length}, minmax(70px,1fr))`;
+  return `
+  <div class="page-h"><div class="eyebrow">Fatto F_KPI_PSP · ottobre 2026 · fonte QI</div>
+    <h1>Qualità dei PSP</h1><p>I KPI di Quality Improvement per ciascun PSP, confrontati con la soglia. Verde: rispettata con margine. Giallo: rispettata di poco. Rosso: mancata. I nomi dei PSP sono di fantasia.</p></div>
+  <div class="grid g-kpi">
+    ${kpi('PSP conformi su tutti i KPI', `${q.conf}<small>/ ${PSP.length}</small>`, delta(1, false, ' vs set', 0), 'qualita-psp', '')}
+    ${kpi('Disponibilità media pesata', pct(99.81,2), `<span>soglia 99,50%</span>`, 'qualita-psp', '')}
+    ${kpi('Tempo di risposta medio', fmt(2.1,1)+' s', `<span>soglia 3,0 s</span>`, 'qualita-psp', '')}
+    ${kpi('KPI mancati nel mese', String(q.rows.reduce((a,r)=>a+QI.length-r.nOk,0)), `<span>su ${PSP.length*QI.length} misure</span>`, 'qualita-psp', '')}
+  </div>
+  <section class="card"><div class="card-h"><h2>Matrice PSP × KPI</h2><span class="sub">valore del mese; soglia nell’intestazione</span>
+    <div class="right">${legend([{k:'Con margine',c:'--good'},{k:'Al limite',c:'--warn'},{k:'Sotto soglia',c:'--bad'}])}</div></div>
+    <div class="tbl-wrap"><div class="heat" style="grid-template-columns:${cols};min-width:560px">
+      <div class="hh" style="text-align:left">PSP</div>${QI.map(k=>`<div class="hh">${k.k}<br>${k.dir>0?'≥':'≤'} ${fmt(k.s,k.u==='s'?1:1)}${k.u==='s'?' s':'%'}</div>`).join('')}
+      ${q.rows.map(r => `<div class="hn">${r.n}</div>` + r.v.map((x,k) => { const c = qiCls(x,k);
+        return `<div class="hc ${c}" data-tip="${esc(`<b>${r.n}</b><div class=row><span>${QI[k].k}</span><span>${fmt(x, QI[k].u==='s'?1:2)}${QI[k].u==='s'?' s':'%'}</span></div><div class=row><span>Soglia</span><span>${QI[k].dir>0?'≥':'≤'} ${fmt(QI[k].s,1)}</span></div>`)}">${c==='ko'?'✕ ':''}${fmt(x, QI[k].u==='s'?1:(x>=99?2:1))}</div>`; }).join('')).join('')}
+    </div></div>${srcLine('AGG_KPI_PSP_MESE ← observability:psp-kpi-gold')}</section>
+  <div class="grid g-2e">
+    <section class="card"><div class="card-h"><h2>I 5 PSP da seguire</h2><span class="sub">meno KPI rispettati</span></div>
+      <div class="tbl-wrap"><table><thead><tr><th>PSP</th><th>Tipologia</th><th class="n">KPI rispettati</th></tr></thead><tbody>
+      ${worst.map(r=>`<tr><td>${r.n}</td><td style="color:var(--text-dim)">${r.t}</td><td class="n"><span class="pill ${r.nOk===QI.length?'good':r.nOk>=3?'warn':'bad'}">${r.nOk} / ${QI.length}</span></td></tr>`).join('')}
+      </tbody></table></div></section>
+    <section class="card"><div class="card-h"><h2>Esiti positivi nel tempo</h2><span class="sub">media pesata sui volumi, %</span></div>
+      <div class="chart" id="c-qi"></div>${srcLine('F_KPI_PSP, media pesata su n_eventi')}</section>
+  </div>`;
+};
+PAGES['qualita-psp'].after = () => {
+  lineChart($('#c-qi'), { labels: MONTHS, fmtV: v=>pct(v), yfmt: v=>fmt(v,0), h:200,
+    series:[{name:'Esiti positivi', c:'--s3', area:1, values: SUCC.map(v=>v+1.4)}] });
+};
+
+PAGES.rendicontazione = () => `
+  <div class="page-h"><div class="eyebrow">Fatto F_RENDICONTAZIONE · fase 2</div>
+    <h1>Rendicontazione e differenze incassi</h1><p>Sulla lavagna quest’area ha il punto di domanda. Qui mostriamo come apparirebbe: incassato contro rendicontato nei Flussi di Rendicontazione, per ente e per PSP.</p></div>
+  <div class="banner"><span class="pill accent">Fase 2</span><div><b>Da decidere insieme</b><span>Serve confermare il perimetro e l’accesso ai flussi FdR (fdr:payments, fdr:overwrites). I numeri qui sotto sono solo un’anteprima grafica.</span></div></div>
+  <div class="phase2"><div class="veil grid" style="gap:16px">
+    <div class="grid g-kpi">
+      ${kpi('Incassato', '8,6 mld €', '<span>da F_TRANSAZIONE</span>', 'rendicontazione', '')}
+      ${kpi('Rendicontato', '8,5 mld €', '<span>da FdR</span>', 'rendicontazione', '')}
+      ${kpi('Differenza', '41 mln €', '<span>0,48% dell’incassato</span>', 'rendicontazione', '')}
+      ${kpi('Ritardo medio di rendicontazione', '1,6 gg', '<span>pagamento → flusso</span>', 'rendicontazione', '')}
+    </div>
+    <section class="card"><div class="card-h"><h2>Pagamenti non riconciliati per PSP</h2><span class="sub">anteprima</span></div>
+      ${hbars(PSP.slice(0,6).map((p,i)=>({n:p.n, v:[0.21,0.34,0.62,0.18,0.95,0.44][i]})), {fmtV:v=>pct(v,2), color:'--s4'})}</section>
+  </div></div>`;
+
+PAGES.modello = () => `
+  <div class="page-h"><div class="eyebrow">Come funziona</div>
+    <h1>Dal data lake alla vista del Direttore</h1><p>Il modello dimensionale (DFM, schema a fiocco di neve) che sta dietro a ogni numero di queste pagine. Cinque fatti, dimensioni condivise, aggregati letti dal QA Hub.</p></div>
+  <section class="card"><div class="card-h"><h2>Il flusso dei dati</h2></div>
+    <div class="flow">
+      <div class="box"><b>Data contract</b><span>biz:gold, gpd, gec, observability, fdr</span></div><div class="arr">→</div>
+      <div class="box"><b>Data Lake pagoPA</b><span>fatti a grana fine, dimensioni SCD2</span></div><div class="arr">→</div>
+      <div class="box"><b>Aggregati</b><span>AGG_TRX_GIORNO, AGG_POSIZIONI_GIORNO, AGG_FATTURAZIONE_TRIMESTRE, AGG_KPI_PSP_MESE</span></div><div class="arr">→</div>
+      <div class="box"><b>QA Hub</b><span>questa vista, aggiornata D-1, nessun dato personale</span></div>
+    </div></section>
+  <section class="card"><div class="card-h"><h2>I cinque fatti</h2><span class="sub">uno per area della lavagna</span></div>
+    <div class="facts">
+      <div class="fact"><h3>F_TRANSAZIONE</h3><p>Una riga per tentativo di pagamento concluso.</p><ul><li>n_transazioni, importo_eur, commissione_eur</li><li>Data, Ente, PSP, Touchpoint, Metodo, Esito, Servizio</li></ul></div>
+      <div class="fact"><h3>F_POSIZIONE_DEBITORIA</h3><p>Fotografia giornaliera delle posizioni.</p><ul><li>n_posizioni, importo_dovuto, importo_pagato</li><li>Data (snapshot e scadenza), Ente, Origine, Stato</li></ul></div>
+      <div class="fact"><h3>F_FATTURAZIONE</h3><p>Transazioni fatturabili per trimestre.</p><ul><li>fatturabili, doppie, incomplete, controvalore</li><li>Trimestre, PSP, Ente, Qualità record</li></ul></div>
+      <div class="fact"><h3>F_KPI_PSP</h3><p>Valore dei KPI QI per PSP e periodo.</p><ul><li>valore, soglia, n_eventi, conforme</li><li>Data, PSP, KPI</li></ul></div>
+      <div class="fact" style="border-style:dashed"><h3>F_RENDICONTAZIONE <span class="pill accent">fase 2</span></h3><p>Incassato contro rendicontato nei FdR.</p><ul><li>differenza_eur, non riconciliati, ritardo</li><li>Data, PSP, Ente</li></ul></div>
+    </div></section>
+  <section class="card"><div class="card-h"><h2>Dimensioni condivise</h2><span class="sub">le stesse per tutti i fatti, così si può passare da un’entità all’altra</span></div>
+    <div class="tbl-wrap"><table class="bus"><thead><tr><th>Fatto</th><th>Data</th><th>Ente</th><th>PSP</th><th>Touchpoint</th><th>Metodo</th><th>Esito</th><th>Servizio</th><th>Origine</th><th>Stato</th><th>Qualità</th><th>KPI</th></tr></thead><tbody>
+    ${[['F_TRANSAZIONE',[1,1,1,1,1,1,1,0,0,0,0]],['F_POSIZIONE_DEBITORIA',[1,1,0,0,0,0,1,1,1,0,0]],['F_FATTURAZIONE',[1,1,1,1,0,0,0,0,0,1,0]],['F_KPI_PSP',[1,0,1,0,0,0,0,0,0,0,1]],['F_RENDICONTAZIONE',[1,1,1,0,0,0,0,0,0,0,0]]]
+      .map(([f,r]) => `<tr><td class="mono">${f}</td>${r.map(x=>`<td>${x?'<span class="dot" aria-label="sì"></span>':''}</td>`).join('')}</tr>`).join('')}
+    </tbody></table></div>
+    <p class="foot-note">Gerarchie: Data → mese → trimestre → anno · Ente → tipologia, e Ente → comune → provincia → regione → area · PSP → gruppo bancario e tipologia · Esito → categoria errore → classe.</p></section>
+  <div class="grid g-2e">
+    <section class="card"><div class="card-h"><h2>Percorso proposto</h2></div>
+      <div class="steps">
+        <div class="step now"><b>Ora · mockup</b><span>Allineare con il Direttore pagine, KPI e soglie.</span></div>
+        <div class="step"><b>Fase 1 · 4 fatti</b><span>Transazioni, posizioni, fatturazione, QI PSP sugli aggregati D-1.</span></div>
+        <div class="step"><b>Fase 2 · rendicontazione</b><span>FdR e differenze incassi, se confermata.</span></div>
+        <div class="step"><b>Poi · segnali</b><span>Avvisi automatici dal Messaging Hub quando una soglia salta.</span></div>
+      </div></section>
+    <section class="card"><div class="card-h"><h2>Cosa ci serve decidere</h2></div>
+      <ol class="qlist">
+        <li><b>Rendicontazione</b> nel primo rilascio o in fase 2?</li>
+        <li><b>“Danno”</b> in fatturazione: controvalore dei record anomali o un importo economico diverso?</li>
+        <li><b>Anagrafica enti</b>: tipologia e comune da SelfCare o da IPA?</li>
+        <li><b>Frequenza</b>: il dato a D-1 è sufficiente?</li>
+        <li><b>Soglie</b> del semaforo fatturazione e dei segnali in panoramica.</li>
+      </ol></section>
+  </div>`;
+
+/* ───────────────────────── drawer ente (drill-across) ───────────────────────── */
+function openEnte(id) {
+  const e = ENTI.find(x => x.id === id); if (!e) return;
+  const trend = SEAS.map((s,i) => e.trx*s*(1+i*0.011)/1000);
+  const d = $('#drawer');
+  d.innerHTML = `
+    <div class="drawer-h"><div><div class="eyebrow">${TIPI[e.t].n} · ${esc(e.r)}</div><h2>${esc(e.n)}</h2><p>Stesso ente letto su tre fatti diversi grazie alla dimensione Ente condivisa.</p></div>
+      <button type="button" class="xbtn" id="xclose" aria-label="Chiudi">✕</button></div>
+    <div class="mini">
+      <div class="card kpi"><span class="label">Transato · ott 2026</span><span class="val">${mld(e.trx*e.tk/1e6)}</span><span class="foot">${mln(e.trx/1000)} di transazioni</span></div>
+      <div class="card kpi"><span class="label">Ticket medio</span><span class="val">${fmt(e.tk,0)} €</span><span class="foot">media piattaforma 213 €</span></div>
+      <div class="card kpi"><span class="label">Posizioni aperte</span><span class="val">${mln(e.pos/1000)}</span><span class="foot">${mld(e.due/1000)} da incassare</span></div>
+      <div class="card kpi"><span class="label">Pagate entro scadenza</span><span class="val">${pct(e.pag)}</span><span class="foot"><span class="pill ${e.pag>=70?'good':e.pag>=55?'warn':'bad'}">${e.pag>=70?'sopra':e.pag>=55?'vicino alla':'sotto la'} media</span></span></div>
+    </div>
+    <section><div class="card-h"><h2>Transazioni per mese</h2><span class="sub">milioni</span></div><div class="chart" id="c-ente"></div></section>
+    <section><div class="card-h"><h2>Posizioni per sistema di gestione</h2></div>
+      ${stack100([{k:'GPD',c:'--s1',v:e.gpd*.85},{k:'ACA',c:'--s2',v:e.gpd*.15},{k:'Gestione propria EC',c:'--s4',v:1-e.gpd}])}
+      <div style="height:8px"></div>${legend([{k:'GPD',c:'--s1'},{k:'ACA',c:'--s2'},{k:'Gestione propria EC',c:'--s4'}])}</section>
+    <div class="banner"><span class="pill accent">Fase 2</span><div><b>Rendicontazione dell’ente</b><span>Qui comparirebbero differenze incassi e flussi in ritardo per questo ente.</span></div></div>
+    <p class="foot-note">Dati dimostrativi.</p>`;
+  d.hidden = false; $('#scrim').hidden = false;
+  lineChart($('#c-ente'), { labels: MONTHS, fmtV: v=>fmt(v,2)+' mln', yfmt: v=>fmt(v,1), h:180, series:[{name:'Transazioni', c:'--s1', area:1, values: trend}] });
+  $('#xclose').focus();
+}
+function closeEnte() { $('#drawer').hidden = true; $('#scrim').hidden = true; }
+$('#scrim').addEventListener('click', closeEnte);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEnte(); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-ente]'); if (b) openEnte(b.dataset.ente); if (e.target.closest('#xclose')) closeEnte(); });
+
+/* ───────────────────────── router ───────────────────────── */
+const TITLES = { panoramica:'Panoramica', transazioni:'Transazioni', posizioni:'Posizioni debitorie', fatturazione:'Fatturazione', 'qualita-psp':'Qualità PSP', rendicontazione:'Rendicontazione', modello:'Come funziona' };
+function render() {
+  const r = (location.hash || '#panoramica').slice(1); S.route = PAGES[r] ? r : 'panoramica';
+  $('#page').innerHTML = PAGES[S.route]();
+  PAGES[S.route].after && PAGES[S.route].after();
+  $('#crumb').textContent = TITLES[S.route];
+  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('active', a.dataset.r === S.route));
+  document.querySelectorAll('#period button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.p === S.period)));
+  $('#tipo').value = S.tipo;
+  const filt = !['modello','rendicontazione','qualita-psp'].includes(S.route);
+  $('#period').style.visibility = filt ? '' : 'hidden'; $('#tipo').style.visibility = filt ? '' : 'hidden';
+  hideTip();
+}
+let lastRoute = null;
+window.addEventListener('hashchange', () => { render(); if (lastRoute !== S.route) window.scrollTo(0,0); lastRoute = S.route; closeEnte(); });
+$('#period').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.period = b.dataset.p; try { localStorage.setItem('pn-period', S.period); } catch(_) {} render(); });
+$('#tipo').addEventListener('change', e => { S.tipo = e.target.value; try { localStorage.setItem('pn-tipo', S.tipo); } catch(_) {} render(); });
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { PAGES[S.route].after && PAGES[S.route].after(); }, 150); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', render);
+render(); lastRoute = S.route;
+</script>
+</body>
+</html>
