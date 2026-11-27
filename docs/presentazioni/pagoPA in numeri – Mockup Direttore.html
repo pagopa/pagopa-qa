@@ -582,14 +582,14 @@ PAGES.transazioni = () => {
     <div class="right">${legend([{k:'Positive',c:'--s1'},{k:'Negative',c:'--s2'}])}</div></div>
     <div class="chart" id="c-posneg"></div>${srcLine('AGG_TRX_GIORNO × DIM_CLASSE_ESITO')}</section>
   <div class="grid g-2e">
-    <section class="card"><div class="card-h"><h2>Per touchpoint</h2><span class="sub">volume e tasso di successo</span></div>
-      <div class="tbl-wrap"><table><thead><tr><th>Touchpoint</th><th class="n">Transazioni</th><th class="n">Quota</th><th class="n">Successo</th></tr></thead><tbody>
-      ${TP.map(d => { const sh = ii.reduce((a,i)=>a+d.share[i]*TRX[i],0)/sum(TRX,ii); const sc = TP_SUCC[d.k] + ds()*.4;
-        return `<tr><td><span class="legend"><span><i style="background:var(${d.c})"></i>${d.k}</span></span></td><td class="n">${mln(t.n*sh)}</td><td class="n">${pct(sh*100)}</td><td class="n"><span class="pill ${sc>=95?'good':sc>=92?'warn':'bad'}">${pct(sc)}</span></td></tr>`; }).join('')}
+    <section class="card"><div class="card-h"><h2>Per touchpoint</h2><span class="sub">volume</span></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Touchpoint</th><th class="n">Transazioni</th><th class="n">Quota</th></tr></thead><tbody>
+      ${TP.map(d => { const sh = ii.reduce((a,i)=>a+d.share[i]*TRX[i],0)/sum(TRX,ii); 
+        return `<tr><td><span class="legend"><span><i style="background:var(${d.c})"></i>${d.k}</span></span></td><td class="n">${mln(t.n*sh)}</td><td class="n">${pct(sh*100)}</td></tr>`; }).join('')}
       </tbody></table></div>${srcLine('DIM_TOUCHPOINT ← gec:touchpoints')}</section>
     <section class="card"><div class="card-h"><h2>Per metodo di pagamento</h2><span class="sub">famiglia di metodo</span></div>
-      <div class="tbl-wrap"><table><thead><tr><th>Famiglia</th><th class="n">Transazioni</th><th class="n">Transato</th><th class="n">Successo</th></tr></thead><tbody>
-      ${MET.map(m => `<tr><td><span class="legend"><span><i style="background:var(${m.c})"></i>${m.k}</span></span></td><td class="n">${mln(t.n*m.sh)}</td><td class="n">${mld(t.e*m.sh*(m.k==='Sportello e contanti'?.7:m.k==='Conto / bonifico'?1.25:1))}</td><td class="n"><span class="pill ${m.succ>=95?'good':m.succ>=92?'warn':'bad'}">${pct(m.succ)}</span></td></tr>`).join('')}
+      <div class="tbl-wrap"><table><thead><tr><th>Famiglia</th><th class="n">Transazioni</th><th class="n">Transato</th></thead><tbody>
+      ${MET.map(m => `<tr><td><span class="legend"><span><i style="background:var(${m.c})"></i>${m.k}</span></span></td><td class="n">${mln(t.n*m.sh)}</td><td class="n">${mld(t.e*m.sh*(m.k==='Sportello e contanti'?.7:m.k==='Conto / bonifico'?1.25:1))}</td></tr>`).join('')}
       </tbody></table></div>${srcLine('DIM_METODO_PAGAMENTO ← gec:paymenttypes')}</section>
   </div>
   <div class="grid g-2e">
@@ -632,9 +632,8 @@ PAGES.posizioni = () => {
   </div>
   <section class="card"><div class="card-h"><h2>Stock e flussi</h2><span class="sub">milioni di posizioni</span>
     <div class="right">${legend([{k:'Nuove nel mese',c:'--s1'},{k:'Pagate nel mese',c:'--s3'}])}</div></div>
-    <div class="grid g-2e" style="gap:24px"><div class="chart" id="c-flow"></div>
-    <div><div class="eyebrow">Tasso di pagamento per area</div>${hbars(AREE.map(a=>({n:a.k, v:a.pag, extra:`<div class=row><span>Quota posizioni</span><span>${pct(a.v*100,0)}</span></div>`})), {fmtV: v=>pct(v), color:'--s3'})}</div></div>
-    ${srcLine('AGG_POSIZIONI_GIORNO × DIM_ENTE → regione → area geografica')}</section>
+    <div style="gap:24px"><div class="chart" id="c-flow"></div>
+    </section>
   <section class="card"><div class="card-h"><h2>Top 10 enti per posizioni aperte</h2><span class="sub">clic per il dettaglio dell’ente</span></div>
     ${top.length ? hbars(top.map(d=>({...d, v:d.v*1000})), {fmtV: v=>mln(v/1000), color:'--s2', click:true, sub:d=>TIPI[d.t].n}) : '<p class="foot-note">Nessun ente per questa tipologia.</p>'}
     ${srcLine('F_POSIZIONE_DEBITORIA × DIM_ENTE')}</section>`;
@@ -813,7 +812,7 @@ function render(r) {
   document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('active', a.dataset.r === S.route));
   document.querySelectorAll('#period button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.p === S.period)));
   $('#tipo').value = S.tipo;
-  const filt = !['modello','rendicontazione','qualita-psp'].includes(S.route);
+  const filt = !['modello','rendicontazione','qualita-psp','fatturazione'].includes(S.route);
   $('#period').style.visibility = filt ? '' : 'hidden'; $('#tipo').style.visibility = filt ? '' : 'hidden';
   hideTip();
 }
